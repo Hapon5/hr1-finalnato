@@ -176,6 +176,14 @@ if (!$user || $user['Account_type'] !== '1') {
             padding: 25px;
             border-radius: 12px;
             box-shadow: var(--shadow-subtle);
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+        
+        .chart-container canvas {
+            max-height: 250px !important;
+            max-width: 100% !important;
         }
         .chart-container h3 {
             text-align: center;
@@ -222,6 +230,10 @@ if (!$user || $user['Account_type'] !== '1') {
             }
             .chart-container {
                 padding: 20px;
+                height: 280px;
+            }
+            .chart-container canvas {
+                max-height: 220px !important;
             }
         }
         
@@ -251,6 +263,10 @@ if (!$user || $user['Account_type'] !== '1') {
             }
             .chart-container {
                 padding: 15px;
+                height: 250px;
+            }
+            .chart-container canvas {
+                max-height: 200px !important;
             }
         }
         
@@ -376,8 +392,22 @@ if (!$user || $user['Account_type'] !== '1') {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
+                    aspectRatio: 2,
+                    plugins: { 
+                        legend: { display: false } 
+                    },
+                    scales: { 
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } }
+                    },
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10
+                        }
+                    }
                 }
             }, {
                 elementId: 'newHiresChart',
@@ -386,8 +416,22 @@ if (!$user || $user['Account_type'] !== '1') {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
+                    aspectRatio: 2,
+                    plugins: { 
+                        legend: { display: false } 
+                    },
+                    scales: { 
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } }
+                    },
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10
+                        }
+                    }
                 }
             }, {
                 elementId: 'applicantSourceChart',
@@ -396,7 +440,27 @@ if (!$user || $user['Account_type'] !== '1') {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top' } }
+                    aspectRatio: 1.5,
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 10,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        } 
+                    },
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10
+                        }
+                    }
                 }
             }, {
                 elementId: 'hiringByDeptChart',
@@ -405,8 +469,22 @@ if (!$user || $user['Account_type'] !== '1') {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
+                    aspectRatio: 2,
+                    plugins: { 
+                        legend: { display: false } 
+                    },
+                    scales: { 
+                        y: { beginAtZero: true },
+                        x: { grid: { display: false } }
+                    },
+                    layout: {
+                        padding: {
+                            top: 10,
+                            bottom: 10,
+                            left: 10,
+                            right: 10
+                        }
+                    }
                 }
             }];
             
