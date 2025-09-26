@@ -1,26 +1,42 @@
 <?php
 session_start();
 
-// Robust include path for Connections.php
-$connectionsPath = __DIR__ . DIRECTORY_SEPARATOR . 'Connections.php';
-if (!file_exists($connectionsPath)) {
-    $connectionsPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Connections.php';
-}
-require_once $connectionsPath; // provides $Connections (PDO)
+// === Reliable Connections.php Include ===
+// Tries multiple common locations
+$pathsToTry = [
+    __DIR__ . '/Connections.php',
+    __DIR__ . '/../Connections.php',
+    __DIR__ . '/includes/Connections.php'
+];
 
-// Backward compatibility for str_starts_with
+$connectionsIncluded = false;
+foreach ($pathsToTry as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+        $connectionsIncluded = true;
+        break;
+    }
+}
+
+if (!$connectionsIncluded || !isset($Connections)) {
+    die("Critical Error: Unable to load database connection.");
+}
+
+// === PHP 7 Compatibility: str_starts_with ===
 if (!function_exists('str_starts_with')) {
     function str_starts_with($haystack, $needle) {
         return $needle !== '' && substr($haystack, 0, strlen($needle)) === $needle;
     }
 }
 
+// === Initialize Variables ===
 $Email = $Password = "";
 $EmailErr = $passwordErr = "";
 $loginError = "";
 
+// === Handle Form Submission ===
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Sanitize and validate email
+    // Validate Email
     if (empty($_POST["Email"])) {
         $EmailErr = "Email is required";
     } else {
@@ -30,14 +46,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    // Validate password
+    // Validate Password
     if (empty($_POST["Password"])) {
         $passwordErr = "Password is required";
     } else {
         $Password = trim($_POST["Password"]);
     }
 
-    // If inputs are valid, attempt login
+    // If valid, try logging in
     if (empty($EmailErr) && empty($passwordErr)) {
         try {
             $stmt = $Connections->prepare("
@@ -50,31 +66,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user) {
-                $dbPassword = (string)$user['Password'];
-                $dbAccountType = (string)$user['Account_type'];
+                $dbPassword = $user['Password'];
+                $accountType = $user['Account_type'];
                 $passwordMatches = false;
 
                 if (!empty($dbPassword)) {
+                    // Check hashed password or fallback to plaintext match (legacy)
                     if (strlen($dbPassword) > 20 && str_starts_with($dbPassword, '$')) {
-                        // Hashed password
                         $passwordMatches = password_verify($Password, $dbPassword);
                     } else {
-                        // Plaintext (not recommended)
-                        $passwordMatches = hash_equals((string)$dbPassword, (string)$Password);
+                        $passwordMatches = hash_equals($dbPassword, $Password);
                     }
                 }
 
                 if ($passwordMatches) {
+                    // Login successful
                     session_regenerate_id(true);
                     $_SESSION['Email'] = $user['Email'];
-                    $_SESSION['Account_type'] = $dbAccountType;
+                    $_SESSION['Account_type'] = $accountType;
 
-                    if ($dbAccountType === '1') {
-                        header('Location: admin.php');
-                    } else {
-                        header('Location: landing.php');
-                    }
-                    exit();
+                    header('Location: ' . ($accountType === '1' ? 'admin.php' : 'landing.php'));
+                    exit;
                 } else {
                     $passwordErr = "Incorrect password";
                 }
@@ -87,6 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+
 
     
 <!DOCTYPE html>
