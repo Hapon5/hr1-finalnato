@@ -2,7 +2,7 @@
 // FIX: Using the direct filename is the correct and reliable method when 
 // Connections.php is in the same directory as landing.php.
 // This resolves the 'No such file or directory' warning by simplifying the path.
-include_once 'Connections.php';
+include_once '../HR1/Connections.php';
 ?>
 
 <!DOCTYPE html>
