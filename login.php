@@ -150,8 +150,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 font-sans relative" style="background-image: url('crane.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
-    <!-- Background Overlay -->
-    <div class="absolute inset-0 bg-gradient-to-br from-brand-500/80 to-brand-600/80"></div>
 
     <div class="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in z-10">
         <div class="flex flex-col lg:flex-row min-h-[600px]">
