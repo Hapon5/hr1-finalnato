@@ -1,15 +1,17 @@
 <?php
-// Safe include of the Connections.php file
-$connectionsPath = __DIR__ . '/hr1/Connections.php';
+// Define the path to Connections.php - adjust this if needed
+$connectionsPath = __DIR__ . '/Connections.php'; // <-- update this path if your file is in a subfolder like 'hr1/Connections.php'
+
 if (file_exists($connectionsPath)) {
     include_once $connectionsPath;
 } else {
-    // Optional: Log the missing file for developers (not shown to users)
-    error_log("Connections.php not found in: " . $connectionsPath);
-    // Optionally stop the script or continue without DB
-    // die("Critical system error: Missing configuration.");
+    // Log error for admins but don't show to users
+    error_log("Connections.php not found at: $connectionsPath");
+    // Optional: stop script execution if DB connection is critical
+    // die("System error: configuration file missing.");
 }
 ?>
+
     <!DOCTYPE html>
     <html lang="en">
     <head>
