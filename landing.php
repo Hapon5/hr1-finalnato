@@ -43,7 +43,7 @@
                 <li><a href="aboutus.php" class="text-white/90 hover:text-white transition">About Us</a></li>
                 <li><a href="#contact" class="text-white/90 hover:text-white transition">Contact</a></li>
             </ul>
-            <a href="/HR1/login.php" class="ml-6 hidden rounded-full bg-white px-5 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100 md:inline-block">Login</a>
+            <a href="HR1/login.php" class="ml-6 hidden rounded-full bg-white px-5 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100 md:inline-block">Login</a>
         </nav>
         <!-- Mobile menu -->
         <div id="mobileMenu" class="hidden md:hidden">
@@ -53,7 +53,7 @@
                     <li><a href="#modules" class="block rounded px-3 py-2 text-white hover:bg-white/10">Modules</a></li>
                     <li><a href="aboutus.php" class="block rounded px-3 py-2 text-white hover:bg-white/10">About Us</a></li>
                     <li><a href="#contact" class="block rounded px-3 py-2 text-white hover:bg-white/10">Contact</a></li>
-                    <li><a href="/HR1/login.php" class="mt-2 inline-block rounded-full bg-white px-5 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100">Login</a></li>
+                    <li><a href="/hr1/login.php" class="mt-2 inline-block rounded-full bg-white px-5 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100">Login</a></li>
                 </ul>
             </div>
         </div>
@@ -68,7 +68,7 @@
             <h1 class="text-4xl font-bold leading-tight md:text-5xl">Streamline Your HR Operations</h1>
             <p class="mt-4 text-lg/relaxed text-white/90">Comprehensive Human Resources Management System designed to simplify recruitment, performance management, and the entire employee lifecycle.</p>
             <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-                <a href="/HR1/login.php" class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-lg font-semibold text-brand-500 shadow transition hover:-translate-y-0.5 hover:bg-gray-100">
+                <a href="/hr1/login.php" class="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-lg font-semibold text-brand-500 shadow transition hover:-translate-y-0.5 hover:bg-gray-100">
                     <i class="fas fa-sign-in-alt"></i>
                     Get Started
                 </a>
