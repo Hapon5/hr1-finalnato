@@ -1,6 +1,6 @@
 <?php
 // Define the path to Connections.php - adjust this if needed
-$connectionsPath = __DIR__ . '/Connections.php'; // <-- update this path if your file is in a subfolder like 'hr1/Connections.php'
+include_once 'hr1/Connections.php';
 
 if (file_exists($connectionsPath)) {
     include_once $connectionsPath;
