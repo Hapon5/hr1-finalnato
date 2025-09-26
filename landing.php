@@ -1,6 +1,6 @@
 <?php
 // Safe include of the Connections.php file
-$connectionsPath = __DIR__ . '../Connections.php';
+$connectionsPath = __DIR__ . '/hr1/Connections.php';
 if (file_exists($connectionsPath)) {
     include_once $connectionsPath;
 } else {
