@@ -136,9 +136,12 @@ if (!$user || $user['Account_type'] !== '1') {
             flex-grow: 1;
             padding: 20px 30px;
             transition: margin-left 0.3s ease;
+            max-width: calc(100vw - 260px);
+            overflow-x: hidden;
         }
         .sidebar.close ~ .main-content {
             margin-left: 78px;
+            max-width: calc(100vw - 78px);
         }
         .top-navbar {
             display: flex;
@@ -163,8 +166,10 @@ if (!$user || $user['Account_type'] !== '1') {
         }
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 100%;
+            overflow-x: hidden;
         }
         .chart-container {
             background-color: var(--background-card);
@@ -203,6 +208,23 @@ if (!$user || $user['Account_type'] !== '1') {
         }
 
         /* --- Media Queries for Responsiveness --- */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 15px;
+            }
+            .chart-container {
+                padding: 20px;
+            }
+        }
+        
         @media (max-width: 768px) {
             .sidebar {
                 position: static;
@@ -225,6 +247,22 @@ if (!$user || $user['Account_type'] !== '1') {
             }
             .dashboard-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .chart-container {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+            .chart-container {
+                padding: 15px;
+            }
+            .dashboard-grid {
+                gap: 10px;
             }
         }
     </style>
