@@ -1,9 +1,3 @@
-<?php
-$connectionsPath = __DIR__ . '/Connections.php';
-if (file_exists($connectionsPath)) {
-    require_once $connectionsPath;
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -2,7 +2,7 @@
 $host = 'localhost';
 $dbname = 'hr1_hr1db';       // your database name
 $username = 'hr1_hr1db';     // your MySQL username
-$password = 'hr1_hr1db';     // your MySQL password
+$password = '123';     // your MySQL password
 
 try {
     // Create PDO instance
