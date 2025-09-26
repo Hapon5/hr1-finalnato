@@ -62,10 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 WHERE Email = :email 
                 LIMIT 1
             ");
-            $stmt->execute(['email' => $Email]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute(['email' => $Email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($user) {
+        if ($user) {
                 $dbPassword = $user['Password'];
                 $accountType = $user['Account_type'];
                 $passwordMatches = false;
@@ -303,7 +303,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>
                     </div>
                 </div>
-            </div>
+        </div>
         </div>
     </div>
 
