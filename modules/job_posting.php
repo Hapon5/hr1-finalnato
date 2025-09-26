@@ -107,72 +107,171 @@ try {
             }
         }
     </script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+        
+        :root {
+            --primary-color: #d37a15;
+            --secondary-color: #0a0a0a;
+            --background-light: #e7f2fd;
+            --background-card: #ffffff;
+            --text-dark: #333;
+            --text-light: #f4f4f4;
+            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            background-color: var(--background-light);
+            display: flex;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+        
+        /* --- Sidebar Styles --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+        .sidebar.close {
+            width: 78px;
+        }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-left: 10px;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar.close .sidebar-header h2 {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .sidebar-nav {
+            list-style: none;
+            flex-grow: 1;
+            padding-top: 20px;
+        }
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-dark);
+            background-color: var(--background-card);
+            transition: background-color 0.3s ease;
+        }
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        .sidebar-nav a i {
+            font-size: 20px;
+            margin-right: 15px;
+            min-width: 20px;
+            text-align: center;
+            transition: margin 0.3s ease;
+        }
+        .sidebar.close .sidebar-nav a i {
+            margin-right: 0;
+        }
+        .sidebar-nav a span {
+            transition: opacity 0.3s ease;
+        }
+        .sidebar.close .sidebar-nav a span {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px; /* Offset to clear the fixed sidebar */
+            flex-grow: 1;
+            padding: 20px 30px;
+            transition: margin-left 0.3s ease;
+            max-width: calc(100vw - 260px);
+            overflow-x: hidden;
+        }
+        .sidebar.close ~ .main-content {
+            margin-left: 78px;
+            max-width: calc(100vw - 78px);
+        }
+
+        /* --- Media Queries for Responsiveness --- */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px;
+            }
+            .sidebar-nav {
+                display: none;
+            }
+            .sidebar-header {
+                border-bottom: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-brand-500 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0" id="sidebar">
-        <div class="flex items-center justify-between h-16 px-6 bg-brand-600">
-            <div class="flex items-center">
-                <i class="fas fa-users text-white text-2xl mr-3"></i>
-                <h1 class="text-white text-xl font-bold">HR1</h1>
-            </div>
-            <button id="sidebar-close" class="text-white lg:hidden">
-                <i class="fas fa-times text-xl"></i>
-            </button>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <i class='bx bxs-user-detail' style='font-size: 2rem; color: #fff;'></i>
+            <h2>HR Admin</h2>
         </div>
-        
-        <div class="p-6">
-            <a href="../admin.php" class="flex items-center text-white hover:text-yellow-300 transition-colors mb-6">
-                <i class="fas fa-arrow-left mr-2"></i>
-                <span>Back to Dashboard</span>
-            </a>
-            
-            <nav class="space-y-2">
-                <a href="../modules/job_posting.php" class="flex items-center px-4 py-3 text-white bg-brand-600 rounded-lg">
-                    <i class="fas fa-bullhorn mr-3"></i>
-                    <span>Job Posting</span>
-                </a>
-                <a href="../candidate_sourcing_&_tracking.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-users mr-3"></i>
-                    <span>Candidates</span>
-                </a>
-                <a href="../Interviewschedule.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-calendar-alt mr-3"></i>
-                    <span>Interviews</span>
-                </a>
-                <a href="../performance_and_appraisals.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-star mr-3"></i>
-                    <span>Performance</span>
-                </a>
-                <a href="../Documentfiles.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-folder mr-3"></i>
-                    <span>Documents</span>
-                </a>
-                <a href="../aboutus.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-info-circle mr-3"></i>
-                    <span>About Us</span>
-                </a>
-                <a href="../logout.php" class="flex items-center px-4 py-3 text-white hover:bg-red-600 rounded-lg transition-colors">
-                    <i class="fas fa-sign-out-alt mr-3"></i>
-                    <span>Logout</span>
-                </a>
-            </nav>
-        </div>
-    </div>
+        <ul class="sidebar-nav">
+            <li><a href="../admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <li><a href="../modules/job_posting.php"><i class="fas fa-bullhorn"></i><span>Job Posting</span></a></li>
+            <li><a href="../candidate_sourcing_&_tracking.php"><i class="fas fa-users"></i><span>Candidates</span></a></li>
+            <li><a href="../Interviewschedule.php"><i class="fas fa-calendar-alt"></i><span>Interviews</span></a></li>
+            <li><a href="../modules/performance_and_appraisals.php"><i class="fas fa-user"></i><span>Performance Management</span></a></li>
+            <li><a href="../modules/recognition.php"><i class="fas fa-star"></i><span>Social Recognition</span></a></li>
+            <li><a href="../modules/learning.php"><i class="fas fa-envelope"></i><span>Compliance and Safety</span></a></li>
+            <li><a href="../aboutus.php"><i class="fas fa-search"></i><span>About Us</span></a></li>
+            <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+        </ul>
+    </nav>
 
     <!-- Main Content -->
-    <div class="lg:ml-64">
-        <!-- Top Navigation -->
-        <div class="bg-white shadow-sm border-b">
-            <div class="flex items-center justify-between px-6 py-4">
-                <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-900 lg:hidden">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-                <div class="flex items-center space-x-4">
-                    <span class="text-gray-600">Welcome, <?php echo htmlspecialchars($admin_email); ?></span>
-                </div>
-            </div>
+    <div class="main-content">
+        <div class="top-navbar">
+            <i class="fa-solid fa-bars menu-toggle"></i>
         </div>
+        <header class="dashboard-header">
+            <h1>Job Posting Management</h1>
+        </header>
 
         <!-- Page Content -->
         <div class="p-6">
@@ -402,17 +501,17 @@ try {
     </div>
 
     <script>
-        // Sidebar toggle
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebarClose = document.getElementById('sidebar-close');
-
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.remove('-translate-x-full');
+        // Sidebar and Logout Logic
+        const sidebar = document.querySelector(".sidebar");
+        const menuToggle = document.querySelector(".menu-toggle");
+        menuToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
         });
 
-        sidebarClose.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
+        document.getElementById("logout-link").addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = "../logout.php";
         });
 
         // Modal functionality

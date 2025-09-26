@@ -278,68 +278,167 @@ h1{
 </style>
   </head>
   <link rel="stylesheet" href="Dashboard.css" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+    
+    :root {
+        --primary-color: #d37a15;
+        --secondary-color: #0a0a0a;
+        --background-light: #e7f2fd;
+        --background-card: #ffffff;
+        --text-dark: #333;
+        --text-light: #f4f4f4;
+        --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+
+    body {
+        background-color: var(--background-light);
+        display: flex;
+        min-height: 100vh;
+        color: var(--text-dark);
+    }
+    
+    /* --- Sidebar Styles --- */
+    .sidebar {
+        width: 260px;
+        background-color: var(--primary-color);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+    }
+    .sidebar.close {
+        width: 78px;
+    }
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        color: var(--text-light);
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .sidebar-header h2 {
+        font-size: 1.5rem;
+        margin-left: 10px;
+        transition: opacity 0.3s ease;
+    }
+    .sidebar.close .sidebar-header h2 {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .sidebar-nav {
+        list-style: none;
+        flex-grow: 1;
+        padding-top: 20px;
+    }
+    .sidebar-nav li {
+        margin-bottom: 10px;
+    }
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--text-dark);
+        background-color: var(--background-card);
+        transition: background-color 0.3s ease;
+    }
+    .sidebar-nav a:hover {
+        background-color: rgba(255, 255, 255, 0.8);
+    }
+    .sidebar-nav a i {
+        font-size: 20px;
+        margin-right: 15px;
+        min-width: 20px;
+        text-align: center;
+        transition: margin 0.3s ease;
+    }
+    .sidebar.close .sidebar-nav a i {
+        margin-right: 0;
+    }
+    .sidebar-nav a span {
+        transition: opacity 0.3s ease;
+    }
+    .sidebar.close .sidebar-nav a span {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* --- Main Content --- */
+    .main-content {
+        margin-left: 260px; /* Offset to clear the fixed sidebar */
+        flex-grow: 1;
+        padding: 20px 30px;
+        transition: margin-left 0.3s ease;
+        max-width: calc(100vw - 260px);
+        overflow-x: hidden;
+    }
+    .sidebar.close ~ .main-content {
+        margin-left: 78px;
+        max-width: calc(100vw - 78px);
+    }
+
+    /* --- Media Queries for Responsiveness --- */
+    @media (max-width: 768px) {
+        .sidebar {
+            position: static;
+            width: 100%;
+            height: auto;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+        }
+        .sidebar-nav {
+            display: none;
+        }
+        .sidebar-header {
+            border-bottom: none;
+        }
+        .main-content {
+            margin-left: 0;
+            padding: 15px;
+        }
+    }
+  </style>
   <body>
     <nav class="sidebar">
-            <h2 id="h2">HR1</h2>
-      <div class="menu-content">
-        <ul class="menu-items">
-            
-            <ul class="menu-items submenu">
-              <div class="menu-title">
-              <i class='bx bx-arrow-back'></i>Back</div>
-              <li class="item1">
-                <a>EMPLOYEE MANAGEMENT</a>
-                <div class="dropdown-content">
-                  <a href="employee_database.php"><small>EMPLOYEE DATABASE</small></a>
-                  <a href="performance_and_appraisals.php"><small>PERFORMANCE & APPRAISALS</small></a>
-                </div>
-              </li>
-              <li class="item1">
-                <a>RECRUITMENT</a>
-                <div class="dropdown-content">
-                <a href="job_posting.php"><small>JOB POSTING</small></a>
-                <a href="candidate_sourcing_&_tracking.php"><small>CANDIDATE SOURCING & TRACKING</small></a>
-                <a href="interview_scheduling.php"><small>INTERVIEW SCHEDULING</small></a>
-                <a href="assessment_&_screening.php"><small>ASSESSMENT & SCREENING</small></a>
-                </div>
-                </li>
-              <li class="item1">
-                <a>APPLICANT MANAGEMENT</a>
-                <div class="dropdown-content">
-                  <a href="#"><small>RESUME PARSING & STORAGE</small></a>
-                  <a href="#"><small>COMMUNICATION & NOTIFICATIONS</small></a>
-                  <a href="#"><small>DOCUMENT MANAGEMENT</small></a>
-                </div>
-              </li>
-              <li class="item1">
-                <a>NEW HIRED ONBOARDING SYSTEM</a>
-                <div class="dropdown-content">
-                  <a href="#"><small>DIGITAL ONBOARDING PROCESS</small></a>
-                  <a href="#"><small>WELCOME KIT & ORIENTATION</small></a>
-                  <a href="#"><small>USER ACCOUNT & SETUP</small></a>
-                </div>
-              </li>
-              <li class="item1">
-                <a>RECRUITING ANALYTIC & REPORTING</a>
-                <div class="dropdown-content">
-                  <a href="#"><small>HIRING METRICS DASHBOARD</small></a>
-                  <a href="#"><small>RECRUITMENT FUNNEL & ANALYSIS</small></a>
-                  <a href="#"><small>RECRUITER PERFORMANCE TRACKING</small></a>
-                  <a href="#"><small>DIVERSITY & COMPLIANCE REPORT</small></a>
-                  <a href="#"><small>COST & BUDGET ANALYSIS</small></a>
-                </div>
-              </li>
-            </ul>
-          </li>
-            
+        <div class="sidebar-header">
+            <i class='bx bxs-user-detail' style='font-size: 2rem; color: #fff;'></i>
+            <h2>HR Admin</h2>
+        </div>
+        <ul class="sidebar-nav">
+            <li><a href="../admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <li><a href="../modules/job_posting.php"><i class="fas fa-bullhorn"></i><span>Job Posting</span></a></li>
+            <li><a href="../candidate_sourcing_&_tracking.php"><i class="fas fa-users"></i><span>Candidates</span></a></li>
+            <li><a href="../Interviewschedule.php"><i class="fas fa-calendar-alt"></i><span>Interviews</span></a></li>
+            <li><a href="../modules/performance_and_appraisals.php"><i class="fas fa-user"></i><span>Performance Management</span></a></li>
+            <li><a href="../modules/recognition.php"><i class="fas fa-star"></i><span>Social Recognition</span></a></li>
+            <li><a href="../modules/learning.php"><i class="fas fa-envelope"></i><span>Compliance and Safety</span></a></li>
+            <li><a href="../aboutus.php"><i class="fas fa-search"></i><span>About Us</span></a></li>
+            <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
-      </div>
     </nav>
-    <nav class="navbar">
-      <i class="fa-solid fa-bars" id="sidebar-close"></i>
-    </nav>
-    <main class="main">
-    <h1>Performance & Appraisals</h1>
+    <div class="main-content">
+        <div class="top-navbar">
+            <i class="fa-solid fa-bars menu-toggle"></i>
+        </div>
+        <header class="dashboard-header">
+            <h1>Performance & Appraisals</h1>
+        </header>
     <div class="employee-container">
 <div class="search-wrapper">
   <i class="fa fa-search search-icon"></i>
@@ -467,6 +566,19 @@ h1{
     </main>      
      <script src="Dashboard.js"></script>
      <script>
+        // Sidebar and Logout Logic
+        const sidebar = document.querySelector(".sidebar");
+        const menuToggle = document.querySelector(".menu-toggle");
+        menuToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
+
+        document.getElementById("logout-link").addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = "../logout.php";
+        });
+
       function openModal() {
         document.getElementById("employeeModal").style.display = "flex";
       }
