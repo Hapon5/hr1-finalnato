@@ -1,6 +1,19 @@
 <?php
 session_start();
-include("Connections.php"); // brings in $Connections (PDO object)
+
+// Robust include path for Connections.php across environments
+$connectionsPath = __DIR__ . DIRECTORY_SEPARATOR . 'Connections.php';
+if (!file_exists($connectionsPath)) {
+    $connectionsPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Connections.php';
+}
+require_once $connectionsPath; // provides $Connections (PDO)
+
+// PHP 7 compatibility for str_starts_with
+if (!function_exists('str_starts_with')) {
+    function str_starts_with($haystack, $needle) {
+        return $needle !== '' && substr($haystack, 0, strlen($needle)) === $needle;
+    }
+}
 
 $Email = $Password = "";
 $EmailErr = $passwordErr = "";
@@ -9,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($_POST["Email"])) {
         $EmailErr = "Email is required";
     } else {
-        $Email = trim($_POST["Email"]);
+        $Email = strtolower(trim($_POST["Email"]));
     }
 
     if (empty($_POST["Password"])) {
@@ -19,26 +32,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (empty($EmailErr) && empty($passwordErr)) {
-        $stmt = $Connections->prepare("SELECT * FROM logintbl WHERE Email = :email LIMIT 1");
+        $stmt = $Connections->prepare("SELECT Email, Password, Account_type FROM logintbl WHERE Email = :email LIMIT 1");
         $stmt->execute(['email' => $Email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user) {
-            $db_Password = $user["Password"];
-            $db_Account_type = $user["Account_type"];
+            $dbPassword = (string)$user['Password'];
+            $dbAccountType = (string)$user['Account_type'];
 
-            // NOTE: If you store hashed passwords, use password_verify()
-            if ($db_Password === $Password) {
-                $_SESSION['Email'] = $Email;
-                $_SESSION['Account_type'] = $db_Account_type;
-
-                if ($db_Account_type == "1") {
-                    header("Location: admin.php");
-                    exit();
+            $passwordMatches = false;
+            if (!empty($dbPassword)) {
+                // Support hashed passwords if used; fallback to plain match for current data
+                if (strlen($dbPassword) > 20 && str_starts_with($dbPassword, '$')) {
+                    $passwordMatches = password_verify($Password, $dbPassword);
                 } else {
-                    header("Location: user.php");
+                    $passwordMatches = hash_equals($dbPassword, $Password);
+                }
+            }
+
+            if ($passwordMatches) {
+                session_regenerate_id(true);
+                $_SESSION['Email'] = $user['Email'];
+                $_SESSION['Account_type'] = $dbAccountType;
+
+                if ($dbAccountType === '1') {
+                    header('Location: admin.php');
                     exit();
                 }
+                header('Location: landing.php');
+                exit();
             } else {
                 $passwordErr = "Incorrect Password";
             }
