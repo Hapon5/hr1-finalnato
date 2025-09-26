@@ -1,6 +1,6 @@
 <?php
 // FIX: Using the correct, plural filename 'Connections.php'
-include_once 'Connections.php';
+include_once '../hr1/Connections.php';
 
 // Check if the $Connections variable was successfully created by Connections.php
 // The rest of the page relies on this being true for any database interaction.
