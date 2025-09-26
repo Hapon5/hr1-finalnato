@@ -46,7 +46,7 @@
                 <li><a href="aboutus.php" class="text-white/90 hover:text-white transition duration-300">About Us</a></li>
                 <li><a href="#contact" class="text-white/90 hover:text-white transition duration-300">Contact</a></li>
             </ul>
-            <a href="login.php" class="ml-6 hidden rounded-full bg-white px-6 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100 transition duration-300 md:inline-block">
+            <a href="/HR1/login.php" class="ml-6 hidden rounded-full bg-white px-6 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100 transition duration-300 md:inline-block">
                 <i class="fas fa-sign-in-alt mr-2"></i>
                 Login
             </a>
