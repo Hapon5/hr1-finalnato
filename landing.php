@@ -225,7 +225,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 py-4 text-center text-sm text-gray-400">
-                <p>&copy; <?= date("Y") ?> HR1 System. All rights reserved.</p>
+                <p>&copy; 2024 HR1 System. All rights reserved.</p>
             </div>
         </div>
     </footer>
@@ -260,4 +260,3 @@
     </script>
 </body>
 </html>
-
