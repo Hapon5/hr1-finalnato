@@ -149,13 +149,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center p-4 font-sans">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 opacity-10">
-        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"grain\" width=\"100\" height=\"100\" patternUnits=\"userSpaceOnUse\"><circle cx=\"25\" cy=\"25\" r=\"1\" fill=\"white\" opacity=\"0.1\"/><circle cx=\"75\" cy=\"75\" r=\"1\" fill=\"white\" opacity=\"0.1\"/><circle cx=\"50\" cy=\"10\" r=\"0.5\" fill=\"white\" opacity=\"0.1\"/><circle cx=\"10\" cy=\"60\" r=\"0.5\" fill=\"white\" opacity=\"0.1\"/><circle cx=\"90\" cy=\"40\" r=\"0.5\" fill=\"white\" opacity=\"0.1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grain)\"/></svg>');"></div>
-    </div>
+<body class="min-h-screen flex items-center justify-center p-4 font-sans relative" style="background-image: url('crane.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+    <!-- Background Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-500/80 to-brand-600/80"></div>
 
-    <div class="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+    <div class="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in z-10">
         <div class="flex flex-col lg:flex-row min-h-[600px]">
             <!-- Login Form -->
             <div class="flex-1 p-8 lg:p-12 flex flex-col justify-center">
