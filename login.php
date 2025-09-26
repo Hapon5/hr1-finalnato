@@ -1,14 +1,14 @@
 <?php
 session_start();
 
-// Robust include path for Connections.php across environments
+// Robust include path for Connections.php
 $connectionsPath = __DIR__ . DIRECTORY_SEPARATOR . 'Connections.php';
 if (!file_exists($connectionsPath)) {
     $connectionsPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Connections.php';
 }
 require_once $connectionsPath; // provides $Connections (PDO)
 
-// PHP 7 compatibility for str_starts_with
+// Backward compatibility for str_starts_with
 if (!function_exists('str_starts_with')) {
     function str_starts_with($haystack, $needle) {
         return $needle !== '' && substr($haystack, 0, strlen($needle)) === $needle;
@@ -19,7 +19,8 @@ $Email = $Password = "";
 $EmailErr = $passwordErr = "";
 $loginError = "";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Sanitize and validate email
     if (empty($_POST["Email"])) {
         $EmailErr = "Email is required";
     } else {
@@ -29,43 +30,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
+    // Validate password
     if (empty($_POST["Password"])) {
         $passwordErr = "Password is required";
     } else {
         $Password = trim($_POST["Password"]);
     }
 
+    // If inputs are valid, attempt login
     if (empty($EmailErr) && empty($passwordErr)) {
         try {
-            $stmt = $Connections->prepare("SELECT Email, Password, Account_type FROM logintbl WHERE Email = :email LIMIT 1");
+            $stmt = $Connections->prepare("
+                SELECT Email, Password, Account_type 
+                FROM logintbl 
+                WHERE Email = :email 
+                LIMIT 1
+            ");
             $stmt->execute(['email' => $Email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user) {
-            $dbPassword = (string)$user['Password'];
-            $dbAccountType = (string)$user['Account_type'];
+            if ($user) {
+                $dbPassword = (string)$user['Password'];
+                $dbAccountType = (string)$user['Account_type'];
+                $passwordMatches = false;
 
-            $passwordMatches = false;
-            if (!empty($dbPassword)) {
-                // Support hashed passwords if used; fallback to plain match for current data
-                if (strlen($dbPassword) > 20 && str_starts_with($dbPassword, '$')) {
-                    $passwordMatches = password_verify($Password, $dbPassword);
-                } else {
-                    $passwordMatches = hash_equals($dbPassword, $Password);
+                if (!empty($dbPassword)) {
+                    if (strlen($dbPassword) > 20 && str_starts_with($dbPassword, '$')) {
+                        // Hashed password
+                        $passwordMatches = password_verify($Password, $dbPassword);
+                    } else {
+                        // Plaintext (not recommended)
+                        $passwordMatches = hash_equals((string)$dbPassword, (string)$Password);
+                    }
                 }
-            }
 
-            if ($passwordMatches) {
-                session_regenerate_id(true);
-                $_SESSION['Email'] = $user['Email'];
-                $_SESSION['Account_type'] = $dbAccountType;
+                if ($passwordMatches) {
+                    session_regenerate_id(true);
+                    $_SESSION['Email'] = $user['Email'];
+                    $_SESSION['Account_type'] = $dbAccountType;
 
-                if ($dbAccountType === '1') {
-                    header('Location: admin.php');
+                    if ($dbAccountType === '1') {
+                        header('Location: admin.php');
+                    } else {
+                        header('Location: landing.php');
+                    }
                     exit();
-                }
-                header('Location: landing.php');
-                exit();
                 } else {
                     $passwordErr = "Incorrect password";
                 }
@@ -76,7 +85,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $loginError = "Login failed. Please try again.";
         }
     }
+}
 ?>
+
     
 <!DOCTYPE html>
 <html lang="en">
