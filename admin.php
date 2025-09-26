@@ -291,6 +291,7 @@ if (!$user || $user['Account_type'] !== '1') {
             <h2>HR Admin</h2>
         </div>
         <ul class="sidebar-nav">
+            <li><a href="/HR1/admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
             <li><a href="./modules/job_posting.php"><i class="fas fa-bullhorn"></i><span>Job Posting</span></a></li>
             <li><a href="./modules/candidate_sourcing_&_tracking.php"><i class="fas fa-users"></i><span>Candidates</span></a></li>
             <li><a href="./modules/Interviewschedule.php"><i class="fas fa-calendar-alt"></i><span>Interviews</span></a></li>
@@ -301,7 +302,7 @@ if (!$user || $user['Account_type'] !== '1') {
 
 
 
-            <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+            <li><a href="logout.php" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
     </nav>
 

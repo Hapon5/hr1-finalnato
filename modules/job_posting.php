@@ -253,14 +253,6 @@ try {
         </div>
         <ul class="sidebar-nav">
             <li><a href="../admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-            <li><a href="../modules/job_posting.php"><i class="fas fa-bullhorn"></i><span>Job Posting</span></a></li>
-            <li><a href="../candidate_sourcing_&_tracking.php"><i class="fas fa-users"></i><span>Candidates</span></a></li>
-            <li><a href="../Interviewschedule.php"><i class="fas fa-calendar-alt"></i><span>Interviews</span></a></li>
-            <li><a href="../modules/performance_and_appraisals.php"><i class="fas fa-user"></i><span>Performance Management</span></a></li>
-            <li><a href="../modules/recognition.php"><i class="fas fa-star"></i><span>Social Recognition</span></a></li>
-            <li><a href="../modules/learning.php"><i class="fas fa-envelope"></i><span>Compliance and Safety</span></a></li>
-            <li><a href="../aboutus.php"><i class="fas fa-search"></i><span>About Us</span></a></li>
-            <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
     </nav>
 
