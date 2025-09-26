@@ -1,7 +1,17 @@
 <?php
-$path = __DIR__ . '/Connections.php';
-if (file_exists($path)) { require_once $path; }
+// Use __DIR__ to define the current directory and ensure Connections.php is found
+// This fixes path issues when the script is run from different directories.
+$connectionsPath = __DIR__ . '/Connections.php';
+
+if (file_exists($connectionsPath)) {
+    include_once $connectionsPath;
+} else {
+    // This will print an error message only if the file is truly missing
+    // You should check your file structure to ensure Connections.php is in the same folder.
+    error_log("Connections.php not found at: " . $connectionsPath);
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
