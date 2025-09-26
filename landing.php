@@ -1,14 +1,29 @@
 <?php
-// Use __DIR__ to define the current directory and ensure Connections.php is found
-// This fixes path issues when the script is run from different directories.
-$connectionsPath = __DIR__ . '/Connections.php';
+// FIX: Using the correct, plural filename 'Connections.php'
+include_once 'Connections.php';
 
-if (file_exists($connectionsPath)) {
-    include_once $connectionsPath;
+// Check if the $Connections variable was successfully created by Connections.php
+// The rest of the page relies on this being true for any database interaction.
+if (isset($Connections)) {
+    // -----------------------------------------------------------------------
+    // !!! IMPORTANT: Check your code around line 22 !!!
+    // The Fatal Error is here. You must have unposted PHP code that uses $Connections.
+    // If you have a database query, ensure it is inside this 'if (isset($Connections))' block.
+    // Example:
+    /*
+    $stmt = $Connections->prepare("SELECT * FROM some_table");
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+    */
+    // -----------------------------------------------------------------------
+
+    // If your code on line 22 is simply attempting to use $Connections
+    // for a query (like the commented-out example above), then simply
+    // having the correct filename (Connections.php) should resolve the error.
+
 } else {
-    // This will print an error message only if the file is truly missing
-    // You should check your file structure to ensure Connections.php is in the same folder.
-    error_log("Connections.php not found at: " . $connectionsPath);
+    // Optional: Log an error if Connections.php loaded but failed to define the variable.
+    error_log("Database connection variable \$Connections is not set. Check Connections.php content.");
 }
 ?>
 
