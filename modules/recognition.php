@@ -588,7 +588,8 @@ try {
 <body>
     <nav class="sidebar">
         <div class="sidebar-header">
-            <i class='bx bxs-user-detail' style='font-size: 2rem; color: #fff;'></i>
+            
+            <i class='bx bxs-user-detail' style='font-size: 2rem; padding: 10px; color: #fff;'></i>
             <h2>HR Admin</h2>
         </div>
         <ul class="sidebar-nav">
@@ -604,6 +605,7 @@ try {
         </div>
 
         <header class="dashboard-header">
+            <div id="liveDateTime" class="text-lg font-medium text-gray-200"></div>
             <h1><i class="fas fa-trophy"></i> Employee Recognition</h1>
             <p>Recognize and celebrate outstanding employee contributions</p>
             
@@ -822,6 +824,22 @@ try {
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
+
+         function updateDateTime() {
+        const now = new Date();
+        const options = {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        };
+        document.getElementById("liveDateTime").textContent =
+            now.toLocaleDateString("en-US", options);
+    }
+
+    // run immediately + update every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+
     </script>
 </body>
 </html>
