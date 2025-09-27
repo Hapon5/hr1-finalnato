@@ -169,36 +169,12 @@ try {
         </div>
         
         <div class="p-6">
-            <a href="admin.php" class="flex items-center text-white hover:text-yellow-300 transition-colors mb-6">
+            <a href="./admin.php" class="flex items-center text-white hover:text-yellow-300 transition-colors mb-6">
                 <i class="fas fa-arrow-left mr-2"></i>
                 <span>Back to Dashboard</span>
             </a>
             
-            <nav class="space-y-2">
-                <a href="modules/job_posting.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-bullhorn mr-3"></i>
-                    <span>Job Posting</span>
-                </a>
-                <a href="candidate_sourcing_&_tracking.php" class="flex items-center px-4 py-3 text-white bg-brand-600 rounded-lg">
-                    <i class="fas fa-users mr-3"></i>
-                    <span>Candidates</span>
-                </a>
-                <a href="Interviewschedule.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-calendar-alt mr-3"></i>
-                    <span>Interviews</span>
-                </a>
-                <a href="performance_and_appraisals.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-star mr-3"></i>
-                    <span>Performance</span>
-                </a>
-                <a href="Documentfiles.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-folder mr-3"></i>
-                    <span>Documents</span>
-                </a>
-                <a href="aboutus.php" class="flex items-center px-4 py-3 text-white hover:bg-brand-600 rounded-lg transition-colors">
-                    <i class="fas fa-info-circle mr-3"></i>
-                    <span>About Us</span>
-                </a>
+           
                 <a href="logout.php" class="flex items-center px-4 py-3 text-white hover:bg-red-600 rounded-lg transition-colors">
                     <i class="fas fa-sign-out-alt mr-3"></i>
                     <span>Logout</span>

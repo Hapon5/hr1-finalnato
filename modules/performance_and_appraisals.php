@@ -421,9 +421,9 @@ h1{
             <h2>HR Admin</h2>
         </div>
         <ul class="sidebar-nav">
-            <li><a href="../admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <li><a href="./admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
     
-            <li><a href="#" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+            <li><a href="./logout.php" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
     </nav>
     <div class="main-content">
