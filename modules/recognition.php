@@ -132,12 +132,12 @@ try {
         :root { 
             --primary-color: #111827; /* Black */
             --background-white: #ffff; /* Black */
-            --card-bg: #1f2937; /* Dark Gray */
+            --card-bg: ; /* Dark Gray */
             --text-light: #f3f4f6; 
             --text-medium: #9ca3af;
             --border-color: #374151;
         }
-        body { background-color: var(--background-white); display: flex; font-family: "Poppins", sans-serif; }
+        body { background-color: white display: flex; font-family: "Poppins", sans-serif; }
         .sidebar { width: 260px; background-color: var(--primary-color); position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
         .main-content { margin-left: 260px; width: calc(100% - 260px); }
         .sidebar-nav a { color: var(--text-light); }
