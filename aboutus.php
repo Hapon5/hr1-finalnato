@@ -99,13 +99,13 @@
             "name" => "Siegfried Mar Viloria",
             "role" => "Team Leader/ Developer",
             "bio" => "Experienced Team Leader and Full-Stack Developer with a strong background in leading cross-functional teams and delivering scalable software solutions. Skilled in Agile methodologies, code architecture, and mentoring developers to reach their full potential.",
-            "photo" => "modules/profile/viloria.jpeg",
+            "photo" => "profile/viloria.jpeg",
         ],
         [
             "name" => "John Lloyd Morales",
             "role" => "System Analyst",
             "bio" => "Detail-oriented System Analyst with a strong background in analyzing business requirements and translating them into effective technical solutions. Experienced in system design, process optimization, and bridging the gap between stakeholders and development teams.",
-            "photo" => "modules/profile/morales.jpeg",
+            "photo" => "profile/morales.jpeg",
         ],
         [
             "name" => "Andy Ferrer",
@@ -117,13 +117,13 @@
             "name" => "Andrea Ilagan",
             "role" => "Technical Support Analyst",
             "bio" => "I am a dedicated Technical Support Analyst with experience in diagnosing and resolving hardware, software, and network issues across various platforms. I excel at providing timely and effective support to end-users, ensuring minimal downtime and high customer satisfaction.",
-            "photo" => "modules/profile/ilagan.jpeg",
+            "photo" => "profile/ilagan.jpeg",
         ],
         [
             "name" => "Charlotte Achivida",
             "role" => "Cyber Security Analyst",
             "bio" => "I am a detail-oriented Cybersecurity Analyst with expertise in identifying vulnerabilities, monitoring threats, and implementing security measures to protect critical systems and data. I specialize in threat analysis, incident response, and compliance with security standards.",
-            "photo" => "modules/profile/achivida.jpeg",
+            "photo" => "profile/achivida.jpeg",
         ]
     ];
     ?>
