@@ -206,11 +206,11 @@ try {
     </div>
 
 
-    <div id="jobModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
+    <div id="jobModal" class="fixed inset-0 bg-black-800 bg-opacity-75 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
                 <div class="flex items-center justify-between p-5 border-b">
-                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-800">Add New Job Posting</h3>
+                    <h3 id="modalTitle" class="text-xl text-white font-semibold text-gray-800">Add New Job Posting</h3>
                     <button id="closeModal" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
                 </div>
                 <form id="jobForm" class="modal-body p-6">
@@ -219,38 +219,38 @@ try {
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="jobTitle" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <label for="jobTitle" class="block text-white text-sm font-medium text-gray-700 mb-1">Title</label>
                             <input type="text" id="jobTitle" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required>
                         </div>
                         <div>
-                            <label for="jobPosition" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                            <label for="jobPosition" class="block text-white text-sm font-medium text-gray-700 mb-1">Position</label>
                             <input type="text" id="jobPosition" name="position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required>
                         </div>
                         <div>
-                            <label for="jobLocation" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                            <label for="jobLocation" class="block text-sm text-white  font-medium text-gray-700 mb-1">Location</label>
                             <input type="text" id="jobLocation" name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required>
                         </div>
                         <div>
-                            <label for="jobPlatform" class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                            <label for="jobPlatform" class="block text-white text-sm font-medium text-gray-700 mb-1">Platform</label>
                             <input type="text" id="jobPlatform" name="platform" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
                         </div>
                          <div>
-                            <label for="jobContact" class="block text-sm font-medium text-gray-700 mb-1">Contact</label>
+                            <label for="jobContact" class="block text-white text-sm font-medium text-gray-700 mb-1">Contact</label>
                             <input type="text" id="jobContact" name="contact" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
                         </div>
                         <div>
-                            <label for="jobDate" class="block text-sm font-medium text-gray-700 mb-1">Date Posted</label>
+                            <label for="jobDate" class="block text-white text-sm font-medium text-gray-700 mb-1">Date Posted</label>
                             <input type="date" id="jobDate" name="date_posted" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required>
                         </div>
                          <div class="md:col-span-2">
-                            <label for="jobStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <label for="jobStatus" class="block text-white text-sm font-medium text-gray-700 mb-1">Status</label>
                             <select id="jobStatus" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
                         </div>
                         <div class="md:col-span-2">
-                            <label for="jobRequirements" class="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
+                            <label for="jobRequirements" class="block text-white text-sm font-medium text-gray-700 mb-1">Requirements</label>
                             <textarea id="jobRequirements" name="requirements" rows="4" class="w-full px-3 py-2 border border-ray-300 rounded-lg focus:ring-2 focus:ring-gray-500"></textarea>
                         </div>
                     </div>
