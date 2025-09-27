@@ -120,8 +120,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     },
                     colors: {
                         brand: {
-                            500: '#0000',
-                            600: '#0000'
+                            500: '#d37a15',
+                            600: '#b8650f'
                         }
                     }
                 }
@@ -248,12 +248,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
 
-            <div class="lg:w-1/2 bg-gradient-to-br from-brand-500 to-brand-600 p-8 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden">
+            <div class="lg:w-1/2 bg-gradient-to-br from-brand-500 to-brand-600 p-8 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden" style="background-color: black;">
                 <div class="absolute inset-0 opacity-10">
                     <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"dots\" width=\"20\" height=\"20\" patternUnits=\"userSpaceOnUse\"><circle cx=\"10\" cy=\"10\" r=\"1\" fill=\"white\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23dots)\"/></svg>');"></div>
                 </div>
                 
-                <div class="relative z-10" style="background-color: black;" >
+                <div class="relative z-10"  >
                     <div class="text-center lg:text-left">
                         <h2 class="text-4xl font-bold mb-6">Welcome to HR1</h2>
                         <p class="text-xl mb-8 text-white/90 leading-relaxed">
