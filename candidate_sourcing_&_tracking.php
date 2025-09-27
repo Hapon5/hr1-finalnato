@@ -362,7 +362,7 @@ try {
         <div class="flex items-center justify-center min-h-screen p-4" style="background-color: #0000;">
             <div class="bg-black rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
                 <div class="flex items-center justify-between p-6 border-b sticky top-0 bg-black">
-                    <h3 id="modalTitle" class="text-lg font-semibold text-white-900">Add New Candidate</h3>
+                    <h3 id="modalTitle" class="text-lg font-semibold text-white">Add New Candidate</h3>
                     <button id="closeModal" class="text-gray-400 hover:text-white-600">
                         <i class="fas fa-times text-xl"></i>
                     </button>
@@ -374,12 +374,12 @@ try {
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-white-900 text-sm font-medium text-gray-700 mb-2">Full Name *</label>
+                            <label class="block text-sm font-medium text-white mb-2">Full Name *</label>
                             <input type="text" name="full_name" id="fullName" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
                         <div>
-                            <label class="block text-white-900 text-sm font-medium text-gray-700 mb-2">Job Title *</label>
+                            <label class="block  text-sm font-medium text-white mb-2">Job Title *</label>
                             <input type="text" name="job_title" id="jobTitle" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
@@ -387,12 +387,12 @@ try {
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-white-900 text-sm font-medium text-gray-700 mb-2">Position *</label>
+                            <label class="block  text-sm font-medium text-white mb-2">Position *</label>
                             <input type="text" name="position" id="position" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
                         <div>
-                            <label class="block text-white-900 text-sm font-medium text-gray-700 mb-2">Experience (Years) *</label>
+                            <label class="block  text-sm font-medium text-white mb-2">Experience (Years) *</label>
                             <input type="number" name="experience_years" id="experienceYears" required min="0"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
@@ -400,12 +400,12 @@ try {
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-white-900 text-sm font-medium text-gray-700 mb-2">Age *</label>
+                            <label class="block  text-sm font-medium text-white mb-2">Age *</label>
                             <input type="number" name="age" id="age" required min="18" max="100"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
                         <div>
-                            <label class="block text-white-900 text-sm font-medium text-gray-700 mb-2">Contact Number *</label>
+                            <label class="block  text-sm font-medium text-white mb-2">Contact Number *</label>
                             <input type="tel" name="contact_number" id="contactNumber" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
@@ -413,14 +413,14 @@ try {
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-white-900 text-sm font-medium text-gray-700 mb-2">Email *</label>
+                            <label class="block  text-sm font-medium text-white mb-2">Email *</label>
                             <input type="email" name="email" id="email" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
                         <div>
-                            <label class="block text-white-900 text-sm font-medium text-gray-700 mb-2">Source</label>
+                            <label class="block  text-sm font-medium text-white mb-2">Source</label>
                             <select name="source" id="source"
-                                    class="w-full px-3 py-2 border text-white-900 border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                                    class="w-full px-3 py-2 border text-white border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                                 <option value="Direct Application">Direct Application</option>
                                 <option value="LinkedIn">LinkedIn</option>
                                 <option value="Indeed">Indeed</option>
@@ -434,19 +434,19 @@ try {
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-white-900 mb-2">Address *</label>
+                        <label class="block text-sm font-medium text-white mb-2">Address *</label>
                         <textarea name="address" id="address" rows="3" required
                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-sm font-medium text-white-9000 mb-2">Resume (PDF/DOC)</label>
+                            <label class="block text-sm font-medium text-white mb-2">Resume (PDF/DOC)</label>
                             <input type="file" name="resume" id="resume" accept=".pdf,.doc,.docx"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
                         <div id="statusField" style="display: none;">
-                            <label class="block text-sm font-medium text-white-900 mb-2">Status</label>
+                            <label class="block text-sm font-medium text-white mb-2">Status</label>
                             <select name="status" id="status"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                                 <option value="new">New</option>
@@ -461,13 +461,13 @@ try {
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
-                            <label class="block  text-sm font-medium text-white-900 mb-2">Skills</label>
+                            <label class="block  text-sm font-medium text-white mb-2">Skills</label>
                             <textarea name="skills" id="skills" rows="3"
                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                       placeholder="Enter candidate skills..."></textarea>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-white-900 mb-2">Notes</label>
+                            <label class="block text-sm font-medium text-white mb-2">Notes</label>
                             <textarea name="notes" id="notes" rows="3"
                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                       placeholder="Additional notes..."></textarea>
@@ -475,10 +475,10 @@ try {
                     </div>
 
                     <div class="flex justify-end space-x-3">
-                        <button type="button" id="cancelBtn" class="px-4 py-2 text-white-900 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                        <button type="button" id="cancelBtn" class="px-4 py-2 text-white bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" class="px-4 py-2 text-white-900 text-white rounded-lg hover:bg-brand-600 transition-colors">
+                        <button type="submit" class="px-4 py-2 text-white text-white rounded-lg hover:bg-brand-600 transition-colors">
                             <i class="fas fa-save mr-2"></i>
                             Save Candidate
                         </button>
