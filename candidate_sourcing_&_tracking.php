@@ -253,122 +253,107 @@ try {
     </select>
 </div>
 
-<div class="bg-white rounded-lg shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 table-fixed">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="w-1/6 px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
-                    <th class="w-1/5 px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                    <th class="w-1/12 px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
-                    <th class="w-1/6 px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                    <th class="w-1/6 px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
-                    <th class="w-1/6 px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="w-1/6 px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
-                    <th class="w-1/6 px-8 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                <?php if (empty($candidates)): ?>
-                    <tr>
-                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                            <i class="fas fa-user-plus text-4xl mb-4 text-gray-300"></i>
-                            <p class="text-lg">No candidates found</p>
-                            <p class="text-sm">Click "Add New Candidate" to get started</p>
-                        </td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($candidates as $candidate): ?>
-                        <tr>
-                            <!-- Candidate initials circle -->
-                            <td class="px-8 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 h-10 w-10">
-                                        <div class="h-10 w-10 rounded-full flex items-center justify-center" style="background-color: black; color: white;">
-                                            <span class="text-white font-medium">
-                                                <?php echo strtoupper(substr($candidate['full_name'], 0, 2)); ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <!-- Position -->
-                            <td class="px-8 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900"><?php echo htmlspecialchars($candidate['job_title']); ?></div>
-                                <div class="text-sm text-gray-500"><?php echo htmlspecialchars($candidate['position']); ?></div>
-                            </td>
-
-                            <!-- Experience -->
-                            <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <?php echo $candidate['experience_years']; ?> years
-                            </td>
-
-                            <!-- Contact -->
-                            <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <?php echo htmlspecialchars($candidate['contact_number']); ?>
-                            </td>
-
-                            <!-- Source -->
-                            <td class="px-8 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    <?php echo htmlspecialchars($candidate['source']); ?>
-                                </span>
-                            </td>
-
-                            <!-- Status -->
-                            <td class="px-8 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                    <?php 
-                                    switch($candidate['status']) {
-                                        case 'new': echo 'bg-gray-100 text-gray-800'; break;
-                                        case 'reviewed': echo 'bg-blue-100 text-blue-800'; break;
-                                        case 'shortlisted': echo 'bg-yellow-100 text-yellow-800'; break;
-                                        case 'interviewed': echo 'bg-purple-100 text-purple-800'; break;
-                                        case 'rejected': echo 'bg-red-100 text-red-800'; break;
-                                        case 'hired': echo 'bg-green-100 text-green-800'; break;
-                                    }
-                                    ?>">
-                                    <?php echo ucfirst($candidate['status']); ?>
-                                </span>
-                            </td>
-
-                            <!-- Date -->
-                            <td class="px-8 py-4 whitespace-nowrap text-sm text-gray-900">
-                                <?php echo date('M d, Y', strtotime($candidate['created_at'])); ?>
-                            </td>
-
-                            <!-- Actions -->
-                            <td class="px-8 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex space-x-4">
-                                    <button onclick="viewCandidate(<?php echo htmlspecialchars(json_encode($candidate)); ?>)" 
-                                            class="text-blue-500 hover:text-blue-600">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button onclick="editCandidate(<?php echo htmlspecialchars(json_encode($candidate)); ?>)" 
-                                            class="text-brand-500 hover:text-brand-600">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <?php if ($candidate['resume_path']): ?>
-                                        <a href="<?php echo htmlspecialchars($candidate['resume_path']); ?>" 
-                                           target="_blank" class="text-green-500 hover:text-green-600">
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                    <?php endif; ?>
-                                    <button onclick="deleteCandidate(<?php echo $candidate['id']; ?>)" 
-                                            class="text-red-500 hover:text-red-600">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" style="margin-top: 20px;">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php if (empty($candidates)): ?>
+                                <tr>
+                                    <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                                        <i class="fas fa-user-plus text-4xl mb-4 text-gray-300"></i>
+                                        <p class="text-lg">No candidates found</p>
+                                        <p class="text-sm">Click "Add New Candidate" to get started</p>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($candidates as $candidate): ?>
+                                   <td class="px-6 py-4 whitespace-nowrap text-white">
+    <div class="flex items-center">
+        <div class="flex-shrink-0 h-10 w-10">
+            <!-- Circle -->
+            <div class="h-10 w-10 rounded-full flex items-center justify-center" 
+                 style="background-color: black; color: white;">
+                <span class="text-white font-medium">
+                    <?php echo strtoupper(substr($candidate['full_name'], 0, 2)); ?>
+                </span>
+            </div>
+        </div>
     </div>
-</div>
-                      </div>
+</td>
+
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900"><?php echo htmlspecialchars($candidate['job_title']); ?></div>
+                                            <div class="text-sm text-gray-500"><?php echo htmlspecialchars($candidate['position']); ?></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?php echo $candidate['experience_years']; ?> years
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?php echo htmlspecialchars($candidate['contact_number']); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                <?php echo htmlspecialchars($candidate['source']); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                <?php 
+                                                switch($candidate['status']) {
+                                                    case 'new': echo 'bg-gray-100 text-gray-800'; break;
+                                                    case 'reviewed': echo 'bg-blue-100 text-blue-800'; break;
+                                                    case 'shortlisted': echo 'bg-yellow-100 text-yellow-800'; break;
+                                                    case 'interviewed': echo 'bg-purple-100 text-purple-800'; break;
+                                                    case 'rejected': echo 'bg-red-100 text-red-800'; break;
+                                                    case 'hired': echo 'bg-green-100 text-green-800'; break;
+                                                }
+                                                ?>">
+                                                <?php echo ucfirst($candidate['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?php echo date('M d, Y', strtotime($candidate['created_at'])); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2">
+                                                <button onclick="viewCandidate(<?php echo htmlspecialchars(json_encode($candidate)); ?>)" 
+                                                        class="text-blue-500 hover:text-blue-600">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button onclick="editCandidate(<?php echo htmlspecialchars(json_encode($candidate)); ?>)" 
+                                                        class="text-brand-500 hover:text-brand-600">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <?php if ($candidate['resume_path']): ?>
+                                                    <a href="<?php echo htmlspecialchars($candidate['resume_path']); ?>" 
+                                                       target="_blank" class="text-green-500 hover:text-green-600">
+                                                        <i class="fas fa-download"></i>
+                                                    </a>
+                                                <?php endif; ?>
+                                                <button onclick="deleteCandidate(<?php echo $candidate['id']; ?>)" 
+                                                        class="text-red-500 hover:text-red-600">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
       </div>
     </div>
