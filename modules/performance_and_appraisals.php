@@ -66,9 +66,19 @@ try {
         appraisal_date DATETIME NOT NULL,
         FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
     )");
+
+    // FIX: Check if the rater_email column exists and add it if it doesn't.
+    // This handles migration from an older schema that might have used 'rater_id'.
+    $result = $conn->query("SHOW COLUMNS FROM `appraisals` LIKE 'rater_email'");
+    if ($result->rowCount() == 0) {
+        // Drop the old rater_id if it exists, then add the new rater_email
+        $conn->exec("ALTER TABLE `appraisals` DROP COLUMN IF EXISTS `rater_id`");
+        $conn->exec("ALTER TABLE `appraisals` ADD COLUMN `rater_email` VARCHAR(255) NOT NULL AFTER `employee_id`");
+    }
+
 } catch(Exception $e) {
     // Silently log error, don't stop the page
-    error_log("Table creation failed: " . $e->getMessage());
+    error_log("Table creation/alteration failed: " . $e->getMessage());
 }
 
 // Fetch active employees
@@ -122,8 +132,7 @@ try {
         <div class="pt-5"><a href="../logout.php" class="flex items-center p-3 rounded-lg"><i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-3">Logout</span></a></div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="main-content p-6">
+     <div class="main-content p-6">
         <header class="mb-8">
             <h1 class="text-3xl font-bold text-gray-800">Performance & Appraisals</h1>
             <p class="text-gray-600">Review and rate employee performance</p>
@@ -167,7 +176,7 @@ try {
         </div>
     </div>
 
-    <!-- Rate Performance Modal -->
+  - Rate Performance Modal -->
     <div id="rateModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-xl max-w-lg w-full">
@@ -209,6 +218,7 @@ try {
             </div>
         </div>
     </div>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -261,3 +271,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
