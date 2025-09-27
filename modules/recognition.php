@@ -605,7 +605,7 @@ try {
         </div>
 
         <header class="dashboard-header">
-            <div id="liveDateTime" class="text-lg font-medium text-gray-200"></div>
+            <div id="liveDateTime" class="text-lg font-medium text-gray-200" style="display:flex; float: right;"></div>
             <h1><i class="fas fa-trophy"></i> Employee Recognition</h1>
             <p>Recognize and celebrate outstanding employee contributions</p>
             
