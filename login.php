@@ -156,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="flex-1 p-8 lg:p-12 flex flex-col justify-center">
                 <div class="max-w-md mx-auto w-full">
                     <div class="text-center mb-8">
-                        <div class="inline-flex items-center justify-center w-16 h-16 bg-brand-500 rounded-full mb-4">
+                        <div class="inline-flex items-center justify-center w-16 h-16  rounded-full mb-4" style="background-color: black;">
                             <i class="fas fa-users text-white text-2xl"></i>
                         </div>
                         <h1 class="text-3xl font-bold text-gray-800 mb-2">HR1 System</h1>
@@ -232,10 +232,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         <button 
                             type="submit" 
-                            class="w-full bg-brand-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-brand-600 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg"
-                        >
+                            class="w-full  text-white py-3 px-4 rounded-lg font-semibold hover:bg-brand-600 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg"
+                        style="background-color: black;" >
                             <i class="fas fa-sign-in-alt mr-2"></i>
-                            Sign In
+                            Login
                         </button>
                     </form>
 
@@ -253,7 +253,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"dots\" width=\"20\" height=\"20\" patternUnits=\"userSpaceOnUse\"><circle cx=\"10\" cy=\"10\" r=\"1\" fill=\"white\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23dots)\"/></svg>');"></div>
                 </div>
                 
-                <div class="relative z-10">
+                <div class="relative z-10" style="background-color: black;" >
                     <div class="text-center lg:text-left">
                         <h2 class="text-4xl font-bold mb-6">Welcome to HR1</h2>
                         <p class="text-xl mb-8 text-white/90 leading-relaxed">
