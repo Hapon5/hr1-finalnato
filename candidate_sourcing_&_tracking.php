@@ -274,7 +274,7 @@ try {
                             <?php else: ?>
                                 <?php foreach ($candidates as $candidate): ?>
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <td class="px-6 py-4 whitespace-nowrap"  style="background-color: #0000; color: white;">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10"  style="background-color: #0000; color: white;">
                                                     <div class="h-10 w-10 rounded-full flex items-center justify-center" style="background-color: #0000; color: white;" >
