@@ -407,6 +407,13 @@ try {
             border-radius: 50%;
             object-fit: cover;
             margin-right: 15px;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .recognition-header:hover img {
+            transform: scale(1.1);
         }
 
         .recognition-info h3 {
@@ -671,7 +678,7 @@ try {
                 <?php foreach ($recognitions as $recognition): ?>
                     <div class="recognition-card">
                         <div class="recognition-header">
-                            <img src="<?php echo htmlspecialchars($recognition['from_photo']); ?>" alt="From" onerror="this.src='https://via.placeholder.com/50x50?text=No+Photo'">
+                            <img src="../<?php echo htmlspecialchars($recognition['from_photo']); ?>" alt="From" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSIxNy41IiByPSI3LjUiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwIDQwQzEwIDMyLjgyMDMgMTUuODIwMyAyNyAyMyAyN0gyN0MzNC4xNzk3IDI3IDQwIDMyLjgyMDMgNDAgNDBWNTBIMTBWNDBaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
                             <div class="recognition-info">
                                 <h3><?php echo htmlspecialchars($recognition['from_name']); ?></h3>
                                 <p>recognized <strong><?php echo htmlspecialchars($recognition['to_name']); ?></strong></p>
