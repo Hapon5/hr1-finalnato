@@ -107,7 +107,7 @@ try {
     </script>
     <style>
         :root {
-            --primary-color: #d37a15;
+            --primary-color: #0000;
             --background-light: #f8f9fa;
             --text-light: #f4f4f4;
         }
