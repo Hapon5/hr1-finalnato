@@ -77,7 +77,7 @@ try {
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
         
         :root {
-            --primary-color: #d37a15;
+            --primary-color: #000;
             --secondary-color: #0a0a0a;
             --background-light: #f8f9fa;
             --background-card: #ffffff;
