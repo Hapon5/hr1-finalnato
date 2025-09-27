@@ -233,7 +233,7 @@ try {
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-white-700  text-sm font-medium  mb-1">Start Time*</label>
+                        <label class="block text-white  text-sm font-medium  mb-1">Start Time*</label>
                         <input type="datetime-local" name="start_time" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
