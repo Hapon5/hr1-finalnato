@@ -201,8 +201,8 @@ try {
     </div>
 
     <!-- Add/Edit Modal -->
-    <div id="interviewModal" class="fixed inset-0 bg-black/100 hidden z-50 flex items-center justify-center p-4 ">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+    <div id="interviewModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4 ">
+        <div class=" rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto" style="background-color: #000;">
             <div class="flex items-center justify-between p-5 border-b">
                 <h3 id="modalTitle" class="text-lg font-semibold">Schedule Interview</h3>
                 <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">&times;</button>
