@@ -7,27 +7,6 @@ if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
     // header("Location: login.php");
     // exit();
 }
-
-// Below is your original PHP validation logic, which is good.
-// I've commented it out so the page can be previewed directly.
-/*
-if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
-    header("Location: login.php");
-    exit();
-}
-
-$admin_email = $_SESSION['Email'];
-$account_type = $_SESSION['Account_type'];
-
-$stmt = $Connections->prepare("SELECT Account_type FROM logintbl WHERE Email = :email LIMIT 1");
-$stmt->execute(['email' => $admin_email]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$user || $user['Account_type'] !== '1') {
-    header("Location: login.php");
-    exit();
-}
-*/
 ?>
 
 <!DOCTYPE html>
@@ -44,7 +23,7 @@ if (!$user || $user['Account_type'] !== '1') {
         :root {
             --primary-color: #d37a15;
             --secondary-color: #0a0a0a;
-            --background-light: #f8f9fa; /* Softer background */
+            --background-light: #f8f9fa;
             --background-card: #ffffff;
             --text-dark: #333;
             --text-light: #f4f4f4;
@@ -66,7 +45,7 @@ if (!$user || $user['Account_type'] !== '1') {
             color: var(--text-dark);
         }
         
-        /* --- Sidebar Styles (Cleaned & Consistent) --- */
+        /* --- Sidebar Styles --- */
         .sidebar {
             width: 260px;
             background-color: var(--primary-color);
@@ -115,26 +94,31 @@ if (!$user || $user['Account_type'] !== '1') {
         }
         .sidebar.close .sidebar-nav span { opacity: 0; pointer-events: none; }
 
-        /* --- Main Content --- */
+        /* --- Main Content (INAYOS) --- */
         .main-content {
             margin-left: 260px;
             flex-grow: 1;
             padding: 20px 30px;
             transition: margin-left 0.3s ease;
+            width: calc(100% - 260px); /* Para sakupin ang buong screen */
         }
-        .sidebar.close ~ .main-content { margin-left: 78px; }
+        .sidebar.close ~ .main-content { margin-left: 78px; width: calc(100% - 78px); }
         
         .top-navbar {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* Para maghiwalay ang menu at oras */
             align-items: center;
-            padding: 10px 0;
             margin-bottom: 20px;
         }
         .menu-toggle {
             font-size: 1.5rem;
             cursor: pointer;
             color: var(--secondary-color);
+        }
+        .datetime-display {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #555;
         }
         .dashboard-header {
             text-align: center;
@@ -154,7 +138,7 @@ if (!$user || $user['Account_type'] !== '1') {
             box-shadow: var(--shadow-subtle);
             display: flex;
             flex-direction: column;
-            height: 350px;
+            height: 380px; 
         }
         .chart-container h3 {
             text-align: center;
@@ -171,9 +155,10 @@ if (!$user || $user['Account_type'] !== '1') {
 
         /* --- Media Queries --- */
         @media (max-width: 768px) {
-            .main-content { margin-left: 0; padding: 15px; }
+            .main-content { margin-left: 0; padding: 15px; width: 100%; }
             .sidebar.close ~ .main-content { margin-left: 0; }
             .dashboard-grid { grid-template-columns: 1fr; }
+            .datetime-display { display: none; } /* Itago ang oras sa maliliit na screen */
         }
     </style>
 </head>
@@ -200,6 +185,8 @@ if (!$user || $user['Account_type'] !== '1') {
     <div class="main-content">
         <div class="top-navbar">
             <i class="fa-solid fa-bars menu-toggle"></i>
+            <!-- DITO ILALAGAY ANG DATE AND TIME -->
+            <div id="datetime" class="datetime-display"></div>
         </div>
         <header class="dashboard-header">
             <h1>HR Dashboard</h1>
@@ -240,10 +227,6 @@ if (!$user || $user['Account_type'] !== '1') {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Data for charts
-            const totalApplicantsData = {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{ label: 'Total Applicants', data: [85, 92, 110, 135, 148, 160], borderColor: '#d37a15', tension: 0.3, pointBackgroundColor: '#d37a15' }]
-            };
             const newHiresData = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                 datasets: [{ 
@@ -251,13 +234,9 @@ if (!$user || $user['Account_type'] !== '1') {
                     data: [5, 8, 7, 10, 6, 9], 
                     backgroundColor: '#0a0a0a', 
                     borderRadius: 6,
-                    barPercentage: 0.7, // Ginawang mas makapal ang bar
-                    categoryPercentage: 0.8
+                    barPercentage: 0.6, // Inayos para lumaki ang bar
+                    categoryPercentage: 0.7
                 }]
-            };
-            const applicantSourceData = {
-                labels: ['LinkedIn', 'Website', 'Referral', 'Job Fair', 'Other'],
-                datasets: [{ label: 'Source', data: [45, 30, 20, 5, 10], backgroundColor: ['#d37a15', '#0a0a0a', '#b06511', '#888', '#555'], hoverOffset: 8 }]
             };
             const hiringByDeptData = {
                 labels: ['IT', 'Sales', 'Marketing', 'HR', 'Finance'],
@@ -266,60 +245,40 @@ if (!$user || $user['Account_type'] !== '1') {
                     data: [35, 42, 28, 15, 20], 
                     backgroundColor: '#d37a15', 
                     borderRadius: 6,
-                    barPercentage: 0.7, // Ginawang mas makapal ang bar
-                    categoryPercentage: 0.8
+                    barPercentage: 0.6, // Inayos para lumaki ang bar
+                    categoryPercentage: 0.7
                 }]
             };
 
-            // Common Chart Options
-            const commonOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { beginAtZero: true, grid: { color: '#eee' }, ticks: { color: '#555' } },
-                    x: { grid: { display: false }, ticks: { color: '#555' } }
-                },
-                layout: { padding: 5 }
-            };
+            // Other chart data and options...
+            const totalApplicantsData = { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [{ label: 'Total Applicants', data: [85, 92, 110, 135, 148, 160], borderColor: '#d37a15', tension: 0.3 }]};
+            const applicantSourceData = { labels: ['LinkedIn', 'Website', 'Referral', 'Job Fair', 'Other'], datasets: [{ label: 'Source', data: [45, 30, 20, 5, 10], backgroundColor: ['#d37a15', '#0a0a0a', '#b06511', '#888', '#555'] }]};
+            const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }};
+            const pieOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }};
 
-            // Chart Configurations
-            const chartConfigs = [
-                { id: 'totalApplicantsChart', type: 'line', data: totalApplicantsData, options: commonOptions },
-                { id: 'newHiresChart', type: 'bar', data: newHiresData, options: commonOptions },
-                { 
-                    id: 'applicantSourceChart', type: 'pie', data: applicantSourceData, 
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { 
-                            legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } }
-                        }
-                    }
-                },
-                { id: 'hiringByDeptChart', type: 'bar', data: hiringByDeptData, options: commonOptions }
-            ];
-            
-            // Function to render all charts
-            chartConfigs.forEach(config => {
-                const ctx = document.getElementById(config.id);
-                if (ctx) new Chart(ctx.getContext('2d'), config);
-            });
+            // Render Charts
+            new Chart(document.getElementById('totalApplicantsChart'), { type: 'line', data: totalApplicantsData, options: commonOptions });
+            new Chart(document.getElementById('newHiresChart'), { type: 'bar', data: newHiresData, options: commonOptions });
+            new Chart(document.getElementById('applicantSourceChart'), { type: 'pie', data: applicantSourceData, options: pieOptions });
+            new Chart(document.getElementById('hiringByDeptChart'), { type: 'bar', data: hiringByDeptData, options: commonOptions });
+
+            // --- BAGONG SCRIPT PARA SA DATE AND TIME ---
+            const datetimeElement = document.getElementById('datetime');
+            function updateDateTime() {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                datetimeElement.textContent = now.toLocaleString('en-US', options);
+            }
+            updateDateTime(); // Tawagin agad para hindi blanko sa simula
+            setInterval(updateDateTime, 1000); // I-update bawat segundo
+
+            // Sidebar and Logout Logic
+            const sidebar = document.querySelector(".sidebar");
+            const menuToggle = document.querySelector(".menu-toggle");
+            if (menuToggle) {
+                menuToggle.addEventListener("click", () => sidebar.classList.toggle("close"));
+            }
         });
-
-        // Sidebar and Logout Logic
-        const sidebar = document.querySelector(".sidebar");
-        const menuToggle = document.querySelector(".menu-toggle");
-        if (menuToggle) {
-            menuToggle.addEventListener("click", () => sidebar.classList.toggle("close"));
-        }
-        const logoutLink = document.getElementById("logout-link");
-        if (logoutLink) {
-            logoutLink.addEventListener("click", function (e) {
-                e.preventDefault();
-                localStorage.clear();
-                window.location.href = "logout.php";
-            });
-        }
     </script>
 </body>
 </html>
