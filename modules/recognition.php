@@ -133,8 +133,8 @@ try {
             --primary-color: #111827; /* Black */
             --background-: #ffff; /* Black */
             --card-bg: #1f2937; /* Dark Gray */
-            --text-light: #0000; 
-            --text-medium: #0000;
+            --text-light: #f3f4f6; 
+            --text-medium: #9ca3af;
             --border-color: #374151;
         }
         body { background-color: var(--background-white); display: flex; font-family: "Poppins", sans-serif; }
