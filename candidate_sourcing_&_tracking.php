@@ -180,19 +180,27 @@ try {
         </div>
     </div>
 
-    <div class="lg:ml-64">
-        <div class="shadow-sm border-b" style="background-color: #323A3C;">
-            <div class="flex items-center justify-between px-6 py-3">
+   <div class="lg:ml-64">
+    <div class="shadow-sm border-b" style="background-color: #323A3C;">
+        <div class="flex items-center justify-between px-6 py-3">
+            <!-- Left: Sidebar toggle + DateTime -->
+            <div class="flex items-center space-x-4">
                 <button id="sidebar-toggle" class="text-white hover:text-gray-300 lg:hidden">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
-                <div id="live-datetime" class="text-right text-white hidden sm:block">
-                    </div>
-                <div class="flex items-center space-x-4">
-                    <span class="text-white">Welcome, <?php echo htmlspecialchars($admin_email); ?></span>
-                </div>
+                <div id="live-datetime" class="text-white text-sm sm:block"></div>
+            </div>
+
+            <!-- Right: Welcome -->
+            <div class="flex items-center space-x-4">
+                <span class="text-white">
+                    Welcome, <?php echo htmlspecialchars($admin_email); ?>
+                </span>
             </div>
         </div>
+    </div>
+</div>
+
 
         <div class="p-6">
             <div class="mb-8">
@@ -228,32 +236,34 @@ try {
                 </div>
 
 
-                    
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
-                            </div>
-                            <input type="text" id="searchInput" placeholder="Search candidates..." 
-                                   class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
-                        
-                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                            <option value="">All Status</option>
-                            <option value="new">New</option>
-                            <option value="reviewed">Reviewed</option>
-                            <option value="shortlisted">Shortlisted</option>
-                            <option value="interviewed">Interviewed</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="hired">Hired</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+                    <!-- Container -->
+<div class="flex justify-end gap-4">
+    
+    <!-- Search -->
+    <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fas fa-search text-gray-400"></i>
+        </div>
+        <input type="text" id="searchInput" placeholder="Search candidates..." 
+            class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+    </div>
+
+    <!-- Dropdown -->
+    <select id="statusFilter" 
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+        <option value="">All Status</option>
+        <option value="new">New</option>
+        <option value="reviewed">Reviewed</option>
+        <option value="shortlisted">Shortlisted</option>
+        <option value="interviewed">Interviewed</option>
+        <option value="rejected">Rejected</option>
+        <option value="hired">Hired</option>
+    </select>
+</div>
 
             <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200" style="margin-top: 20px;">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
