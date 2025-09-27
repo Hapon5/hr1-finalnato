@@ -121,7 +121,7 @@ try {
 </head>
 <body class="bg-gray-100 font-sans">
     
-    <nav class="sidebar p-5 text-white flex flex-col">
+    <nav class="sidebar p-5 text-white flex flex-col" style="background-color: black;">
         <div class="sidebar-header flex items-center pb-5 border-b border-white/20">
             <i class='fas fa-user-shield text-3xl'></i>
             <h2 class="text-xl font-bold ml-3 whitespace-nowrap">HR Admin</h2>
