@@ -205,7 +205,7 @@ try {
         /* Header */
         .dashboard-header {
             background: var(--background-card);
-            padding: 30px;
+            padding: 40px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-subtle);
             margin-bottom: 30px;
@@ -292,7 +292,7 @@ try {
         }
 
         .submit-button {
-            background: var(--danger-color);
+            background: #000;
             color: white;
             border: none;
             padding: 15px 30px;
@@ -553,6 +553,7 @@ try {
         </div>
 
         <header class="dashboard-header">
+            <div id="liveDateTime" class="text-lg font-medium text-gray-200" style="display:flex; float: right;" ></div>
             <h1><i class="fas fa-shield-alt"></i> Safety & Compliance</h1>
             <p>Report and track workplace safety incidents to ensure employee well-being</p>
             
@@ -683,6 +684,21 @@ try {
             localStorage.clear();
             window.location.href = "../logout.php";
         });
+
+         function updateDateTime() {
+        const now = new Date();
+        const options = {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        };
+        document.getElementById("liveDateTime").textContent =
+            now.toLocaleDateString("en-US", options);
+    }
+
+    // run immediately + update every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
     </script>
 </body>
 </html>
