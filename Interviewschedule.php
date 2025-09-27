@@ -191,7 +191,9 @@ try {
             background-color: var(--background-card);
             transition: background-color 0.3s ease;
         }
-      
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
         .sidebar-nav a i {
             font-size: 20px;
             margin-right: 15px;
