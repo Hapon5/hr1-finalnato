@@ -240,7 +240,7 @@ try {
                         </div>
                         <div class="space-x-3">
                             <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-                            <button type="submit" id="submitBtn" class="px-5 py-2 text-white rounded-lg transition-colors">Submit</button>
+                            <button type="submit" id="submitBtn" class="px-5 py-2 text-white rounded-lg transition-colors" style="background-color: bg-green-500;  padding: 10px;">Submit</button>
                         </div>
                     </div>
                 </form>
