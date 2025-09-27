@@ -358,7 +358,7 @@ try {
       </div>
     </div>
 
-    <div id="candidateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50" style="background-color: #0000;">
+    <div id="candidateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50" >
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
                 <div class="flex items-center justify-between p-6 border-b sticky top-0 bg-white">
@@ -368,7 +368,7 @@ try {
                     </button>
                 </div>
                 
-                <form id="candidateForm" method="POST" enctype="multipart/form-data" class="p-6" style="background-color: #0000;>
+                <form id="candidateForm" method="POST" enctype="multipart/form-data" class="p-6">
                     <input type="hidden" name="action" id="formAction" value="add">
                     <input type="hidden" name="id" id="candidateId" value="">
                     
