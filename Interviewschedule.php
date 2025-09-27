@@ -135,17 +135,17 @@ try {
         </ul>
     </nav>
 
-    <div class="main-content " style="background-color: #323A3C; color: #fff; height: 50%;">
+    <div class="main-content " style="background-color: #323A3C; color: #fff; height: -50%;">
         <div class="flex justify-between items-center mb-6">
             <i class="fas fa-bars menu-toggle"></i>
         </div>
-        <header class="mb-8">
+        <header class="mb-8" >
             <h1 class="text-3xl font-bold text-gray-800">Interview Scheduling</h1>
         </header>
 
         <div class="p-0">
             <!-- Action Bar -->
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6" style="background-color: #000;">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <button id="scheduleBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600">
                         <i class="fas fa-plus mr-2"></i> Schedule Interview
