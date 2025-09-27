@@ -11,7 +11,7 @@ $admin_email = $_SESSION['Email'];
 
 // Ensure table exists
 try {
-    $Connections->exec(
+    $conn->exec(
         "CREATE TABLE IF NOT EXISTS interviews (
             id INT AUTO_INCREMENT PRIMARY KEY,
             candidate_name VARCHAR(255) NOT NULL,
@@ -37,7 +37,7 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     try {
         if ($_POST['action'] === 'add') {
-            $stmt = $Connections->prepare(
+            $stmt = $conn->prepare(
                 'INSERT INTO interviews (candidate_name, email, position, interviewer, start_time, end_time, location, status, notes)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ]);
             $message = 'Interview scheduled successfully';
         } elseif ($_POST['action'] === 'edit') {
-            $stmt = $Connections->prepare(
+            $stmt = $conn->prepare(
                 'UPDATE interviews SET candidate_name=?, email=?, position=?, interviewer=?, start_time=?, end_time=?, location=?, status=?, notes=? WHERE id=?'
             );
             $stmt->execute([
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ]);
             $message = 'Interview updated';
         } elseif ($_POST['action'] === 'delete') {
-            $stmt = $Connections->prepare('DELETE FROM interviews WHERE id=?');
+            $stmt = $conn->prepare('DELETE FROM interviews WHERE id=?');
             $stmt->execute([(int)$_POST['id']]);
             $message = 'Interview deleted';
         }
@@ -90,7 +90,7 @@ try {
         $params[] = $filter;
     }
     $q .= ' ORDER BY start_time DESC';
-    $stmt = $Connections->prepare($q);
+    $stmt = $conn->prepare($q);
     $stmt->execute($params);
     $interviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Throwable $e) {
