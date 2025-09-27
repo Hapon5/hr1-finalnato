@@ -130,7 +130,7 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { 
-            --primary-color: #111827; /* Black */
+            --primary-color: #ffff; /* Black */
             --background-white: #ffff; /* Black */
             --card-bg: ; /* Dark Gray */
             --text-light: #f3f4f6; 
