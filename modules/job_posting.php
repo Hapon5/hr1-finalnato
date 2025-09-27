@@ -12,7 +12,7 @@ if (!isset($_SESSION['Email']) || (isset($_SESSION['Account_type']) && $_SESSION
 // Handle specific AJAX requests for fetching job data
 if (isset($_GET['action']) && $_GET['action'] == 'get_job' && isset($_GET['id'])) {
     try {
-        $stmt = $Connections->prepare("SELECT * FROM job_postings WHERE id = ?");
+        $stmt = $conn->prepare("SELECT * FROM job_postings WHERE id = ?");
         $stmt->execute([$_GET['id']]);
         $job = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -38,14 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if (isset($_POST['action'])) {
             if ($_POST['action'] === 'add') {
-                $stmt = $Connections->prepare("INSERT INTO job_postings (title, position, location, requirements, contact, platform, date_posted) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt = $conn->prepare("INSERT INTO job_postings (title, position, location, requirements, contact, platform, date_posted) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
                     $_POST['title'], $_POST['position'], $_POST['location'],
                     $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted']
                 ]);
                 $response = ['status' => 'success', 'message' => 'Job posting added successfully!'];
             } elseif ($_POST['action'] === 'edit' && isset($_POST['id'])) {
-                $stmt = $Connections->prepare("UPDATE job_postings SET title=?, position=?, location=?, requirements=?, contact=?, platform=?, date_posted=? WHERE id=?");
+                $stmt = $conn->prepare("UPDATE job_postings SET title=?, position=?, location=?, requirements=?, contact=?, platform=?, date_posted=? WHERE id=?");
                 $stmt->execute([
                     $_POST['title'], $_POST['position'], $_POST['location'],
                     $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted'],
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 $response = ['status' => 'success', 'message' => 'Job posting updated successfully!'];
             } elseif ($_POST['action'] === 'delete' && isset($_POST['id'])) {
-                $stmt = $Connections->prepare("DELETE FROM job_postings WHERE id=?");
+                $stmt = $conn->prepare("DELETE FROM job_postings WHERE id=?");
                 $stmt->execute([$_POST['id']]);
                 // For delete, we'll just redirect back
                 $_SESSION['message'] = "Job posting deleted successfully!";
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Fetch all job postings for initial page load
 try {
-    $stmt = $Connections->prepare("SELECT * FROM job_postings ORDER BY created_at DESC");
+    $stmt = $conn->prepare("SELECT * FROM job_postings ORDER BY created_at DESC");
     $stmt->execute();
     $job_postings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
