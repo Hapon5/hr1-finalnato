@@ -49,9 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Fetch recent incidents
 try {
-    $stmt = $Connections->prepare("SELECT * FROM safety_incidents ORDER BY incident_date DESC LIMIT 10");
-    $stmt->execute();
-    $incidents = $stmt->fetchAll();
+    // Check if safety_incidents table exists
+    $tables_check = $Connections->query("SHOW TABLES LIKE 'safety_incidents'");
+    if ($tables_check->rowCount() == 0) {
+        $incidents = [];
+        $error_message = "Safety database table not found. Please run the database setup script first.";
+    } else {
+        $stmt = $Connections->prepare("SELECT * FROM safety_incidents ORDER BY incident_date DESC LIMIT 10");
+        $stmt->execute();
+        $incidents = $stmt->fetchAll();
+    }
 } catch (Exception $e) {
     $incidents = [];
     $error_message = "Failed to load incidents: " . $e->getMessage();
