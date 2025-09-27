@@ -10,17 +10,14 @@ if (!isset($_SESSION['Email']) || (isset($_SESSION['Account_type']) && $_SESSION
 }
 
 // --- AJAX HANDLER ---
-// This block handles fetching data for the 'Edit' and 'View' modals
 if (isset($_GET['action']) && $_GET['action'] == 'get_job' && isset($_GET['id'])) {
     header('Content-Type: application/json');
     try {
-        $stmt = $conn->prepare("SELECT * FROM job_postings WHERE id = ?");
+        $stmt = $conn->prepare("SELECT *, DATE_FORMAT(date_posted, '%Y-%m-%d') as date_posted_formatted FROM job_postings WHERE id = ?");
         $stmt->execute([$_GET['id']]);
         $job = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($job) {
-            // Format date correctly for the HTML <input type="date">
-            $job['date_posted_formatted'] = date('Y-m-d', strtotime($job['date_posted']));
             echo json_encode(['status' => 'success', 'data' => $job]);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Job not found.']);
@@ -28,7 +25,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_job' && isset($_GET['id'])
     } catch (PDOException $e) {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }
-    exit(); // Stop script execution for AJAX requests
+    exit();
 }
 
 // --- FORM SUBMISSION HANDLER (ADD/EDIT) ---
@@ -37,19 +34,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $response = [];
     try {
         if ($_POST['action'] === 'add') {
-            $stmt = $conn->prepare("INSERT INTO job_postings (title, position, location, requirements, contact, platform, date_posted) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$_POST['title'], $_POST['position'], $_POST['location'], $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted']]);
+            $stmt = $conn->prepare("INSERT INTO job_postings (title, position, location, requirements, contact, platform, date_posted, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$_POST['title'], $_POST['position'], $_POST['location'], $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted'], $_POST['status']]);
             $response = ['status' => 'success', 'message' => 'Job posting added successfully!'];
         } elseif ($_POST['action'] === 'edit' && !empty($_POST['id'])) {
-            $stmt = $conn->prepare("UPDATE job_postings SET title=?, position=?, location=?, requirements=?, contact=?, platform=?, date_posted=? WHERE id=?");
-            $stmt->execute([$_POST['title'], $_POST['position'], $_POST['location'], $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted'], $_POST['id']]);
+            $stmt = $conn->prepare("UPDATE job_postings SET title=?, position=?, location=?, requirements=?, contact=?, platform=?, date_posted=?, status=? WHERE id=?");
+            $stmt->execute([$_POST['title'], $_POST['position'], $_POST['location'], $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted'], $_POST['status'], $_POST['id']]);
             $response = ['status' => 'success', 'message' => 'Job posting updated successfully!'];
         }
     } catch (PDOException $e) {
         $response = ['status' => 'error', 'message' => 'Database operation failed: ' . $e->getMessage()];
     }
     echo json_encode($response);
-    exit(); // Stop script execution for AJAX form submissions
+    exit();
 }
 
 // --- DELETE HANDLER ---
@@ -111,8 +108,6 @@ try {
         </div>
         <ul class="sidebar-nav flex-grow pt-5 space-y-2">
             <li><a href="../admin.php" class="flex items-center p-3 rounded-lg hover:bg-white/20 transition-colors"><i class="fas fa-tachometer-alt w-6 text-center"></i><span class="ml-3 whitespace-nowrap">Dashboard</span></a></li>
-             
-            <!-- Add other links here -->
         </ul>
         <div>
            <a href="../logout.php" class="flex items-center p-3 rounded-lg hover:bg-white/20 transition-colors"><i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-3 whitespace-nowrap">Logout</span></a>
@@ -151,7 +146,7 @@ try {
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Posted</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Created</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -171,7 +166,7 @@ try {
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($job['title']) ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?= htmlspecialchars($job['position']) ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?= htmlspecialchars($job['location']) ?></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?= date('M d, Y', strtotime($job['date_posted'])) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?= date('M d, Y g:i A', strtotime($job['created_at'])) ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap"><span class="px-2.5 py-0.5 text-xs font-medium rounded-full <?= $job['status'] == 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>"><?= ucfirst($job['status']) ?></span></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div class="flex space-x-3">
@@ -189,60 +184,6 @@ try {
         </div>
     </div>
 
-    <!-- Add/Edit Job Modal -->
-    <div id="jobModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-                <div class="flex items-center justify-between p-5 border-b">
-                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-800">Add New Job Posting</h3>
-                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">&times;</button>
-                </div>
-                <form id="jobForm" class="modal-body p-6">
-                    <input type="hidden" name="action" id="formAction" value="add">
-                    <input type="hidden" name="id" id="jobId" value="">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                            <input type="text" name="title" id="jobTitle" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                            <input type="text" name="position" id="jobPosition" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                            <input type="text" name="location" id="jobLocation" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
-                            <select name="platform" id="jobPlatform" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
-                                <option value="LinkedIn">LinkedIn</option>
-                                <option value="Indeed">Indeed</option>
-                                <option value="Company Website">Company Website</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Contact</label>
-                            <input type="text" name="contact" id="jobContact" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Posted</label>
-                            <input type="date" name="date_posted" id="jobDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
-                        <textarea name="requirements" id="jobRequirements" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"></textarea>
-                    </div>
-                    <div class="flex justify-end space-x-3 mt-6 p-5 border-t">
-                        <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button type="submit" class="px-5 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600"><i class="fas fa-save mr-2"></i>Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- View Job Modal -->
     <div id="viewModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
