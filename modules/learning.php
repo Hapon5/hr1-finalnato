@@ -543,8 +543,6 @@ try {
         </div>
         <ul class="sidebar-nav">
             <li><a href="../admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-            <li><a href="performance_and_appraisals.php"><i class="fas fa-chart-line"></i><span>Performance</span></a></li>
-            <li><a href="recognition.php"><i class="fas fa-trophy"></i><span>Recognition</span></a></li>
             <li><a href="../logout.php" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
     </nav>
