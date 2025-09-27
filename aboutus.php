@@ -96,36 +96,36 @@
         <div class="team">
             <?php
             // Array of team members (can be dynamic later)
-            $team = [
+            $$team = [
                 [
                     "name" => "Siegfried Mar Viloria",
                     "role" => "Team Leader/ Developer",
                     "bio" => "Experienced Team Leader and Full-Stack Developer...",
-                    "photo" => "../modules/profile/viloria.jpeg",
+                    "photo" => "modules/profile/viloria.jpeg",
                 ],
                 [
                     "name" => "John Lloyd Morales",
                     "role" => "System Analyst",
                     "bio" => "Detail-oriented System Analyst...",
-                    "photo" => "../modules/profile/morales.jpeg",
+                    "photo" => "modules/profile/morales.jpeg",
                 ],
                 [
                     "name" => "Andy Ferrer",
                     "role" => "Document Specialist",
                     "bio" => "Skilled Document Specialist...",
-                    "photo" => "../modules/profile/ferrer.jpeg",
+                    "photo" => "modules/profile/ferrer.jpeg",
                 ],
                 [
                     "name" => "Andrea Ilagan",
                     "role" => "Technical Support Analyst",
                     "bio" => "Dedicated Technical Support Analyst...",
-                    "photo" => "../modules/profile/ilagan.jpeg",
+                    "photo" => "modules/profile/ilagan.jpeg",
                 ],
                 [
                     "name" => "Charlotte Achivida",
                     "role" => "Cyber Security Analyst",
-                    "bio" => "Cybersecurity Analyst with expertise in identifying vulnerabilities...",
-                    "photo" => "../modules/profile/achivida.jpeg",
+                    "bio" => "Cybersecurity Analyst with expertise...",
+                    "photo" => "modules/profile/achivida.jpeg",
                 ]
             ];
             
