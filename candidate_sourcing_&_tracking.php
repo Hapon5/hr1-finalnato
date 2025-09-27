@@ -220,7 +220,7 @@ try {
 
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <button id="addCandidateBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors">
+                    <button id="addCandidateBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors" style="background-color: #0000;">
                         <i class="fas fa-plus mr-2"></i>
                         Add New Candidate
                     </button>
@@ -277,7 +277,7 @@ try {
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div class="flex-shrink-0 h-10 w-10">
-                                                    <div class="h-10 w-10 rounded-full bg-brand-500 flex items-center justify-center">
+                                                    <div class="h-10 w-10 rounded-full bg-brand-500 flex items-center justify-center" style="background-color: #0000;">
                                                         <span class="text-white font-medium">
                                                             <?php echo strtoupper(substr($candidate['full_name'], 0, 2)); ?>
                                                         </span>
