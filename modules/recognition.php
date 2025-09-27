@@ -150,7 +150,7 @@ try {
         .notification.show { opacity: 1; transform: translateX(0); }
     </style>
 </head>
-<body class="bg-white-900">
+<body class="bg-white">
     <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700">
         <div class="sidebar-header flex items-center pb-5 border-b border-gray-700">
             <i class='fas fa-user-shield text-3xl'></i>
