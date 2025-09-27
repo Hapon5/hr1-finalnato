@@ -128,7 +128,7 @@ try {
   </head>
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
-    <nav class="sidebar">
+    <nav class="sidebar" style="background-color: #0000;">
         <div class="sidebar-header">
             <i class='fas fa-user-shield' style='font-size: 2rem; color: #fff;'></i>
             <h2>HR Admin</h2>
