@@ -247,7 +247,7 @@ try {
                 </div>
                 <div class="flex justify-end gap-3">
                     <button type="button" id="cancelBtn" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">Save Schedule</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600" style="background-color: green;" >Save Schedule</button>
                 </div>
             </form>
         </div>
