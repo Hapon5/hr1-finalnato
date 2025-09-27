@@ -84,7 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Fetch employees for dropdown
 try {
-    $stmt = $Connections->query("SELECT * FROM employees WHERE status = 'active' ORDER BY name");
+    $stmt = $Connections->prepare("SELECT * FROM employees WHERE status = 'active' ORDER BY name");
+    $stmt->execute();
     $employees = $stmt->fetchAll();
 } catch (Exception $e) {
     $employees = [];
@@ -93,7 +94,8 @@ try {
 
 // Fetch recognition categories
 try {
-    $stmt = $Connections->query("SELECT * FROM recognition_categories WHERE is_active = 1 ORDER BY name");
+    $stmt = $Connections->prepare("SELECT * FROM recognition_categories WHERE is_active = 1 ORDER BY name");
+    $stmt->execute();
     $categories = $stmt->fetchAll();
 } catch (Exception $e) {
     $categories = [];
@@ -102,25 +104,32 @@ try {
 
 // Fetch recent recognitions
 try {
-    $stmt = $Connections->query("
-        SELECT r.*, 
-               e1.name as from_name, e1.photo_path as from_photo,
-               e2.name as to_name, e2.photo_path as to_photo,
-               rc.name as category_name, rc.icon as category_icon, rc.color as category_color,
-               COUNT(rl.id) as like_count,
-               CASE WHEN EXISTS(SELECT 1 FROM recognition_likes WHERE recognition_id = r.id AND employee_id = ?) THEN 1 ELSE 0 END as is_liked
-        FROM recognitions r
-        JOIN employees e1 ON r.from_employee_id = e1.id
-        JOIN employees e2 ON r.to_employee_id = e2.id
-        JOIN recognition_categories rc ON r.category_id = rc.id
-        LEFT JOIN recognition_likes rl ON r.id = rl.recognition_id
-        WHERE r.is_public = 1
-        GROUP BY r.id
-        ORDER BY r.recognition_date DESC
-        LIMIT 20
-    ");
-    $stmt->execute([$_SESSION['LoginID'] ?? 1]);
-    $recognitions = $stmt->fetchAll();
+    // Check if tables exist first
+    $tables_check = $Connections->query("SHOW TABLES LIKE 'recognitions'");
+    if ($tables_check->rowCount() == 0) {
+        $recognitions = [];
+        $error_message = "Recognition tables not found. Please run the database setup script first.";
+    } else {
+        $stmt = $Connections->prepare("
+            SELECT r.*, 
+                   e1.name as from_name, e1.photo_path as from_photo,
+                   e2.name as to_name, e2.photo_path as to_photo,
+                   rc.name as category_name, rc.icon as category_icon, rc.color as category_color,
+                   COUNT(rl.id) as like_count,
+                   CASE WHEN EXISTS(SELECT 1 FROM recognition_likes WHERE recognition_id = r.id AND employee_id = ?) THEN 1 ELSE 0 END as is_liked
+            FROM recognitions r
+            JOIN employees e1 ON r.from_employee_id = e1.id
+            JOIN employees e2 ON r.to_employee_id = e2.id
+            JOIN recognition_categories rc ON r.category_id = rc.id
+            LEFT JOIN recognition_likes rl ON r.id = rl.recognition_id
+            WHERE r.is_public = 1
+            GROUP BY r.id
+            ORDER BY r.recognition_date DESC
+            LIMIT 20
+        ");
+        $stmt->execute([$_SESSION['LoginID'] ?? 1]);
+        $recognitions = $stmt->fetchAll();
+    }
 } catch (Exception $e) {
     $recognitions = [];
     $error_message = "Failed to load recognitions: " . $e->getMessage();
