@@ -130,14 +130,14 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { 
-            --primary-color: #ffff; /* Black */
-            --background-white: #ffff; /* Black */
-            --card-bg: ; /* Dark Gray */
+            --primary-color: #111827; /* Black */
+            --background-: #ffff; /* Black */
+            --card-bg: #1f2937; /* Dark Gray */
             --text-light: #f3f4f6; 
             --text-medium: #9ca3af;
             --border-color: #374151;
         }
-        body { background-color: white display: flex; font-family: "Poppins", sans-serif; }
+        body { background-color: var(--background-white); display: flex; font-family: "Poppins", sans-serif; }
         .sidebar { width: 260px; background-color: var(--primary-color); position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
         .main-content { margin-left: 260px; width: calc(100% - 260px); }
         .sidebar-nav a { color: var(--text-light); }
@@ -150,7 +150,7 @@ try {
         .notification.show { opacity: 1; transform: translateX(0); }
     </style>
 </head>
-<body class="bg-gray-900">
+<body class="bg-white">
     <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700">
         <div class="sidebar-header flex items-center pb-5 border-b border-gray-700">
             <i class='fas fa-user-shield text-3xl'></i>
