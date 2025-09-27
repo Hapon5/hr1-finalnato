@@ -111,7 +111,7 @@ try {
         </div>
         <ul class="sidebar-nav flex-grow pt-5 space-y-2">
             <li><a href="../admin.php" class="flex items-center p-3 rounded-lg hover:bg-white/20 transition-colors"><i class="fas fa-tachometer-alt w-6 text-center"></i><span class="ml-3 whitespace-nowrap">Dashboard</span></a></li>
-            <li><a href="job_posting.php" class="flex items-center p-3 rounded-lg bg-white/20 transition-colors font-bold"><i class="fas fa-bullhorn w-6 text-center"></i><span class="ml-3 whitespace-nowrap">Job Posting</span></a></li>
+             
             <!-- Add other links here -->
         </ul>
         <div>
