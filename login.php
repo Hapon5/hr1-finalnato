@@ -249,7 +249,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <!-- Back to Landing -->
                     <div class="mt-6 text-center">
-                        <a href="landing.php" class="text-sm text-gray-600 hover:text-brand-500 transition-colors">
+                        <a href="../landing.php" class="text-sm text-gray-600 hover:text-brand-500 transition-colors">
                             <i class="fas fa-arrow-left mr-1"></i>
                             Back to Home
                         </a>
