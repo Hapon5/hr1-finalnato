@@ -227,12 +227,8 @@
             <h2>HR Admin</h2>
         </div>
         <ul class="sidebar-nav">
-            <li><a href="admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-            <li><a href="modules/performance_and_appraisals.php"><i class="fas fa-chart-line"></i><span>Performance</span></a></li>
-            <li><a href="modules/recognition.php"><i class="fas fa-trophy"></i><span>Recognition</span></a></li>
-            <li><a href="modules/learning.php"><i class="fas fa-shield-alt"></i><span>Safety</span></a></li>
-            <li><a href="aboutus.php"><i class="fas fa-info-circle"></i><span>About Us</span></a></li>
-            <li><a href="logout.php"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+            <li><a href="./admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <li><a href="./logout.php"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
     </nav>
 
@@ -251,31 +247,31 @@
                 "name" => "Siegfried Mar Viloria",
                 "role" => "Team Leader / Developer",
                 "bio" => "Experienced Team Leader and Full-Stack Developer with a strong background in leading cross-functional teams and delivering scalable software solutions.",
-                "photo" => "modules/profile/Viloria.jpeg",
+                "photo" => "profile/Viloria.jpeg",
             ],
             [
                 "name" => "John Lloyd Morales",
                 "role" => "System Analyst",
                 "bio" => "Detail-oriented System Analyst with a strong background in analyzing business requirements and translating them into effective technical solutions.",
-                "photo" => "modules/profile/morales.jpeg",
+                "photo" =>"profile/morales.jpeg",
             ],
             [
                 "name" => "Andy Ferrer",
                 "role" => "Document Specialist",
                 "bio" => "Skilled Document Specialist with expertise in managing, formatting, and maintaining high-quality business documents across various platforms.",
-                "photo" => "modules/profile/ferrer.jpeg",
+                "photo" => "profile/ferrer.jpeg",
             ],
             [
                 "name" => "Andrea Ilagan",
                 "role" => "Technical Support Analyst",
                 "bio" => "A dedicated Technical Support Analyst with experience in diagnosing and resolving hardware, software, and network issues across various platforms.",
-                "photo" => "modules/profile/ilagan.jpeg",
+                "photo" => "profile/ilagan.jpeg",
             ],
             [
                 "name" => "Charlotte Achivida",
                 "role" => "Cyber Security Analyst",
                 "bio" => "A detail-oriented Cybersecurity Analyst with expertise in identifying vulnerabilities, monitoring threats, and implementing security measures.",
-                "photo" => "modules/profile/achivida.jpeg",
+                "photo" => "profile/achivida.jpeg",
             ]
         ];
         ?>
