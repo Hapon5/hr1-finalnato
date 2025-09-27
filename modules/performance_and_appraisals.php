@@ -67,6 +67,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt->execute([$rating, $comment, $appraisal_id]);
                 $message = 'Appraisal updated successfully!';
             } else {
+                // Prevent duplicate appraisal for the same user on the same day by the same rater
+                $checkStmt = $conn->prepare("SELECT id FROM appraisals WHERE employee_id = ? AND rater_email = ? AND DATE(appraisal_date) = CURDATE()");
+                $checkStmt->execute([$employee_id, $rater_email]);
+                if ($checkStmt->fetch()) {
+                     echo json_encode(['status' => 'error', 'message' => 'An appraisal for this employee was already submitted today.']);
+                     exit();
+                }
                 $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_email, rating, comment, appraisal_date) VALUES (?, ?, ?, ?, NOW())");
                 $stmt->execute([$employee_id, $rater_email, $rating, $comment]);
                 $message = 'Appraisal submitted successfully!';
@@ -91,8 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 
 // --- INITIAL PAGE LOAD ---
-// (Database table creation and employee fetching logic remains the same)
 try {
+    // Corrected query to get the latest appraisal rating for each employee
     $stmt = $conn->query("
         SELECT e.*, a.rating as last_rating
         FROM employees e
@@ -132,6 +139,8 @@ try {
         .star-rating input[type="radio"] { display: none; }
         .star-rating label { font-size: 2rem; color: #ddd; cursor: pointer; transition: color 0.2s; }
         .star-rating input[type="radio"]:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107; }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; z-index: 1000; transition: all 0.5s ease; opacity: 0; transform: translateX(100%); }
+        .notification.show { opacity: 1; transform: translateX(0); }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -148,15 +157,16 @@ try {
     </nav>
 
     <!-- Main Content -->
-    <div class="main-content p-6">
-        <header class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Performance & Appraisals</h1>
-            <p class="text-gray-600">Review and rate employee performance</p>
-        </header>
+    <div class="main-content p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+             <h1 class="text-3xl font-bold text-gray-800">Performance & Appraisals</h1>
+             <div id="datetime" class="text-gray-600 font-medium"></div>
+        </div>
+        <p class="text-gray-600 mb-8">Review and rate employee performance</p>
 
         <!-- Employee Table -->
-        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 flex-grow">
+            <div class="overflow-x-auto h-full">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -226,11 +236,11 @@ try {
 
                     <div class="flex justify-between items-center pt-5 border-t">
                         <div>
-                            <button type="button" id="deleteBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 hidden">Delete</button>
+                            <button type="button" id="deleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 hidden">Delete</button>
                         </div>
                         <div class="space-x-3">
                             <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-                            <button type="submit" id="submitBtn" class="px-5 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">Submit</button>
+                            <button type="submit" id="submitBtn" class="px-5 py-2 text-white rounded-lg transition-colors">Submit</button>
                         </div>
                     </div>
                 </form>
@@ -253,6 +263,31 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModalBtn.addEventListener('click', closeModal);
     cancelBtn.addEventListener('click', closeModal);
 
+    // --- Live Date and Time Script ---
+    const datetimeElement = document.getElementById('datetime');
+    function updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        datetimeElement.textContent = now.toLocaleString('en-US', options);
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // --- Notification Function ---
+    function showNotification(message, type = 'success') {
+        const notif = document.createElement('div');
+        notif.textContent = message;
+        notif.className = `notification ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+        document.body.appendChild(notif);
+        setTimeout(() => {
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+                setTimeout(() => notif.remove(), 500);
+            }, 3000);
+        }, 10);
+    }
+
     window.openRateModal = function(employeeId) {
         fetch(`?action=get_employee_appraisal&id=${employeeId}`)
         .then(res => res.json())
@@ -265,23 +300,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('modalEmployeeId').value = emp.id;
                 document.getElementById('modalName').textContent = emp.name;
                 document.getElementById('modalPosition').textContent = emp.position;
-                document.getElementById('modalPhoto').src = `../${emp.photo_path}`;
+                document.getElementById('modalPhoto').src = `../${emp.photo_path || 'path/to/default.png'}`;
                 document.getElementById('modalAppraisalId').value = '';
+                
+                // Reset submit button style
+                submitBtn.classList.remove('bg-green-500', 'hover:bg-green-600', 'bg-brand-500', 'hover:bg-brand-600');
 
                 if (appraisal) { // If appraisal exists, populate form
                     document.getElementById('modalAppraisalId').value = appraisal.id;
                     document.getElementById('comment').value = appraisal.comment;
                     const starInput = form.querySelector(`input[name="rating"][value="${appraisal.rating}"]`);
                     if (starInput) starInput.checked = true;
-                    submitBtn.textContent = 'Update Appraisal';
+                    submitBtn.textContent = 'Update';
+                    submitBtn.classList.add('bg-green-500', 'hover:bg-green-600');
                     deleteBtn.classList.remove('hidden');
                 } else { // No appraisal yet
-                    submitBtn.textContent = 'Submit Appraisal';
+                    submitBtn.textContent = 'Submit';
+                    submitBtn.classList.add('bg-brand-500', 'hover:bg-brand-600');
                     deleteBtn.classList.add('hidden');
                 }
                 openModal();
             } else {
-                alert(data.message);
+                showNotification(data.message, 'error');
             }
         });
     }
@@ -290,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const rating = form.rating.value;
         if (!rating) {
-            alert('Please select a star rating.');
+            showNotification('Please select a star rating.', 'error');
             return;
         }
 
@@ -301,9 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
-            alert(data.message);
+            showNotification(data.message, data.status);
             if (data.status === 'success') {
-                window.location.reload();
+                setTimeout(() => window.location.reload(), 1500);
             }
         });
     });
@@ -321,9 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
-            alert(data.message);
+            showNotification(data.message, data.status);
             if (data.status === 'success') {
-                window.location.reload();
+                setTimeout(() => window.location.reload(), 1500);
             }
         });
     });
