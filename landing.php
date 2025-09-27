@@ -46,7 +46,7 @@
                 <li><a href="aboutus.php" class="text-white/90 hover:text-white transition duration-300">About Us</a></li>
                 <li><a href="#contact" class="text-white/90 hover:text-white transition duration-300">Contact</a></li>
             </ul>
-            <a href="/HR1/login.php" class="ml-6 hidden rounded-full bg-white px-6 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100 transition duration-300 md:inline-block">
+            <a href="hr1/login.php" class="ml-6 hidden rounded-full bg-white px-6 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100 transition duration-300 md:inline-block">
                 <i class="fas fa-sign-in-alt mr-2"></i>
                 Login
             </a>
@@ -60,7 +60,7 @@
                     <li><a href="aboutus.php" class="block rounded-lg px-4 py-2 text-white hover:bg-white/10 transition duration-300">About Us</a></li>
                     <li><a href="#contact" class="block rounded-lg px-4 py-2 text-white hover:bg-white/10 transition duration-300">Contact</a></li>
                     <li class="pt-2">
-                        <a href="login.php" class="inline-flex items-center rounded-full bg-white px-6 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100 transition duration-300">
+                        <a href="hr1/login.php" class="inline-flex items-center rounded-full bg-white px-6 py-2 font-semibold text-brand-500 shadow hover:bg-gray-100 transition duration-300">
                             <i class="fas fa-sign-in-alt mr-2"></i>
                             Login
                         </a>
@@ -86,7 +86,7 @@
                 performance management, and the entire employee lifecycle.
             </p>
             <div class="flex flex-wrap items-center justify-center gap-4">
-                <a href="login.php" class="inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-lg font-semibold text-brand-500 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+                <a href="hr1/login.php" class="inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-lg font-semibold text-brand-500 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                     <i class="fas fa-rocket"></i>
                     Get Started Now
                 </a>
@@ -295,7 +295,7 @@
                 <div>
                     <h4 class="text-lg font-semibold text-white mb-6">Quick Links</h4>
                     <ul class="space-y-3">
-                        <li><a href="login.php" class="text-gray-400 hover:text-brand-500 transition-colors duration-300">Login</a></li>
+                        <li><a href="hr1/login.php" class="text-gray-400 hover:text-brand-500 transition-colors duration-300">Login</a></li>
                         <li><a href="aboutus.php" class="text-gray-400 hover:text-brand-500 transition-colors duration-300">About Us</a></li>
                         <li><a href="#features" class="text-gray-400 hover:text-brand-500 transition-colors duration-300">Features</a></li>
                         <li><a href="#modules" class="text-gray-400 hover:text-brand-500 transition-colors duration-300">Modules</a></li>
