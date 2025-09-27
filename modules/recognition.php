@@ -133,7 +133,7 @@ try {
             --primary-color: #111827; /* Black */
             --background-dark: #111827; /* Black */
             --card-bg: #1f2937; /* Dark Gray */
-            --text-light: #0000; 
+            --text-light: #ffff; 
             --text-medium: #9ca3af;
             --border-color: #374151;
         }
