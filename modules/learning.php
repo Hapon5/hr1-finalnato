@@ -307,7 +307,81 @@ try {
         .submit-button:hover {
             background: #c82333;
         }
+        
+        /* --- NEW STYLES START HERE --- */
+        /* Safety Committee Members Section */
+        .team-container {
+            background: var(--background-card);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-subtle);
+            margin-bottom: 30px;
+        }
+        .team-container h2 {
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .member-card {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .member-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .member-card img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid var(--primary-color);
+        }
+        .member-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+        .member-card p {
+            color: #666;
+            font-size: 0.9rem;
+        }
 
+        /* Safety Guidelines Section */
+        .safety-guidelines {
+            background: var(--background-card);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-subtle);
+            margin-bottom: 30px;
+        }
+        .safety-guidelines h2 {
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .safety-guidelines ol {
+            margin-top: 20px;
+            padding-left: 25px;
+            list-style-type: decimal;
+        }
+        .safety-guidelines li {
+            margin-bottom: 12px;
+            line-height: 1.7;
+            color: #555;
+        }
+        /* --- NEW STYLES END HERE --- */
+        
         /* Incident History */
         .incidents-container {
             background: var(--background-card);
@@ -444,6 +518,7 @@ try {
             .main-content {
                 margin-left: 0;
                 padding: 15px;
+                max-width: 100vw;
             }
             
             .dashboard-header h1 {
@@ -452,6 +527,10 @@ try {
 
             .form-row {
                 grid-template-columns: 1fr;
+            }
+            
+            .members-grid {
+                grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             }
         }
     </style>
@@ -492,13 +571,12 @@ try {
             <?php endif; ?>
         </header>
 
-        <!-- Incident Report Form -->
         <div class="incident-form">
             <h2><i class="fas fa-plus-circle"></i> Report Safety Incident</h2>
-    <form method="POST" action="">
+            <form method="POST" action="">
                 <div class="form-row">
                     <div class="form-group">
-        <label for="employee">Employee Name:</label>
+                        <label for="employee">Employee Name:</label>
                         <input type="text" id="employee" name="employee" required placeholder="Enter employee name">
                     </div>
                     <div class="form-group">
@@ -532,17 +610,58 @@ try {
                 </div>
 
                 <div class="form-group">
-        <label for="incident">Incident Details:</label>
+                    <label for="incident">Incident Details:</label>
                     <textarea id="incident" name="incident" required placeholder="Provide detailed description of the incident, including what happened, when, and any immediate actions taken..."></textarea>
                 </div>
 
                 <button type="submit" class="submit-button">
                     <i class="fas fa-paper-plane"></i> Submit Incident Report
                 </button>
-    </form>
+            </form>
         </div>
 
-        <!-- Incident History -->
+        <div class="team-container">
+            <h2><i class="fas fa-users"></i> Safety Committee Members</h2>
+            <div class="members-grid">
+                <div class="member-card">
+                    <img src="https://via.placeholder.com/100/d37a15/ffffff?text=JD" alt="Member Photo">
+                    <h4>Juan dela Cruz</h4>
+                    <p>Head Safety Officer</p>
+                </div>
+                <div class="member-card">
+                    <img src="https://via.placeholder.com/100/0a0a0a/ffffff?text=MS" alt="Member Photo">
+                    <h4>Maria Santos</h4>
+                    <p>First-Aid Responder</p>
+                </div>
+                <div class="member-card">
+                    <img src="https://via.placeholder.com/100/28a745/ffffff?text=PR" alt="Member Photo">
+                    <h4>Pedro Reyes</h4>
+                    <p>Equipment Inspector</p>
+                </div>
+                <div class="member-card">
+                    <img src="https://via.placeholder.com/100/1976d2/ffffff?text=AG" alt="Member Photo">
+                    <h4>Ana Garcia</h4>
+                    <p>Compliance Specialist</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="safety-guidelines">
+            <h2><i class="fas fa-list-check"></i> Workplace Safety Guidelines</h2>
+            <ol>
+                <li>Report all accidents, injuries, and unsafe conditions to your supervisor.</li>
+                <li>Never operate any equipment unless you are trained and authorized.</li>
+                <li>Use the right tool for the job.</li>
+                <li>Always wear required Personal Protective Equipment (PPE).</li>
+                <li>Keep your work area clean and organized.</li>
+                <li>Do not engage in horseplay or practical jokes.</li>
+                <li>Know the location of fire extinguishers and first aid kits.</li>
+                <li>Obey all safety signs and warnings.</li>
+                <li>Lift properly: use your legs, not your back.</li>
+                <li>Be aware of your surroundings and the actions of others.</li>
+            </ol>
+        </div>
+
         <div class="incidents-container">
             <h3><i class="fas fa-history"></i> Recent Safety Incidents</h3>
             
@@ -552,7 +671,7 @@ try {
                     <h3>No Incidents Reported</h3>
                     <p>Great job maintaining a safe workplace!</p>
                 </div>
-    <?php else: ?>
+            <?php else: ?>
                 <?php foreach ($incidents as $incident): ?>
                     <div class="incident-item">
                         <div class="incident-header">
@@ -569,9 +688,9 @@ try {
                             <span class="incident-severity <?php echo $incident['severity']; ?>"><?php echo ucfirst($incident['severity']); ?> Severity</span>
                             <span class="incident-location"><?php echo htmlspecialchars($incident['location']); ?></span>
                         </div>
-            </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 
