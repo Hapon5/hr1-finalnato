@@ -206,7 +206,7 @@ try {
     </div>
 
 
-   <div id="jobModal" class="fixed  bg-dark  hidden z-50">
+   <div id="jobModal" class="fixed inset-0 bg-gray-100 bg-opacity-75 hidden z-50">
     <div class="flex items-center bg-dark justify-center min-h-screen p-4">
             <div class="bg-dark rounded-lg  max-w-2xl w-full">
                 <div class="flex bg-dark items-center justify-between p-5 border-b">
