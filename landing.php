@@ -10,7 +10,7 @@ $jobs = [];
 // Use PDO to prepare and execute the query for the featured job
 try {
     // CORRECTED: Changed variable from $conn to $Connections to match your file
-    $stmt = $conn->prepare("SELECT * FROM job_postings WHERE status = 'active' LIMIT 1"); // Assuming a 'status' or 'featured' column
+    $stmt = $co->prepare("SELECT * FROM job_postings WHERE status = 'active' LIMIT 1"); // Assuming a 'status' or 'featured' column
     $stmt->execute();
     $featuredJob = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -73,7 +73,7 @@ try {
                   <a class="nav-link" href="../aboutus.php">About Us</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="https://hr1.cranecali-ms.com/hr1/login.php">LogIn</a>
+                  <a class="nav-link" href="../login.php">LogIn</a>
                 </li>
               </ul>
             </div>
