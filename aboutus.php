@@ -226,7 +226,7 @@
             <i class='bx bxs-user-detail' style='font-size: 2rem; color: #fff;'></i>
             <h2>HR Admin</h2>
         </div>
-        <ul class="sidebar-nav">
+        <ul class="sidebar-nav" style="border-left: 1px solid #ccc;">
             <li><a href="./admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
             <li><a href="./logout.php"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
