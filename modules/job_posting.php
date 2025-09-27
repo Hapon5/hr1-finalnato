@@ -100,11 +100,18 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] }, colors: { brand: { 500: '#0000', 600: '#0000' } } } }
+            theme: { 
+                extend: { 
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }, 
+                    colors: { 
+                        brand: { 500: '#1f2937', 600: '#374151' } 
+                    } 
+                } 
+            }
         }
     </script>
     <style>
-        .sidebar { width: 260px; background-color: #0000; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; transition: all 0.3s ease; }
+        .sidebar { width: 260px; background-color: #323A3C; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; transition: all 0.3s ease; }
         .main-content { margin-left: 260px; transition: margin-left 0.3s ease; }
         .sidebar.close { width: 78px; }
         .sidebar.close ~ .main-content { margin-left: 78px; }
@@ -128,11 +135,15 @@ try {
     </nav>
 
     <div class="main-content p-6">
-        <i class="fas fa-bars text-2xl cursor-pointer mb-6" id="menu-toggle"></i>
+        <i class="fas fa-bars text-2xl cursor-pointer mb-6 text-gray-700" id="menu-toggle"></i>
         
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Job Posting Management</h1>
-            <p class="text-gray-600">Manage and track job postings across different platforms</p>
+        <div class="flex justify-between items-start mb-8 flex-wrap">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Job Posting Management</h1>
+                <p class="text-gray-600">Manage and track job postings across different platforms</p>
+            </div>
+            <div id="live-datetime" class="text-right">
+                </div>
         </div>
 
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -143,7 +154,7 @@ try {
                 </button>
                 <div class="relative">
                     <i class="fas fa-search text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                    <input type="text" id="searchInput" placeholder="Search jobs..." class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                    <input type="text" id="searchInput" placeholder="Search jobs..." class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
                 </div>
             </div>
         </div>
@@ -151,14 +162,14 @@ try {
         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200" id="jobsTable">
-                    <thead class="bg-gray-50">
+                    <thead style="background-color: #323A3C;">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Created</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Position</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Location</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Date Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -209,38 +220,38 @@ try {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label for="jobTitle" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                            <input type="text" id="jobTitle" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500" required>
+                            <input type="text" id="jobTitle" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required>
                         </div>
                         <div>
                             <label for="jobPosition" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                            <input type="text" id="jobPosition" name="position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500" required>
+                            <input type="text" id="jobPosition" name="position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required>
                         </div>
                         <div>
                             <label for="jobLocation" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                            <input type="text" id="jobLocation" name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500" required>
+                            <input type="text" id="jobLocation" name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required>
                         </div>
                         <div>
                             <label for="jobPlatform" class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
-                            <input type="text" id="jobPlatform" name="platform" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                            <input type="text" id="jobPlatform" name="platform" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
                         </div>
                          <div>
                             <label for="jobContact" class="block text-sm font-medium text-gray-700 mb-1">Contact</label>
-                            <input type="text" id="jobContact" name="contact" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                            <input type="text" id="jobContact" name="contact" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
                         </div>
                         <div>
                             <label for="jobDate" class="block text-sm font-medium text-gray-700 mb-1">Date Posted</label>
-                            <input type="date" id="jobDate" name="date_posted" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500" required>
+                            <input type="date" id="jobDate" name="date_posted" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500" required>
                         </div>
                          <div class="md:col-span-2">
                             <label for="jobStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <select id="jobStatus" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                            <select id="jobStatus" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500">
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
                         </div>
                         <div class="md:col-span-2">
                             <label for="jobRequirements" class="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
-                            <textarea id="jobRequirements" name="requirements" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"></textarea>
+                            <textarea id="jobRequirements" name="requirements" rows="4" class="w-full px-3 py-2 border border-ray-300 rounded-lg focus:ring-2 focus:ring-gray-500"></textarea>
                         </div>
                     </div>
                     <div class="flex justify-end pt-5 border-t mt-5">
@@ -267,7 +278,26 @@ try {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Modal elements
+    // --- Live Date and Time ---
+    const dateTimeElement = document.getElementById('live-datetime');
+    function updateDateTime() {
+        const now = new Date();
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        
+        const formattedDate = now.toLocaleDateString('en-US', dateOptions);
+        const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
+        
+        dateTimeElement.innerHTML = `
+            <p class="text-lg font-semibold text-gray-700">${formattedDate}</p>
+            <p class="text-3xl font-bold text-gray-900">${formattedTime}</p>
+        `;
+    }
+    // Update the time immediately and then every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // --- Modal elements ---
     const modal = document.getElementById('jobModal');
     const viewModal = document.getElementById('viewModal');
     const addJobBtn = document.getElementById('addJobBtn');
