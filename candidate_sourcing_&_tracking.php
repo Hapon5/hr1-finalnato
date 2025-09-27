@@ -219,11 +219,15 @@ try {
             <?php endif; ?>
 
             <div class="rounded-lg shadow-sm p-6 mb-6" style="background-color: #0000;">
-                <div class="  flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4" style="color: #0000;">
-                    <button id="addCandidateBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-black rounded-lg hover:bg-brand-600 transition-colors" style="background-color: #0000;">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4" style="background-color: black; color: white;">
+                    <button id="addCandidateBtn" 
+                        class="inline-flex items-center px-6 py-3 rounded-lg transition-colors" 
+                        style="background-color: black; color: white;">
                         <i class="fas fa-plus mr-2"></i>
                         Add New Candidate
                     </button>
+                </div>
+
                     
                     <div class="flex flex-col sm:flex-row gap-4">
                         <div class="relative">
