@@ -10,7 +10,7 @@ $jobs = [];
 // Use PDO to prepare and execute the query for the featured job
 try {
     // CORRECTED: Changed variable from $conn to $Connections to match your file
-    $stmt = $co->prepare("SELECT * FROM job_postings WHERE status = 'active' LIMIT 1"); // Assuming a 'status' or 'featured' column
+    $stmt = $conn->prepare("SELECT * FROM job_postings WHERE status = 'active' LIMIT 1"); // Assuming a 'status' or 'featured' column
     $stmt->execute();
     $featuredJob = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
