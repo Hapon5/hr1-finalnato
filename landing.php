@@ -21,7 +21,7 @@ try {
 // Get all active jobs for the job listing section
 try {
     // CORRECTED: Changed variable from $conn to $Connections
-    $stmtJobs = $Connections->prepare("SELECT * FROM job_postings WHERE status = 'active'");
+    $stmtJobs = $conn->prepare("SELECT * FROM job_postings WHERE status = 'active'");
     $stmtJobs->execute();
     $jobs = $stmtJobs->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
