@@ -147,7 +147,7 @@ try {
             <!-- Action Bar -->
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6" style="background-color: #000;">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <button id="scheduleBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600">
+                    <button id="scheduleBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600" style="background-color: #000;">
                         <i class="fas fa-plus mr-2"></i> Schedule Interview
                     </button>
                     <!-- Filter... -->
