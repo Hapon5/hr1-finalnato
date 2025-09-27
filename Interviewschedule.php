@@ -106,11 +106,7 @@ try {
         }
     </script>
     <style>
-        :root {
-            --primary-color: #0000;
-            --background-light: #f8f9fa;
-            --text-light: #f4f4f4;
-        }
+        :root { --primary-color: #0000; --secondary-color: #0000; --background-light: #0000; --background-dark: #0000; --text-light: #0000; --text-dark: #0000; }}
         body { background-color: var(--background-light); display: flex; min-height: 100vh; font-family: "Poppins", sans-serif; }
         .sidebar { width: 260px; background-color: var(--primary-color); padding: 20px; display: flex; flex-direction: column; transition: all 0.3s ease; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
         .sidebar-header { display: flex; align-items: center; color: var(--text-light); padding-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
