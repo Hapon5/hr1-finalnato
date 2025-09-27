@@ -276,7 +276,7 @@ try {
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10">
+                                                <div class="flex-shrink-0 h-10 w-10"  style="background-color: #0000; color: white;">
                                                     <div class="h-10 w-10 rounded-full flex items-center justify-center" style="background-color: #0000; color: white;" >
                                                         <span class="text-white font-medium">
                                                             <?php echo strtoupper(substr($candidate['full_name'], 0, 2)); ?>
