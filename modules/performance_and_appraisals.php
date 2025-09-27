@@ -1,944 +1,263 @@
 <?php
 session_start();
 
-// Include database connection
-$pathsToTry = [
-    __DIR__ . '/../Connections.php',
-    __DIR__ . '/Connections.php'
-];
+// Use a relative path to go up one directory to the root 'hr1' folder
+include("../Connections.php");
 
-$connectionsIncluded = false;
-foreach ($pathsToTry as $path) {
-    if (file_exists($path)) {
-        require_once $path;
-        $connectionsIncluded = true;
-        break;
+// Check if user is logged in and is admin
+if (!isset($_SESSION['Email']) || (isset($_SESSION['Account_type']) && $_SESSION['Account_type'] !== '1')) {
+    header("Location: ../login.php");
+    exit();
+}
+
+// --- AJAX HANDLER: Get Employee Details ---
+if (isset($_GET['action']) && $_GET['action'] == 'get_employee' && isset($_GET['id'])) {
+    header('Content-Type: application/json');
+    try {
+        $stmt = $conn->prepare("SELECT id, name, position, photo_path FROM employees WHERE id = ?");
+        $stmt->execute([$_GET['id']]);
+        $employee = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode($employee ? ['status' => 'success', 'data' => $employee] : ['status' => 'error', 'message' => 'Employee not found']);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }
+    exit();
 }
 
-if (!$connectionsIncluded || !isset($conn)) {
-    die("Critical Error: Unable to load database connection.");
-}
-
-// Check if user is logged in
-if (!isset($_SESSION['Email'])) {
-    header('Location: ../login.php');
-    exit;
-}
-
-$success_message = '';
-$error_message = '';
-
-// Handle appraisal submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_appraisal'])) {
+// --- AJAX HANDLER: Submit Appraisal ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'submit_appraisal') {
+    header('Content-Type: application/json');
     $employee_id = $_POST['employee_id'];
     $rating = $_POST['rating'];
-    $comment = $_POST['comment'];
-    $rater_id = $_SESSION['LoginID'] ?? 1; // Assuming admin is rater, fallback to 1
+    $comment = trim($_POST['comment']);
+    $rater_email = $_SESSION['Email']; // Get rater from session
 
-    // Validate inputs
     if (empty($employee_id) || empty($rating) || !is_numeric($rating) || $rating < 1 || $rating > 5) {
-        $error_message = "Please provide a valid rating (1-5) and select an employee.";
-    } else {
-    try {
-        $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_id, rating, comment) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$employee_id, $rater_id, $rating, $comment]);
-        $success_message = "Appraisal submitted successfully!";
-    } catch (Exception $e) {
-        $error_message = "Failed to submit appraisal: " . $e->getMessage();
-        }
+        echo json_encode(['status' => 'error', 'message' => 'Please provide a valid rating (1-5).']);
+        exit();
     }
+    
+    try {
+        $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_email, rating, comment, appraisal_date) VALUES (?, ?, ?, ?, NOW())");
+        $stmt->execute([$employee_id, $rater_email, $rating, $comment]);
+        echo json_encode(['status' => 'success', 'message' => 'Appraisal submitted successfully!']);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to submit appraisal: ' . $e->getMessage()]);
+    }
+    exit();
 }
 
-// Fetch employees
+// --- INITIAL PAGE LOAD ---
+// Create tables if they don't exist
 try {
-    $stmt = $conn->query("SELECT * FROM employees WHERE status = 'active' ORDER BY name");
+    $conn->exec("CREATE TABLE IF NOT EXISTS employees (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        position VARCHAR(255),
+        photo_path VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'active'
+    )");
+     $conn->exec("CREATE TABLE IF NOT EXISTS appraisals (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        employee_id INT NOT NULL,
+        rater_email VARCHAR(255) NOT NULL,
+        rating INT NOT NULL,
+        comment TEXT,
+        appraisal_date DATETIME NOT NULL,
+        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+    )");
+} catch(Exception $e) {
+    // Silently log error, don't stop the page
+    error_log("Table creation failed: " . $e->getMessage());
+}
+
+// Fetch active employees
+try {
+    $stmt = $conn->query("SELECT e.*, a.rating as last_rating FROM employees e LEFT JOIN (SELECT employee_id, rating, appraisal_date FROM appraisals ORDER BY appraisal_date DESC) a ON e.id = a.employee_id WHERE e.status = 'active' GROUP BY e.id ORDER BY e.name");
     $employees = $stmt->fetchAll();
 } catch (Exception $e) {
     $employees = [];
     $error_message = "Failed to load employees: " . $e->getMessage();
 }
 
-// Fetch recent appraisals for display
-try {
-    $stmt = $conn->query("
-        SELECT a.*, e.name as employee_name, e.position, e.photo_path 
-        FROM appraisals a 
-        JOIN employees e ON a.employee_id = e.id 
-        ORDER BY a.appraisal_date DESC 
-        LIMIT 10
-    ");
-    $recent_appraisals = $stmt->fetchAll();
-} catch (Exception $e) {
-    $recent_appraisals = [];
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance & Appraisals - HR Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-<style>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
-    
-    :root {
-        --primary-color: #d37a15;
-        --secondary-color: #0a0a0a;
-            --background-light: #f8f9fa;
-        --background-card: #ffffff;
-        --text-dark: #333;
-        --text-light: #f4f4f4;
-        --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --border-radius: 12px;
-    }
-
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Poppins", sans-serif;
-    }
-
-    body {
-        background-color: var(--background-light);
-        display: flex;
-        min-height: 100vh;
-        color: var(--text-dark);
-    }
-    
-        /* Sidebar Styles */
-    .sidebar {
-        width: 260px;
-        background-color: var(--primary-color);
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        transition: all 0.3s ease;
-        position: fixed;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        z-index: 100;
-    }
-        
-    .sidebar.close {
-        width: 78px;
-    }
-        
-    .sidebar-header {
-        display: flex;
-        align-items: center;
-        color: var(--text-light);
-        padding-bottom: 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-        
-    .sidebar-header h2 {
-        font-size: 1.5rem;
-        margin-left: 10px;
-        transition: opacity 0.3s ease;
-    }
-        
-    .sidebar.close .sidebar-header h2 {
-        opacity: 0;
-        pointer-events: none;
-    }
-        
-    .sidebar-nav {
-        list-style: none;
-        flex-grow: 1;
-        padding-top: 20px;
-    }
-        
-    .sidebar-nav li {
-        margin-bottom: 10px;
-    }
-        
-    .sidebar-nav a {
-        display: flex;
-        align-items: center;
-        padding: 12px 15px;
-        border-radius: 8px;
-        text-decoration: none;
-            color: var(--text-light);
-        transition: background-color 0.3s ease;
-    }
-        
-    .sidebar-nav a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-    }
-        
-    .sidebar-nav a i {
-        font-size: 20px;
-        margin-right: 15px;
-        min-width: 20px;
-        text-align: center;
-        transition: margin 0.3s ease;
-    }
-        
-    .sidebar.close .sidebar-nav a i {
-        margin-right: 0;
-    }
-        
-    .sidebar-nav a span {
-        transition: opacity 0.3s ease;
-    }
-        
-    .sidebar.close .sidebar-nav a span {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-        /* Main Content */
-    .main-content {
-            margin-left: 260px;
-        flex-grow: 1;
-        padding: 20px 30px;
-        transition: margin-left 0.3s ease;
-        max-width: calc(100vw - 260px);
-        overflow-x: hidden;
-    }
-        
-    .sidebar.close ~ .main-content {
-        margin-left: 78px;
-        max-width: calc(100vw - 78px);
-    }
-
-        /* Header */
-        .dashboard-header {
-            background: var(--background-card);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-subtle);
-            margin-bottom: 30px;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] }, colors: { brand: { 500: '#d37a15', 600: '#b8650f' } } } }
         }
-
-        .dashboard-header h1 {
-            color: var(--text-dark);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .dashboard-header p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-        /* Alert Messages */
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        /* Search Bar */
-        .search-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto 30px;
-        }
-
-        .search-wrapper input {
-            width: 100%;
-            padding: 15px 50px 15px 50px;
-            border-radius: 25px;
-            border: 2px solid #e9ecef;
-            outline: none;
-            font-size: 16px;
-            box-shadow: var(--shadow-subtle);
-            transition: border-color 0.3s ease;
-        }
-
-        .search-wrapper input:focus {
-            border-color: var(--primary-color);
-        }
-
-        .search-wrapper .search-icon {
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            transform: translateY(-50%);
-            color: #888;
-            font-size: 18px;
-        }
-
-        /* Employee Grid */
-        .employee-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .employee-card {
-            background: var(--background-card);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-subtle);
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-        }
-
-        .employee-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .employee-card img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 15px;
-            border: 4px solid var(--primary-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .employee-card:hover img {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .employee-card h3 {
-            color: var(--text-dark);
-            font-size: 1.3rem;
-            margin-bottom: 8px;
-        }
-
-        .employee-card .position {
-            color: #666;
-            font-size: 1rem;
-            margin-bottom: 5px;
-        }
-
-        .employee-card .employee-id {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-
-        .employee-card .rating-preview {
-            display: flex;
-            justify-content: center;
-            gap: 3px;
-            margin-bottom: 15px;
-        }
-
-        .employee-card .rating-preview i {
-            color: #ddd;
-            font-size: 16px;
-        }
-
-        .employee-card .rating-preview i.filled {
-            color: #ffc107;
-        }
-
-        .rate-button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
-        }
-
-        .rate-button:hover {
-            background: #b8650f;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: var(--background-card);
-            padding: 40px;
-            border-radius: var(--border-radius);
-            width: 90%;
-            max-width: 600px;
-            position: relative;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-content .close {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
-            transition: color 0.3s ease;
-        }
-
-        .modal-content .close:hover {
-            color: #333;
-        }
-
-        .modal-content img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            margin: 0 auto 20px;
-            border: 4px solid var(--primary-color);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-content img:hover {
-            transform: scale(1.05);
-        }
-
-        .modal-content h2 {
-            text-align: center;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-        }
-
-        .modal-content .employee-info {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #666;
-        }
-
-        .rating-section {
-            margin-bottom: 25px;
-        }
-
-        .rating-section label {
-            display: block;
-            margin-bottom: 15px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .star-rating {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .star-rating input[type="radio"] {
-            display: none;
-        }
-
-        .star-rating label {
-            font-size: 32px;
-            color: #ddd;
-            cursor: pointer;
-            transition: color 0.2s ease;
-            margin: 0;
-        }
-
-        .star-rating input[type="radio"]:checked ~ label,
-        .star-rating label:hover {
-            color: #ffc107;
-        }
-
-        .comment-section {
-            margin-bottom: 25px;
-        }
-
-        .comment-section label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .comment-section textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            resize: vertical;
-            min-height: 100px;
-            font-family: inherit;
-            transition: border-color 0.3s ease;
-        }
-
-        .comment-section textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .submit-button {
-            width: 100%;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-
-        .submit-button:hover {
-            background: #b8650f;
-        }
-
-        .submit-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Loading spinner animation */
-        .fa-spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Recent Appraisals */
-        .recent-appraisals {
-            background: var(--background-card);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-subtle);
-        }
-
-        .recent-appraisals h3 {
-            color: var(--text-dark);
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-
-        .appraisal-item {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            transition: background-color 0.3s ease;
-        }
-
-        .appraisal-item:hover {
-            background-color: #f8f9fa;
-        }
-
-        .appraisal-item img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 15px;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .appraisal-item:hover img {
-            transform: scale(1.1);
-        }
-
-        .appraisal-item .info {
-            flex-grow: 1;
-        }
-
-        .appraisal-item .name {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .appraisal-item .position {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .appraisal-item .rating {
-            display: flex;
-            gap: 2px;
-        }
-
-        .appraisal-item .rating i {
-            color: #ffc107;
-            font-size: 14px;
-        }
-
-        .appraisal-item .date {
-            color: #888;
-            font-size: 0.8rem;
-        }
-
-        /* Responsive Design */
-    @media (max-width: 768px) {
-        .sidebar {
-            position: static;
-            width: 100%;
-            height: auto;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-        }
-            
-        .sidebar-nav {
-            display: none;
-        }
-            
-        .sidebar-header {
-            border-bottom: none;
-        }
-            
-        .main-content {
-            margin-left: 0;
-            padding: 15px;
-        }
-            
-            .employee-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .dashboard-header h1 {
-                font-size: 2rem;
-            }
-    }
-  </style>
+    </script>
+    <style>
+        :root { --primary-color: #d37a15; --background-light: #f8f9fa; --text-light: #f4f4f4; }
+        body { background-color: var(--background-light); display: flex; font-family: "Poppins", sans-serif; }
+        .sidebar { width: 260px; background-color: var(--primary-color); position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; transition: all 0.3s ease; }
+        .main-content { margin-left: 260px; transition: margin-left 0.3s ease; width: calc(100% - 260px); }
+        .sidebar-nav a { color: var(--text-light); background-color: transparent; }
+        .sidebar-nav a:hover { background-color: rgba(0,0,0,0.2); }
+        .modal-body { max-height: 70vh; overflow-y: auto; }
+        .star-rating input[type="radio"] { display: none; }
+        .star-rating label { font-size: 2rem; color: #ddd; cursor: pointer; transition: color 0.2s; }
+        .star-rating input[type="radio"]:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107; }
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; }
+    </style>
 </head>
-  <body>
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <i class='bx bxs-user-detail' style='font-size: 2rem; color: #fff;'></i>
-            <h2>HR Admin</h2>
+<body class="bg-gray-100">
+    <!-- Sidebar -->
+    <nav class="sidebar p-5 text-white flex flex-col">
+        <div class="sidebar-header flex items-center pb-5 border-b border-white/20">
+            <i class='fas fa-user-shield text-3xl'></i>
+            <h2 class="text-xl font-bold ml-3 whitespace-nowrap">HR Admin</h2>
         </div>
-        <ul class="sidebar-nav">
-            <li><a href="../admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-            <li><a href="../logout.php" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+        <ul class="sidebar-nav flex-grow pt-5 space-y-2">
+            <li><a href="../admin.php" class="flex items-center p-3 rounded-lg"><i class="fas fa-tachometer-alt w-6 text-center"></i><span class="ml-3">Dashboard</span></a></li>
         </ul>
+        <div class="pt-5"><a href="../logout.php" class="flex items-center p-3 rounded-lg"><i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-3">Logout</span></a></div>
     </nav>
 
-    <div class="main-content">
-        <div class="top-navbar">
-            <i class="fa-solid fa-bars menu-toggle"></i>
-        </div>
-
-        <header class="dashboard-header">
-            <h1><i class="fas fa-chart-line"></i> Performance & Appraisals</h1>
-            <p>Manage employee performance reviews and appraisals</p>
-            
-            <?php if ($success_message): ?>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success_message); ?>
-                </div>
-            <?php endif; ?>
-            
-            <?php if ($error_message): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error_message); ?>
-                </div>
-            <?php endif; ?>
+    <!-- Main Content -->
+    <div class="main-content p-6">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Performance & Appraisals</h1>
+            <p class="text-gray-600">Review and rate employee performance</p>
         </header>
 
- <div class="search-wrapper">
-   <i class="fa fa-search search-icon"></i>
-            <input type="text" id="searchBar" placeholder="Search employees by name or position...">
- </div>
-
-        <div class="employee-grid">
-       <?php foreach ($employees as $employee): ?>
-                <div class="employee-card" data-name="<?php echo htmlspecialchars(strtolower($employee['name'] . ' ' . $employee['position'])); ?>" 
-                     onclick="openModal(<?php echo $employee['id']; ?>, '<?php echo htmlspecialchars($employee['name']); ?>', '<?php echo htmlspecialchars($employee['position']); ?>', '<?php echo htmlspecialchars($employee['photo_path']); ?>')">
-                    <img src="../<?php echo htmlspecialchars($employee['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzUiIHI9IjE1IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yMCA4MEMyMCA2NS42NDA2IDMyLjY0MDYgNTMgNDcgNTNINjNDNzcuMzU5NCA1MyA5MCA2NS42NDA2IDkwIDgwVjEwMEgyMFY4MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+Cg=='">
-         <h3><?php echo htmlspecialchars($employee['name']); ?></h3>
-                    <p class="position"><?php echo htmlspecialchars($employee['position']); ?></p>
-                    <p class="employee-id">ID: <?php echo str_pad($employee['id'], 3, '0', STR_PAD_LEFT); ?></p>
-                    <div class="rating-preview">
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                    </div>
-                    <button class="rate-button">Rate Performance</button>
-                </div>
-            <?php endforeach; ?>
-        </div>
-
-        <?php if (!empty($recent_appraisals)): ?>
-        <div class="recent-appraisals">
-            <h3><i class="fas fa-history"></i> Recent Appraisals</h3>
-            <?php foreach ($recent_appraisals as $appraisal): ?>
-                <div class="appraisal-item">
-                    <img src="../<?php echo htmlspecialchars($appraisal['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSIxNy41IiByPSI3LjUiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwIDQwQzEwIDMyLjgyMDMgMTUuODIwMyAyNyAyMyAyN0gyN0MzNC4xNzk3IDI3IDQwIDMyLjgyMDMgNDAgNDBWNTBIMTBWNDBaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
-                    <div class="info">
-                        <div class="name"><?php echo htmlspecialchars($appraisal['employee_name']); ?></div>
-                        <div class="position"><?php echo htmlspecialchars($appraisal['position']); ?></div>
-                    </div>
-                    <div class="rating">
-                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <i class="fa fa-star<?php echo $i <= $appraisal['rating'] ? '' : '-o'; ?>"></i>
-                        <?php endfor; ?>
-         </div>
-                    <div class="date"><?php echo date('M j, Y', strtotime($appraisal['appraisal_date'])); ?></div>
-       </div>
-       <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-
-      <!-- Modal -->
-      <div id="employeeModal" class="modal">
-          <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-                    <img id="modalPhoto" src="" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjYwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNDIiIHI9IjE4IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCA5NkMyNCA3OC43NzE2IDM5LjE3MTYgNjMuNiA1Ni40IDYzLjZINjMuNkM4MC44Mjg0IDYzLjYgOTYgNzguNzcxNiA5NiA5NlYxMjBIMjRWOThaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
-            <h2 id="modalName"></h2>
-                <div class="employee-info">
-            <p><strong>ID:</strong> <span id="modalID"></span></p>
-            <p><strong>Position:</strong> <span id="modalPosition"></span></p>
-            <p><strong>Status:</strong> Active</p>
-                </div>
-
-                <input type="hidden" id="modalEmployeeId">
-
-                <div class="rating-section">
-                    <label>Rate Employee Performance:</label>
-              <div class="star-rating">
-                        <input type="radio" name="rating" value="5" id="star5">
-                        <label for="star5">★</label>
-                        <input type="radio" name="rating" value="4" id="star4">
-                        <label for="star4">★</label>
-                        <input type="radio" name="rating" value="3" id="star3">
-                        <label for="star3">★</label>
-                        <input type="radio" name="rating" value="2" id="star2">
-                        <label for="star2">★</label>
-                        <input type="radio" name="rating" value="1" id="star1">
-                        <label for="star1">★</label>
-              </div>
+        <!-- Employee Table -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Last Rating</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php if (empty($employees)): ?>
+                            <tr><td colspan="4" class="text-center py-10 text-gray-500">No active employees found.</td></tr>
+                        <?php else: foreach ($employees as $employee): ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <img class="h-10 w-10 rounded-full object-cover" src="../<?= htmlspecialchars($employee['photo_path']) ?>" alt="">
+                                        <div class="ml-4 font-medium text-gray-900"><?= htmlspecialchars($employee['name']) ?></div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?= htmlspecialchars($employee['position']) ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-800">
+                                    <?= $employee['last_rating'] ? str_repeat('⭐', $employee['last_rating']) : '<span class="text-gray-400">Not Rated</span>' ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button onclick="openRateModal(<?= $employee['id'] ?>)" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">Rate Performance</button>
+                                </td>
+                            </tr>
+                        <?php endforeach; endif; ?>
+                    </tbody>
+                </table>
             </div>
+        </div>
+    </div>
 
-                <div class="comment-section">
-                    <label for="comment">Add Comment:</label>
-                    <textarea name="comment" id="comment" rows="4" placeholder="Write your performance review comment here..."></textarea>
+    <!-- Rate Performance Modal -->
+    <div id="rateModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-lg w-full">
+                <div class="flex items-center justify-between p-5 border-b">
+                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-800">Rate Performance</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">&times;</button>
                 </div>
+                <form id="appraisalForm" class="modal-body p-6">
+                    <input type="hidden" name="action" value="submit_appraisal">
+                    <input type="hidden" name="employee_id" id="modalEmployeeId">
+                    
+                    <div class="text-center mb-6">
+                        <img id="modalPhoto" class="h-24 w-24 rounded-full object-cover mx-auto mb-4 border-4 border-brand-500" src="" alt="Employee">
+                        <h4 id="modalName" class="font-bold text-lg"></h4>
+                        <p id="modalPosition" class="text-gray-600"></p>
+                    </div>
 
-                <button type="button" id="submitAppraisal" class="submit-button">
-                    <i class="fas fa-paper-plane"></i> Submit Appraisal
-                </button>
+                    <div class="mb-4">
+                        <label class="block text-center text-sm font-medium text-gray-700 mb-2">Overall Performance Rating</label>
+                        <div class="star-rating">
+                            <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
+                            <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
+                            <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
+                            <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
+                            <input type="radio" name="rating" value="1" id="star1"><label for="star1">★</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="comment" class="block text-sm font-medium text-gray-700 mb-2">Comments</label>
+                        <textarea name="comment" id="comment" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Provide feedback..."></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-5 border-t">
+                        <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">Submit Appraisal</button>
+                    </div>
+                </form>
             </div>
-          </div>
-      </div>
+        </div>
+    </div>
 
-     <script>
-        // Sidebar toggle functionality
-        const sidebar = document.querySelector(".sidebar");
-        const menuToggle = document.querySelector(".menu-toggle");
-        
-        if (menuToggle) {
-        menuToggle.addEventListener("click", () => {
-            sidebar.classList.toggle("close");
-        });
-        }
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('rateModal');
+    const form = document.getElementById('appraisalForm');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
 
-        // Logout functionality
-        document.getElementById("logout-link").addEventListener("click", function (e) {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = "../logout.php";
-        });
+    const openModal = () => modal.classList.remove('hidden');
+    const closeModal = () => modal.classList.add('hidden');
 
-        // Modal functionality
-        function openModal(employeeId, name, position, photoPath) {
-            document.getElementById("modalEmployeeId").value = employeeId;
-            document.getElementById("modalName").textContent = name;
-            document.getElementById("modalID").textContent = String(employeeId).padStart(3, '0');
-            document.getElementById("modalPosition").textContent = position;
-            document.getElementById("modalPhoto").src = "../" + photoPath;
-            
-            // Reset form
-            document.querySelector('form').reset();
-            
-        document.getElementById("employeeModal").style.display = "flex";
-      }
-    
-      function closeModal() {
-        document.getElementById("employeeModal").style.display = "none";
-      }
-    
-        // Close modal on outside click
-      window.onclick = function(event) {
-        const modal = document.getElementById("employeeModal");
-        if (event.target === modal) {
-                closeModal();
-        }
-      };
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
 
-        // Search functionality
-      const searchBar = document.getElementById("searchBar");
-searchBar.addEventListener("input", function () {
-  const query = searchBar.value.toLowerCase();
-  const cards = document.querySelectorAll(".employee-card");
-
-  cards.forEach(card => {
-                const searchData = card.getAttribute("data-name");
-                if (searchData.includes(query)) || query === "") {
-      card.style.display = "block";
-    } else {
-      card.style.display = "none";
-    }
-  });
-});
-
-        // Star rating interaction
-        document.querySelectorAll('.star-rating input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const rating = this.value;
-                const labels = document.querySelectorAll('.star-rating label');
-                
-                labels.forEach((label, index) => {
-                    if (index < rating) {
-                        label.style.color = '#ffc107';
-                    } else {
-                        label.style.color = '#ddd';
-                    }
-                });
-            });
-        });
-
-        // AJAX form submission
-        document.getElementById('submitAppraisal').addEventListener('click', function() {
-            const employeeId = document.getElementById('modalEmployeeId').value;
-            const rating = document.querySelector('input[name="rating"]:checked');
-            const comment = document.getElementById('comment').value;
-            
-            if (!rating) {
-                alert('Please select a rating before submitting.');
-                return;
+    window.openRateModal = function(employeeId) {
+        fetch(`?action=get_employee&id=${employeeId}`)
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                const emp = data.data;
+                document.getElementById('modalEmployeeId').value = emp.id;
+                document.getElementById('modalName').textContent = emp.name;
+                document.getElementById('modalPosition').textContent = emp.position;
+                document.getElementById('modalPhoto').src = `../${emp.photo_path}`;
+                form.reset();
+                openModal();
+            } else {
+                alert(data.message);
             }
-            
-            // Show loading state
-            const submitBtn = document.getElementById('submitAppraisal');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            submitBtn.disabled = true;
-            
-            // Create FormData for AJAX
-            const formData = new FormData();
-            formData.append('employee_id', employeeId);
-            formData.append('rating', rating.value);
-            formData.append('comment', comment);
-            formData.append('submit_appraisal', '1');
-            
-            // Send AJAX request
-            fetch(window.location.href, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                // Reset button
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                // Show success message
-                showNotification('Appraisal submitted successfully!', 'success');
-                
-                // Close modal
-                closeModal();
-                
-                // Refresh the page to show updated data
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            })
-            .catch(error => {
-                // Reset button
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                // Show error message
-                showNotification('Error submitting appraisal. Please try again.', 'error');
-                console.error('Error:', error);
-            });
         });
-        
-        // Notification system
-        function showNotification(message, type) {
-            // Remove existing notifications
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(notification => notification.remove());
-            
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                ${message}
-            `;
-            
-            // Add styles
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                border-radius: 8px;
-                color: white;
-                font-weight: 500;
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-                background: ${type === 'success' ? '#28a745' : '#dc3545'};
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            `;
-            
-            // Add animation styles
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-            `;
-            document.head.appendChild(style);
-            
-            // Add to page
-            document.body.appendChild(notification);
-            
-            // Auto remove after 3 seconds
-            setTimeout(() => {
-                notification.style.animation = 'slideIn 0.3s ease reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!form.rating.value) {
+            alert('Please select a star rating.');
+            return;
         }
-  </script>
-  </body>
+        const formData = new FormData(this);
+        fetch('', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.status === 'success') {
+                window.location.reload();
+            }
+        });
+    });
+});
+</script>
+</body>
 </html>
