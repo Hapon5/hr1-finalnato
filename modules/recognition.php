@@ -133,7 +133,7 @@ try {
             --primary-color: #111827; /* Black */
             --background-dark: #111827; /* Black */
             --card-bg: #1f2937; /* Dark Gray */
-            --text-light: #f3f4f6; 
+            --text-light: #0000; 
             --text-medium: #9ca3af;
             --border-color: #374151;
         }
@@ -150,7 +150,7 @@ try {
         .notification.show { opacity: 1; transform: translateX(0); }
     </style>
 </head>
-<body class="bg-gray-900">
+<body class="bg-white-900">
     <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700">
         <div class="sidebar-header flex items-center pb-5 border-b border-gray-700">
             <i class='fas fa-user-shield text-3xl'></i>
