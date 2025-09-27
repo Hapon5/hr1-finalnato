@@ -1,6 +1,6 @@
 <?php
 // Include the database configuration file
-include './hr1/Connections.php';
+include '../hr1/Connections.php';
 
 // Initialize the $featuredJob variable
 $featuredJob = null;
