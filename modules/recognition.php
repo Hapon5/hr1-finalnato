@@ -157,7 +157,7 @@ try {
             <h2 class="text-xl font-bold ml-3">HR Admin</h2>
         </div>
         <ul class="sidebar-nav text-white flex-grow pt-5 space-y-2">
-            <li><a href="../admin.php" class="flex items-center p-3 rounded-lg"><i class="fas fa-tachometer-alt w-6 text-center"></i><span class="ml-3">Dashboard</span></a></li>
+            <li><a href="../admin.php" class="flex items-center p-3 text-white rounded-lg"><i class="fas fa-tachometer-alt w-6 text-center"></i><span class="ml-3">Dashboard</span></a></li>
         </ul>
         <div class="pt-5"><a href="../logout.php" class="flex items-center p-3 rounded-lg"><i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-3">Logout</span></a></div>
     </nav>
