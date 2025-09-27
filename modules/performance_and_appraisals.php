@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+// Use a relative path to go up one directory to the root 'hr1' folder
 include("../Connections.php");
 
 // Check if user is logged in and is admin
@@ -8,86 +10,86 @@ if (!isset($_SESSION['Email']) || (isset($_SESSION['Account_type']) && $_SESSION
     exit();
 }
 
-// --- AJAX HANDLER: Get Appraisal Details for Editing ---
-if (isset($_GET['action']) && $_GET['action'] == 'get_appraisal' && isset($_GET['id'])) {
+// --- AJAX HANDLER: Get Employee Details ---
+if (isset($_GET['action']) && $_GET['action'] == 'get_employee' && isset($_GET['id'])) {
     header('Content-Type: application/json');
     try {
-        $stmt = $conn->prepare("SELECT a.id, a.employee_id, a.rating, a.comment, e.name as employee_name FROM appraisals a JOIN employees e ON a.employee_id = e.id WHERE a.id = ?");
+        $stmt = $conn->prepare("SELECT id, name, position, photo_path FROM employees WHERE id = ?");
         $stmt->execute([$_GET['id']]);
-        $appraisal = $stmt->fetch(PDO::FETCH_ASSOC);
-        echo json_encode($appraisal ? ['status' => 'success', 'data' => $appraisal] : ['status' => 'error', 'message' => 'Appraisal not found']);
+        $employee = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode($employee ? ['status' => 'success', 'data' => $employee] : ['status' => 'error', 'message' => 'Employee not found']);
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }
     exit();
 }
 
-// --- AJAX HANDLER: Add / Update / Delete ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+// --- AJAX HANDLER: Submit Appraisal ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'submit_appraisal') {
     header('Content-Type: application/json');
-    $action = $_POST['action'];
+    $employee_id = $_POST['employee_id'];
+    $rating = $_POST['rating'];
+    $comment = trim($_POST['comment']);
+    $rater_email = $_SESSION['Email']; // Get rater from session
+
+    if (empty($employee_id) || empty($rating) || !is_numeric($rating) || $rating < 1 || $rating > 5) {
+        echo json_encode(['status' => 'error', 'message' => 'Please provide a valid rating (1-5).']);
+        exit();
+    }
     
     try {
-        if ($action === 'add_or_edit') {
-            $employee_id = $_POST['employee_id'];
-            $rating = $_POST['rating'];
-            $comment = trim($_POST['comment']);
-            $rater_email = $_SESSION['Email'];
-            $appraisal_id = $_POST['appraisal_id'] ?? null;
-
-            if (empty($employee_id) || empty($rating)) {
-                echo json_encode(['status' => 'error', 'message' => 'Employee and rating are required.']);
-                exit();
-            }
-
-            if ($appraisal_id) { // This is an UPDATE
-                $stmt = $conn->prepare("UPDATE appraisals SET rating = ?, comment = ? WHERE id = ?");
-                $stmt->execute([$rating, $comment, $appraisal_id]);
-                $message = 'Appraisal updated successfully!';
-            } else { // This is an INSERT
-                $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_email, rating, comment, appraisal_date) VALUES (?, ?, ?, ?, NOW())");
-                $stmt->execute([$employee_id, $rater_email, $rating, $comment]);
-                $message = 'Appraisal added successfully!';
-            }
-            echo json_encode(['status' => 'success', 'message' => $message]);
-
-        } elseif ($action === 'delete') {
-            $appraisal_id = $_POST['appraisal_id'];
-            if(empty($appraisal_id)) {
-                 echo json_encode(['status' => 'error', 'message' => 'Invalid ID.']);
-                 exit();
-            }
-            $stmt = $conn->prepare("DELETE FROM appraisals WHERE id = ?");
-            $stmt->execute([$appraisal_id]);
-            echo json_encode(['status' => 'success', 'message' => 'Appraisal deleted successfully!']);
-        }
+        $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_email, rating, comment, appraisal_date) VALUES (?, ?, ?, ?, NOW())");
+        $stmt->execute([$employee_id, $rater_email, $rating, $comment]);
+        echo json_encode(['status' => 'success', 'message' => 'Appraisal submitted successfully!']);
     } catch (Exception $e) {
-        echo json_encode(['status' => 'error', 'message' => 'Database operation failed: ' . $e->getMessage()]);
+        echo json_encode(['status' => 'error', 'message' => 'Failed to submit appraisal: ' . $e->getMessage()]);
     }
     exit();
 }
 
 // --- INITIAL PAGE LOAD ---
-// Fetch appraisals and employees
+// Create tables if they don't exist
 try {
-    // Fetch all active employees for the dropdown in the modal
-    $employeeStmt = $conn->query("SELECT id, name FROM employees WHERE status = 'active' ORDER BY name");
-    $employees = $employeeStmt->fetchAll(PDO::FETCH_ASSOC);
+    $conn->exec("CREATE TABLE IF NOT EXISTS employees (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        position VARCHAR(255),
+        photo_path VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'active'
+    )");
+     $conn->exec("CREATE TABLE IF NOT EXISTS appraisals (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        employee_id INT NOT NULL,
+        rater_email VARCHAR(255) NOT NULL,
+        rating INT NOT NULL,
+        comment TEXT,
+        appraisal_date DATETIME NOT NULL,
+        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+    )");
 
-    // Fetch all appraisals to display in the table
-    $appraisalStmt = $conn->query(
-        "SELECT a.id, e.name as employee_name, e.position, a.rater_email, a.rating, a.comment, a.appraisal_date 
-         FROM appraisals a 
-         JOIN employees e ON a.employee_id = e.id 
-         ORDER BY a.appraisal_date DESC"
-    );
-    $appraisals = $appraisalStmt->fetchAll(PDO::FETCH_ASSOC);
+    // FIX: Check if the rater_email column exists and add it if it doesn't.
+    // This handles migration from an older schema that might have used 'rater_id'.
+    $result = $conn->query("SHOW COLUMNS FROM `appraisals` LIKE 'rater_email'");
+    if ($result->rowCount() == 0) {
+        // Drop the old rater_id if it exists, then add the new rater_email
+        $conn->exec("ALTER TABLE `appraisals` DROP COLUMN IF EXISTS `rater_id`");
+        $conn->exec("ALTER TABLE `appraisals` ADD COLUMN `rater_email` VARCHAR(255) NOT NULL AFTER `employee_id`");
+    }
 
+} catch(Exception $e) {
+    // Silently log error, don't stop the page
+    error_log("Table creation/alteration failed: " . $e->getMessage());
+}
+
+// Fetch active employees
+try {
+    $stmt = $conn->query("SELECT e.*, a.rating as last_rating FROM employees e LEFT JOIN (SELECT employee_id, rating, appraisal_date FROM appraisals ORDER BY appraisal_date DESC) a ON e.id = a.employee_id WHERE e.status = 'active' GROUP BY e.id ORDER BY e.name");
+    $employees = $stmt->fetchAll();
 } catch (Exception $e) {
     $employees = [];
-    $appraisals = [];
-    $error_message = "Failed to load data: " . $e->getMessage();
+    $error_message = "Failed to load employees: " . $e->getMessage();
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
