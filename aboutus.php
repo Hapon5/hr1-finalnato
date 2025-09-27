@@ -92,54 +92,52 @@
         <p>Meet the passionate team behind our success</p>
     </header>
 
+    <?php
+    // Define the team array
+    $team = [
+        [
+            "name" => "Siegfried Mar Viloria",
+            "role" => "Team Leader/ Developer",
+            "bio" => "Experienced Team Leader and Full-Stack Developer with a strong background in leading cross-functional teams and delivering scalable software solutions. Skilled in Agile methodologies, code architecture, and mentoring developers to reach their full potential.",
+            "photo" => "modules/profile/viloria.jpeg",
+        ],
+        [
+            "name" => "John Lloyd Morales",
+            "role" => "System Analyst",
+            "bio" => "Detail-oriented System Analyst with a strong background in analyzing business requirements and translating them into effective technical solutions. Experienced in system design, process optimization, and bridging the gap between stakeholders and development teams.",
+            "photo" => "modules/profile/morales.jpeg",
+        ],
+        [
+            "name" => "Andy Ferrer",
+            "role" => "Document Specialist",
+            "bio" => "Skilled Document Specialist with expertise in managing, formatting, and maintaining high-quality business documents across various platforms. Proficient in document control, version tracking, and ensuring compliance with organizational and industry standards.",
+            "photo" => "modules/profile/ferrer.jpeg",
+        ],
+        [
+            "name" => "Andrea Ilagan",
+            "role" => "Technical Support Analyst",
+            "bio" => "I am a dedicated Technical Support Analyst with experience in diagnosing and resolving hardware, software, and network issues across various platforms. I excel at providing timely and effective support to end-users, ensuring minimal downtime and high customer satisfaction.",
+            "photo" => "modules/profile/ilagan.jpeg",
+        ],
+        [
+            "name" => "Charlotte Achivida",
+            "role" => "Cyber Security Analyst",
+            "bio" => "I am a detail-oriented Cybersecurity Analyst with expertise in identifying vulnerabilities, monitoring threats, and implementing security measures to protect critical systems and data. I specialize in threat analysis, incident response, and compliance with security standards.",
+            "photo" => "modules/profile/achivida.jpeg",
+        ]
+    ];
+    ?>
+
     <div class="container">
         <div class="team">
-            <?php
-            // Array of team members (can be dynamic later)
-            $$team = [
-                [
-                    "name" => "Siegfried Mar Viloria",
-                    "role" => "Team Leader/ Developer",
-                    "bio" => "Experienced Team Leader and Full-Stack Developer...",
-                    "photo" => "modules/profile/viloria.jpeg",
-                ],
-                [
-                    "name" => "John Lloyd Morales",
-                    "role" => "System Analyst",
-                    "bio" => "Detail-oriented System Analyst...",
-                    "photo" => "modules/profile/morales.jpeg",
-                ],
-                [
-                    "name" => "Andy Ferrer",
-                    "role" => "Document Specialist",
-                    "bio" => "Skilled Document Specialist...",
-                    "photo" => "modules/profile/ferrer.jpeg",
-                ],
-                [
-                    "name" => "Andrea Ilagan",
-                    "role" => "Technical Support Analyst",
-                    "bio" => "Dedicated Technical Support Analyst...",
-                    "photo" => "modules/profile/ilagan.jpeg",
-                ],
-                [
-                    "name" => "Charlotte Achivida",
-                    "role" => "Cyber Security Analyst",
-                    "bio" => "Cybersecurity Analyst with expertise...",
-                    "photo" => "modules/profile/achivida.jpeg",
-                ]
-            ];
-            
-
-            // Loop through team array and display members
-            foreach ($team as $member) {
-                echo '<div class="member">';
-                echo '<img src="' . $member["photo"] . '" alt="' . $member["name"] . '">';
-                echo '<h3>' . $member["name"] . '</h3>';
-                echo '<p class="role">' . $member["role"] . '</p>';
-                echo '<p class="bio">' . $member["bio"] . '</p>';
-                echo '</div>';
-            }
-            ?>
+            <?php foreach ($team as $member): ?>
+                <div class="member">
+                    <img src="<?= htmlspecialchars($member["photo"]) ?>" alt="<?= htmlspecialchars($member["name"]) ?>">
+                    <h3><?= htmlspecialchars($member["name"]) ?></h3>
+                    <p class="role"><?= htmlspecialchars($member["role"]) ?></p>
+                    <p class="bio"><?= htmlspecialchars($member["bio"]) ?></p>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 
