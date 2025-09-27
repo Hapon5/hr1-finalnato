@@ -41,8 +41,8 @@ try {
 
   <link rel="stylesheet" type="text/css" href="css/bootstraps.css" />
   <link href="https://fonts.googleapis.com/css?family=Poppins:400,700|Roboto:400,700&display=swap" rel="stylesheet">
-  <link href="./css/stylez1.css" rel="stylesheet" />
-  <link href="./css/responsive.css" rel="stylesheet" />
+  <link href="css/stylez1.css" rel="stylesheet" />
+  <link href="css/responsive.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -61,7 +61,7 @@ try {
             <div class="d-flex ml-auto flex-column flex-lg-row align-items-center">
               <ul class="navbar-nav">
                 <li class="nav-item active">
-                  <a class="nav-link" href="./landing.php">Home <span class="sr-only">(current)</span></a>
+                  <a class="nav-link" href="../landing.php">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="#listjobs">Jobs</a>
@@ -130,7 +130,7 @@ try {
     <p>Crane And Trucking Management System</p>
   </footer>
 
-  <script src="./js/jquery-3.4.1.min.js"></script>
-  <script src="./js/bootstraps.js"></script>
+  <script src="js/jquery-3.4.1.min.js"></script>
+  <script src="js/bootstraps.js"></script>
 </body>
 </html>
