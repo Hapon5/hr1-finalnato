@@ -101,8 +101,8 @@ if (!$user || $user['Account_type'] !== '1') {
             padding: 12px 15px;
             border-radius: 8px;
             text-decoration: none;
-            color: var(--text-light); /* Changed for better contrast */
-            background-color: transparent; /* Cleaner look */
+            color: var(--text-light);
+            background-color: transparent;
             transition: background-color 0.3s ease;
             white-space: nowrap;
         }
@@ -141,7 +141,7 @@ if (!$user || $user['Account_type'] !== '1') {
             margin-bottom: 30px;
         }
 
-        /* --- Chart Section (FIXED) --- */
+        /* --- Chart Section --- */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -152,36 +152,22 @@ if (!$user || $user['Account_type'] !== '1') {
             padding: 20px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-subtle);
-            /* Flexbox to control layout */
             display: flex;
             flex-direction: column;
-            height: 350px; /* Consistent height for all cards */
+            height: 350px;
         }
         .chart-container h3 {
             text-align: center;
             margin-bottom: 15px;
             color: var(--primary-color);
             font-size: 1.1rem;
-            flex-shrink: 0; /* Prevents title from shrinking */
+            flex-shrink: 0;
         }
-        /* New wrapper to ensure canvas fits perfectly */
         .chart-wrapper {
             position: relative;
-            flex-grow: 1; /* Allows wrapper to fill available space */
+            flex-grow: 1;
             width: 100%;
         }
-
-        /* --- Loading Spinner --- */
-        .loading-container { text-align: center; color: var(--text-dark); }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            width: 40px; height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto 10px;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* --- Media Queries --- */
         @media (max-width: 768px) {
@@ -219,12 +205,7 @@ if (!$user || $user['Account_type'] !== '1') {
             <h1>HR Dashboard</h1>
         </header>
 
-        <div id="loading-spinner" class="loading-container">
-            <div class="spinner"></div>
-            <p>Loading charts...</p>
-        </div>
-
-        <div id="chart-section" class="dashboard-grid" style="display: none;">
+        <div id="chart-section" class="dashboard-grid">
             <div class="chart-container">
                 <h3>Total Applicants Over Time</h3>
                 <div class="chart-wrapper">
@@ -258,14 +239,21 @@ if (!$user || $user['Account_type'] !== '1') {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Data for charts remains the same
+            // Data for charts
             const totalApplicantsData = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                 datasets: [{ label: 'Total Applicants', data: [85, 92, 110, 135, 148, 160], borderColor: '#d37a15', tension: 0.3, pointBackgroundColor: '#d37a15' }]
             };
             const newHiresData = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{ label: 'New Hires', data: [5, 8, 7, 10, 6, 9], backgroundColor: '#0a0a0a', borderRadius: 4 }]
+                datasets: [{ 
+                    label: 'New Hires', 
+                    data: [5, 8, 7, 10, 6, 9], 
+                    backgroundColor: '#0a0a0a', 
+                    borderRadius: 6,
+                    barPercentage: 0.7, // Ginawang mas makapal ang bar
+                    categoryPercentage: 0.8
+                }]
             };
             const applicantSourceData = {
                 labels: ['LinkedIn', 'Website', 'Referral', 'Job Fair', 'Other'],
@@ -273,16 +261,21 @@ if (!$user || $user['Account_type'] !== '1') {
             };
             const hiringByDeptData = {
                 labels: ['IT', 'Sales', 'Marketing', 'HR', 'Finance'],
-                datasets: [{ label: 'Employees', data: [35, 42, 28, 15, 20], backgroundColor: '#d37a15', borderRadius: 4 }]
+                datasets: [{ 
+                    label: 'Employees', 
+                    data: [35, 42, 28, 15, 20], 
+                    backgroundColor: '#d37a15', 
+                    borderRadius: 6,
+                    barPercentage: 0.7, // Ginawang mas makapal ang bar
+                    categoryPercentage: 0.8
+                }]
             };
 
             // Common Chart Options
             const commonOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { 
-                    legend: { display: false } 
-                },
+                plugins: { legend: { display: false } },
                 scales: { 
                     y: { beginAtZero: true, grid: { color: '#eee' }, ticks: { color: '#555' } },
                     x: { grid: { display: false }, ticks: { color: '#555' } }
@@ -290,7 +283,7 @@ if (!$user || $user['Account_type'] !== '1') {
                 layout: { padding: 5 }
             };
 
-            // Chart Configurations with tailored options
+            // Chart Configurations
             const chartConfigs = [
                 { id: 'totalApplicantsChart', type: 'line', data: totalApplicantsData, options: commonOptions },
                 { id: 'newHiresChart', type: 'bar', data: newHiresData, options: commonOptions },
@@ -307,19 +300,10 @@ if (!$user || $user['Account_type'] !== '1') {
             ];
             
             // Function to render all charts
-            function renderCharts() {
-                chartConfigs.forEach(config => {
-                    const ctx = document.getElementById(config.id);
-                    if (ctx) new Chart(ctx.getContext('2d'), config);
-                });
-            }
-
-            // Hide spinner and show charts
-            setTimeout(() => {
-                document.getElementById('loading-spinner').style.display = 'none';
-                document.getElementById('chart-section').style.display = 'grid';
-                renderCharts();
-            }, 500);
+            chartConfigs.forEach(config => {
+                const ctx = document.getElementById(config.id);
+                if (ctx) new Chart(ctx.getContext('2d'), config);
+            });
         });
 
         // Sidebar and Logout Logic
@@ -339,3 +323,4 @@ if (!$user || $user['Account_type'] !== '1') {
     </script>
 </body>
 </html>
+
