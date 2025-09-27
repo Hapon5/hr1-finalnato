@@ -679,7 +679,7 @@ try {
             <?php foreach ($employees as $employee): ?>
                 <div class="employee-card" data-name="<?php echo htmlspecialchars(strtolower($employee['name'] . ' ' . $employee['position'])); ?>" 
                      onclick="openModal(<?php echo $employee['id']; ?>, '<?php echo htmlspecialchars($employee['name']); ?>', '<?php echo htmlspecialchars($employee['position']); ?>', '<?php echo htmlspecialchars($employee['photo_path']); ?>')">
-                    <img src="<?php echo htmlspecialchars($employee['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzUiIHI9IjE1IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yMCA4MEMyMCA2NS42NDA2IDMyLjY0MDYgNTMgNDcgNTNINjNDNzcuMzU5NCA1MyA5MCA2NS42NDA2IDkwIDgwVjEwMEgyMFY4MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+Cg=='">
+                    <img src="../<?php echo htmlspecialchars($employee['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzUiIHI9IjE1IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yMCA4MEMyMCA2NS42NDA2IDMyLjY0MDYgNTMgNDcgNTNINjNDNzcuMzU5NCA1MyA5MCA2NS42NDA2IDkwIDgwVjEwMEgyMFY4MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+Cg=='">
                     <h3><?php echo htmlspecialchars($employee['name']); ?></h3>
                     <p class="position"><?php echo htmlspecialchars($employee['position']); ?></p>
                     <p class="employee-id">ID: <?php echo str_pad($employee['id'], 3, '0', STR_PAD_LEFT); ?></p>
@@ -700,7 +700,7 @@ try {
             <h3><i class="fas fa-history"></i> Recent Appraisals</h3>
             <?php foreach ($recent_appraisals as $appraisal): ?>
                 <div class="appraisal-item">
-                    <img src="<?php echo htmlspecialchars($appraisal['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSIxNy41IiByPSI3LjUiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwIDQwQzEwIDMyLjgyMDMgMTUuODIwMyAyNyAyMyAyN0gyN0MzNC4xNzk3IDI3IDQwIDMyLjgyMDMgNDAgNDBWNTBIMTBWNDBaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
+                    <img src="../<?php echo htmlspecialchars($appraisal['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSIxNy41IiByPSI3LjUiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwIDQwQzEwIDMyLjgyMDMgMTUuODIwMyAyNyAyMyAyN0gyN0MzNC4xNzk3IDI3IDQwIDMyLjgyMDMgNDAgNDBWNTBIMTBWNDBaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
                     <div class="info">
                         <div class="name"><?php echo htmlspecialchars($appraisal['employee_name']); ?></div>
                         <div class="position"><?php echo htmlspecialchars($appraisal['position']); ?></div>
@@ -782,7 +782,7 @@ try {
             document.getElementById("modalName").textContent = name;
             document.getElementById("modalID").textContent = String(employeeId).padStart(3, '0');
             document.getElementById("modalPosition").textContent = position;
-            document.getElementById("modalPhoto").src = photoPath;
+            document.getElementById("modalPhoto").src = "../" + photoPath;
             
             // Reset form
             document.querySelector('form').reset();
