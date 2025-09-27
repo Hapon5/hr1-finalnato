@@ -130,8 +130,8 @@ try {
             <h2>HR Admin</h2>
         </div>
         <ul class="sidebar-nav text-white">
-            <li><a href="admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-            <li class="logout-item"><a href="logout.php"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+            <li class=""><a href="admin.php"><i class="fas fa-tachometer-alt text-white"></i><span>Dashboard</span></a></li>
+            <li class="logout-item"><a href="logout.php"><i class="fas fa-sign-out-alt text-white"></i><span>Logout</span></a></li>
         </ul>
     </nav>
 
