@@ -11,13 +11,17 @@ if (!isset($_SESSION['Email']) || (isset($_SESSION['Account_type']) && $_SESSION
 }
 
 // --- AJAX HANDLER: Get Employee Details ---
-if (isset($_GET['action']) && $_GET['action'] == 'get_employee' && isset($_GET['id'])) {
+if (isset($_GET['action']) && $_GET['action'] === 'get_employee' && isset($_GET['id'])) {
     header('Content-Type: application/json');
     try {
         $stmt = $conn->prepare("SELECT id, name, position, photo_path FROM employees WHERE id = ?");
         $stmt->execute([$_GET['id']]);
         $employee = $stmt->fetch(PDO::FETCH_ASSOC);
-        echo json_encode($employee ? ['status' => 'success', 'data' => $employee] : ['status' => 'error', 'message' => 'Employee not found']);
+
+        echo json_encode($employee 
+            ? ['status' => 'success', 'data' => $employee] 
+            : ['status' => 'error', 'message' => 'Employee not found']
+        );
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }
@@ -27,19 +31,21 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_employee' && isset($_GET['
 // --- AJAX HANDLER: Submit Appraisal ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'submit_appraisal') {
     header('Content-Type: application/json');
-    $employee_id = $_POST['employee_id'];
-    $rating = $_POST['rating'];
-    $comment = trim($_POST['comment']);
+
+    $employee_id = $_POST['employee_id'] ?? null;
+    $rating = $_POST['rating'] ?? null;
+    $comment = trim($_POST['comment'] ?? '');
     $rater_email = $_SESSION['Email']; // Get rater from session
 
     if (empty($employee_id) || empty($rating) || !is_numeric($rating) || $rating < 1 || $rating > 5) {
         echo json_encode(['status' => 'error', 'message' => 'Please provide a valid rating (1-5).']);
         exit();
     }
-    
+
     try {
         $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_email, rating, comment, appraisal_date) VALUES (?, ?, ?, ?, NOW())");
         $stmt->execute([$employee_id, $rater_email, $rating, $comment]);
+
         echo json_encode(['status' => 'success', 'message' => 'Appraisal submitted successfully!']);
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => 'Failed to submit appraisal: ' . $e->getMessage()]);
@@ -50,47 +56,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // --- INITIAL PAGE LOAD ---
 // Create tables if they don't exist
 try {
-    $conn->exec("CREATE TABLE IF NOT EXISTS employees (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        position VARCHAR(255),
-        photo_path VARCHAR(255),
-        status VARCHAR(50) DEFAULT 'active'
-    )");
-     $conn->exec("CREATE TABLE IF NOT EXISTS appraisals (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        employee_id INT NOT NULL,
-        rater_email VARCHAR(255) NOT NULL,
-        rating INT NOT NULL,
-        comment TEXT,
-        appraisal_date DATETIME NOT NULL,
-        FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
-    )");
+    $conn->exec("
+        CREATE TABLE IF NOT EXISTS employees (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            position VARCHAR(255),
+            photo_path VARCHAR(255),
+            status VARCHAR(50) DEFAULT 'active'
+        )
+    ");
+    
+    $conn->exec("
+        CREATE TABLE IF NOT EXISTS appraisals (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            employee_id INT NOT NULL,
+            rater_email VARCHAR(255) NOT NULL,
+            rating INT NOT NULL,
+            comment TEXT,
+            appraisal_date DATETIME NOT NULL,
+            FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
+        )
+    ");
 
-    // FIX: Check if the rater_email column exists and add it if it doesn't.
-    // This handles migration from an older schema that might have used 'rater_id'.
+    // Check if 'rater_email' column exists, add it if missing
     $result = $conn->query("SHOW COLUMNS FROM `appraisals` LIKE 'rater_email'");
-    if ($result->rowCount() == 0) {
-        // Drop the old rater_id if it exists, then add the new rater_email
-        $conn->exec("ALTER TABLE `appraisals` DROP COLUMN IF EXISTS `rater_id`");
+    if ($result->rowCount() === 0) {
+        // Check if old column 'rater_id' exists
+        $oldCol = $conn->query("SHOW COLUMNS FROM `appraisals` LIKE 'rater_id'");
+        if ($oldCol->rowCount() > 0) {
+            $conn->exec("ALTER TABLE `appraisals` DROP COLUMN `rater_id`");
+        }
         $conn->exec("ALTER TABLE `appraisals` ADD COLUMN `rater_email` VARCHAR(255) NOT NULL AFTER `employee_id`");
     }
 
-} catch(Exception $e) {
-    // Silently log error, don't stop the page
+} catch (Exception $e) {
+    // Log error silently
     error_log("Table creation/alteration failed: " . $e->getMessage());
 }
 
-// Fetch active employees
+// Fetch active employees with their latest rating
 try {
-    $stmt = $conn->query("SELECT e.*, a.rating as last_rating FROM employees e LEFT JOIN (SELECT employee_id, rating, appraisal_date FROM appraisals ORDER BY appraisal_date DESC) a ON e.id = a.employee_id WHERE e.status = 'active' GROUP BY e.id ORDER BY e.name");
+    // Get latest appraisal per employee using a subquery with MAX(appraisal_date)
+    $stmt = $conn->query("
+        SELECT e.*, a.rating as last_rating
+        FROM employees e
+        LEFT JOIN appraisals a ON a.id = (
+            SELECT id FROM appraisals 
+            WHERE employee_id = e.id 
+            ORDER BY appraisal_date DESC 
+            LIMIT 1
+        )
+        WHERE e.status = 'active'
+        ORDER BY e.name
+    ");
     $employees = $stmt->fetchAll();
 } catch (Exception $e) {
     $employees = [];
     $error_message = "Failed to load employees: " . $e->getMessage();
 }
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -210,10 +235,15 @@ try {
                         <textarea name="comment" id="comment" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Provide feedback..."></textarea>
                     </div>
 
-                    <div class="flex justify-end space-x-3 pt-5 border-t">
-                        <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button type="submit" class="px-5 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">Submit Appraisal</button>
+                    <div class="flex justify-between items-center pt-5 border-t">
+                    <div>
+                        <button type="button" id="deleteBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 hidden">Delete</button>
                     </div>
+                    <div class="space-x-3">
+                        <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+                        <button type="submit" id="submitBtn" class="px-5 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">Submit Appraisal</button>
+                    </div>
+                </div>
                 </form>
             </div>
         </div>
@@ -268,6 +298,70 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+
+window.openRateModal = function(employeeId) {
+    fetch(`?action=get_employee&id=${employeeId}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const emp = data.data;
+            document.getElementById('modalEmployeeId').value = emp.id;
+            document.getElementById('modalName').textContent = emp.name;
+            document.getElementById('modalPosition').textContent = emp.position;
+            document.getElementById('modalPhoto').src = `../${emp.photo_path}`;
+            document.getElementById('appraisalId').value = '';
+            form.reset();
+
+            // Show "Delete" button only if there's a recent appraisal (you can adjust this logic)
+            fetch(`get_latest_appraisal.php?employee_id=${emp.id}`)
+            .then(res => res.json())
+            .then(appraisalData => {
+                if (appraisalData.status === 'success') {
+                    const appraisal = appraisalData.data;
+                    form.rating.value = appraisal.rating;
+                    document.getElementById('comment').value = appraisal.comment;
+                    document.getElementById('appraisalId').value = appraisal.id;
+                    document.getElementById('deleteBtn').classList.remove('hidden');
+                    document.getElementById('submitBtn').textContent = 'Update Appraisal';
+                } else {
+                    document.getElementById('deleteBtn').classList.add('hidden');
+                    document.getElementById('submitBtn').textContent = 'Submit Appraisal';
+                }
+                openModal();
+            });
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const rating = form.rating.value;
+    if (!rating) {
+        alert('Please select a star rating.');
+        return;
+    }
+
+    const action = form.appraisal_id.value ? 'update_appraisal' : 'submit_appraisal';
+    const formData = new FormData(this);
+    formData.set('action', action);
+
+    fetch('', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.message);
+        if (data.status === 'success') {
+            window.location.reload();
+        }
+    });
+});
+
 </script>
 </body>
 </html>
