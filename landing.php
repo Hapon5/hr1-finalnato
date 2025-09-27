@@ -244,7 +244,7 @@ try {
             <div class="content layout_padding2-top">
 
                 <?php
-                include('../HR1/Connections.php'); // Ensure $conn is a PDO instance
+                include('../Connections.php'); // Ensure $conn is a PDO instance
 
                 try {
                    $jobs = $stmt->fetch(PDO::FETCH_ASSOC);
