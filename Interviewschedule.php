@@ -125,7 +125,7 @@ try {
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
     <nav class="sidebar text-white" style="background-color: #000;">
-        <div class="sidebar-header text-white" style="background-color: #323A3C;">
+        <div class="sidebar-header text-white" >
             <i class='fas fa-user-shield' style='font-size: 2rem; color: #fff;'></i>
             <h2>HR Admin</h2>
         </div>
@@ -135,7 +135,7 @@ try {
         </ul>
     </nav>
 
-    <div class="main-content">
+    <div class="main-content " style="background-color: #323A3C;">
         <div class="flex justify-between items-center mb-6">
             <i class="fas fa-bars menu-toggle"></i>
         </div>
