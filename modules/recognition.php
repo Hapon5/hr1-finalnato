@@ -110,7 +110,7 @@ try {
         $recognitions = [];
         $error_message = "Recognition tables not found. Please run the database setup script first.";
     } else {
-        $stmt = $Connections->prepare("
+        $stmt = $conn->prepare("
             SELECT r.*, 
                    e1.name as from_name, e1.photo_path as from_photo,
                    e2.name as to_name, e2.photo_path as to_photo,
