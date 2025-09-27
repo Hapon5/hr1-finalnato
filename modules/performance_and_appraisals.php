@@ -192,7 +192,7 @@ try {
                                     <?= $employee['last_rating'] ? str_repeat('★', $employee['last_rating']) . str_repeat('☆', 5 - $employee['last_rating']) : '<span class="text-gray-400 text-sm">Not Rated</span>' ?>
                                 </td>
                                 <td class="px-6 py-4 text-right text-sm font-medium">
-                                    <button onclick="openRateModal(<?= $employee['id'] ?>)" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">Rate / View</button>
+                                    <button onclick="openRateModal(<?= $employee['id'] ?>)" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600" style="background-color: #d37a15; padding: 10px;" >Rate / View</button>
                                 </td>
                             </tr>
                         <?php endforeach; endif; ?>
