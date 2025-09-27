@@ -206,9 +206,8 @@ try {
     </div>
 
 
-    <div id="jobModal" class="fixed inset-0 bg-dark bg-opacity-75 hidden z-50">
-
-        <div class="flex items-center justify-center min-h-screen p-4">
+   <div id="jobModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
                 <div class="flex items-center justify-between p-5 border-b">
                     <h3 id="modalTitle" class="text-xl text-white font-semibold text-gray-800">Add New Job Posting</h3>
@@ -262,7 +261,7 @@ try {
                 </form>
             </div>
         </div>
-    </div>
+</div>
 
 
     <div id="viewModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
