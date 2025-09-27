@@ -620,32 +620,6 @@ try {
             </form>
         </div>
 
-        <div class="team-container">
-            <h2><i class="fas fa-users"></i> Safety Committee Members</h2>
-            <div class="members-grid">
-                <div class="member-card">
-                    <img src="https://via.placeholder.com/100/d37a15/ffffff?text=JD" alt="Member Photo">
-                    <h4>Juan dela Cruz</h4>
-                    <p>Head Safety Officer</p>
-                </div>
-                <div class="member-card">
-                    <img src="https://via.placeholder.com/100/0a0a0a/ffffff?text=MS" alt="Member Photo">
-                    <h4>Maria Santos</h4>
-                    <p>First-Aid Responder</p>
-                </div>
-                <div class="member-card">
-                    <img src="https://via.placeholder.com/100/28a745/ffffff?text=PR" alt="Member Photo">
-                    <h4>Pedro Reyes</h4>
-                    <p>Equipment Inspector</p>
-                </div>
-                <div class="member-card">
-                    <img src="https://via.placeholder.com/100/1976d2/ffffff?text=AG" alt="Member Photo">
-                    <h4>Ana Garcia</h4>
-                    <p>Compliance Specialist</p>
-                </div>
-            </div>
-        </div>
-
         <div class="safety-guidelines">
             <h2><i class="fas fa-list-check"></i> Workplace Safety Guidelines</h2>
             <ol>
