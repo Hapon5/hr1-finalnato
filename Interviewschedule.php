@@ -125,7 +125,7 @@ try {
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
     <nav class="sidebar text-white" style="background-color: #000;">
-        <div class="sidebar-header text-white">
+        <div class="sidebar-header text-white" style="background-color: #323A3C;">
             <i class='fas fa-user-shield' style='font-size: 2rem; color: #fff;'></i>
             <h2>HR Admin</h2>
         </div>
