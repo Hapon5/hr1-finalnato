@@ -1,6 +1,7 @@
 <?php
 session_start();
 // Use a relative path to go up one directory from 'modules' to the root 'hr1' folder
+// Make sure this path is correct for your file structure.
 include("../Connections.php"); 
 
 // Check if user is logged in and is admin
@@ -33,13 +34,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     $response = [];
     try {
+        // Sanitize inputs
+        $title = filter_input(INPUT_POST, 'title', FILTER_SANITIZE_STRING);
+        $position = filter_input(INPUT_POST, 'position', FILTER_SANITIZE_STRING);
+        $location = filter_input(INPUT_POST, 'location', FILTER_SANITIZE_STRING);
+        $requirements = filter_input(INPUT_POST, 'requirements', FILTER_SANITIZE_STRING);
+        $contact = filter_input(INPUT_POST, 'contact', FILTER_SANITIZE_STRING);
+        $platform = filter_input(INPUT_POST, 'platform', FILTER_SANITIZE_STRING);
+        $date_posted = $_POST['date_posted']; // Assuming valid date format from input type="date"
+        $status = $_POST['status'];
+        
         if ($_POST['action'] === 'add') {
             $stmt = $conn->prepare("INSERT INTO job_postings (title, position, location, requirements, contact, platform, date_posted, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$_POST['title'], $_POST['position'], $_POST['location'], $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted'], $_POST['status']]);
+            $stmt->execute([$title, $position, $location, $requirements, $contact, $platform, $date_posted, $status]);
             $response = ['status' => 'success', 'message' => 'Job posting added successfully!'];
         } elseif ($_POST['action'] === 'edit' && !empty($_POST['id'])) {
+            $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
             $stmt = $conn->prepare("UPDATE job_postings SET title=?, position=?, location=?, requirements=?, contact=?, platform=?, date_posted=?, status=? WHERE id=?");
-            $stmt->execute([$_POST['title'], $_POST['position'], $_POST['location'], $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted'], $_POST['status'], $_POST['id']]);
+            $stmt->execute([$title, $position, $location, $requirements, $contact, $platform, $date_posted, $status, $id]);
             $response = ['status' => 'success', 'message' => 'Job posting updated successfully!'];
         }
     } catch (PDOException $e) {
@@ -51,10 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 // --- DELETE HANDLER ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_delete'])) {
-     if ($_POST['action_delete'] === 'delete' && !empty($_POST['id'])) {
+    if ($_POST['action_delete'] === 'delete' && !empty($_POST['id'])) {
         try {
+            $id = filter_input(INPUT_POST, 'id', FILTER_SANITIZE_NUMBER_INT);
             $stmt = $conn->prepare("DELETE FROM job_postings WHERE id=?");
-            $stmt->execute([$_POST['id']]);
+            $stmt->execute([$id]);
             $_SESSION['message'] = "Job posting deleted successfully!";
         } catch (PDOException $e) {
             $_SESSION['error'] = "Error deleting job posting.";
@@ -96,11 +109,11 @@ try {
         .sidebar.close { width: 78px; }
         .sidebar.close ~ .main-content { margin-left: 78px; }
         .modal-body { max-height: 70vh; overflow-y: auto; }
+        .sidebar.close .sidebar-header h2, .sidebar.close .sidebar-nav span { display: none; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
     
-    <!-- Sidebar -->
     <nav class="sidebar p-5 text-white flex flex-col">
         <div class="sidebar-header flex items-center pb-5 border-b border-white/20">
             <i class='fas fa-user-shield text-3xl'></i>
@@ -114,7 +127,6 @@ try {
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="main-content p-6">
         <i class="fas fa-bars text-2xl cursor-pointer mb-6" id="menu-toggle"></i>
         
@@ -123,7 +135,6 @@ try {
             <p class="text-gray-600">Manage and track job postings across different platforms</p>
         </div>
 
-        <!-- Action Bar -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <button id="addJobBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors shadow hover:shadow-lg transform hover:-translate-y-0.5">
@@ -137,7 +148,6 @@ try {
             </div>
         </div>
 
-        <!-- Job Postings Table -->
         <div class="bg-white rounded-lg shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200" id="jobsTable">
@@ -185,15 +195,72 @@ try {
     </div>
 
 
-    <!-- View Job Modal -->
+    <div id="jobModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+                <div class="flex items-center justify-between p-5 border-b">
+                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-800">Add New Job Posting</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                </div>
+                <form id="jobForm" class="modal-body p-6">
+                    <input type="hidden" id="formAction" name="action" value="add">
+                    <input type="hidden" id="jobId" name="id" value="">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="jobTitle" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input type="text" id="jobTitle" name="title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500" required>
+                        </div>
+                        <div>
+                            <label for="jobPosition" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                            <input type="text" id="jobPosition" name="position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500" required>
+                        </div>
+                        <div>
+                            <label for="jobLocation" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                            <input type="text" id="jobLocation" name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500" required>
+                        </div>
+                        <div>
+                            <label for="jobPlatform" class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                            <input type="text" id="jobPlatform" name="platform" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                        </div>
+                         <div>
+                            <label for="jobContact" class="block text-sm font-medium text-gray-700 mb-1">Contact</label>
+                            <input type="text" id="jobContact" name="contact" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label for="jobDate" class="block text-sm font-medium text-gray-700 mb-1">Date Posted</label>
+                            <input type="date" id="jobDate" name="date_posted" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500" required>
+                        </div>
+                         <div class="md:col-span-2">
+                            <label for="jobStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select id="jobStatus" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="jobRequirements" class="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
+                            <textarea id="jobRequirements" name="requirements" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"></textarea>
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-5 border-t mt-5">
+                        <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 mr-2">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600">Save Job Posting</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <div id="viewModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
                 <div class="flex items-center justify-between p-5 border-b">
                     <h3 class="text-xl font-semibold text-gray-800">Job Details</h3>
-                    <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+                    <button id="closeViewModal" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
                 </div>
-                <div id="jobDetails" class="p-6"></div>
+                <div id="jobDetails" class="p-6 modal-body"></div>
             </div>
         </div>
     </div>
@@ -214,6 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modalTitle').textContent = 'Add New Job Posting';
         document.getElementById('formAction').value = 'add';
         document.getElementById('jobId').value = '';
+        document.getElementById('jobDate').valueAsDate = new Date(); // Set default date to today
         modal.classList.remove('hidden');
     });
 
@@ -225,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === viewModal) viewModal.classList.add('hidden');
     });
     
-    // --- AJAX Form Submission (FIXED & FUNCTIONAL) ---
+    // --- AJAX Form Submission ---
     jobForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(jobForm);
@@ -269,13 +337,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const noJobsRow = document.getElementById('no-jobs-row');
-        if (noJobsRow) {
-           noJobsRow.style.display = hasVisibleRows ? 'none' : '';
+        const allJobsRows = document.querySelectorAll('#jobsTable tbody tr:not(#no-jobs-row)');
+        
+        if(noJobsRow) {
+            if (allJobsRows.length > 0) {
+                 noJobsRow.style.display = hasVisibleRows ? 'none' : 'table-row';
+            }
         }
     });
 });
 
-// --- Global Functions for Buttons (FIXED & FUNCTIONAL) ---
+// --- Global Functions for Buttons ---
 function editJob(id) {
     fetch(`job_posting.php?action=get_job&id=${id}`)
     .then(response => response.json())
@@ -291,6 +363,7 @@ function editJob(id) {
             document.getElementById('jobPlatform').value = job.platform;
             document.getElementById('jobContact').value = job.contact;
             document.getElementById('jobDate').value = job.date_posted_formatted;
+            document.getElementById('jobStatus').value = job.status;
             document.getElementById('jobRequirements').value = job.requirements;
             
             document.getElementById('jobModal').classList.remove('hidden');
@@ -307,17 +380,23 @@ function viewJob(id) {
     .then(data => {
         if (data.status === 'success') {
             const job = data.data;
+            // Create a date object in UTC to avoid timezone issues with date-only strings
+            const date = new Date(job.date_posted_formatted + 'T00:00:00Z');
+            const formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
             const detailsHtml = `
-                <div class="space-y-3 text-sm">
-                    <p><strong>Title:</strong> ${job.title}</p>
-                    <p><strong>Position:</strong> ${job.position}</p>
-                    <p><strong>Location:</strong> ${job.location}</p>
-                    <p><strong>Platform:</strong> ${job.platform}</p>
-                    <p><strong>Contact:</strong> ${job.contact}</p>
-                    <p><strong>Date Posted:</strong> ${new Date(job.date_posted_formatted).toLocaleDateString()}</p>
-                    <hr class="my-3">
-                    <p><strong>Requirements:</strong></p>
-                    <div class="whitespace-pre-wrap text-gray-700">${job.requirements || 'N/A'}</div>
+                <div class="space-y-4 text-gray-800">
+                    <div><strong class="font-semibold text-gray-600 block">Title:</strong> ${job.title || 'N/A'}</div>
+                    <div><strong class="font-semibold text-gray-600 block">Position:</strong> ${job.position || 'N/A'}</div>
+                    <div><strong class="font-semibold text-gray-600 block">Location:</strong> ${job.location || 'N/A'}</div>
+                    <div><strong class="font-semibold text-gray-600 block">Platform:</strong> ${job.platform || 'N/A'}</div>
+                    <div><strong class="font-semibold text-gray-600 block">Contact:</strong> ${job.contact || 'N/A'}</div>
+                    <div><strong class="font-semibold text-gray-600 block">Date Posted:</strong> ${formattedDate}</div>
+                    <hr class="my-4">
+                    <div>
+                        <strong class="font-semibold text-gray-600 block mb-2">Requirements:</strong>
+                        <div class="prose prose-sm max-w-none whitespace-pre-wrap text-gray-700 p-3 bg-gray-50 rounded-md">${job.requirements || 'N/A'}</div>
+                    </div>
                 </div>
             `;
             document.getElementById('jobDetails').innerHTML = detailsHtml;
@@ -333,6 +412,7 @@ function deleteJob(id) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = 'job_posting.php';
+        form.style.display = 'hidden';
         form.innerHTML = `<input type="hidden" name="action_delete" value="delete"><input type="hidden" name="id" value="${id}">`;
         document.body.appendChild(form);
         form.submit();
