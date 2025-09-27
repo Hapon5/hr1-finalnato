@@ -139,8 +139,10 @@ try {
         <div class="flex justify-between items-center mb-6">
             <i class="fas fa-bars menu-toggle"></i>
         </div>
-        <header class="mb-8" >
+       <header class="mb-8 flex justify-between items-center">
             <h1 class="text-3xl font-bold text-white-800">Interview Scheduling</h1>
+            <!-- Live Date & Time -->
+            <div id="liveDateTime" class="text-lg font-medium text-gray-200"></div>
         </header>
 
         <div class="p-0">
@@ -329,6 +331,21 @@ try {
                 document.getElementById('deleteForm').submit();
             }
         }
+
+    function updateDateTime() {
+        const now = new Date();
+        const options = {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        };
+        document.getElementById("liveDateTime").textContent =
+            now.toLocaleDateString("en-US", options);
+    }
+
+    // run immediately + update every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
     </script>
   </body>
 </html>
