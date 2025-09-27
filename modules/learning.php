@@ -29,58 +29,32 @@ if (!isset($_SESSION['Email'])) {
 $success_message = '';
 $error_message = '';
 
-// Handle course enrollment
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enroll_course'])) {
-    $employee_id = $_SESSION['LoginID'] ?? 1;
-    $course_id = $_POST['course_id'];
-
-    try {
-        $stmt = $Connections->prepare("INSERT INTO course_enrollments (employee_id, course_id, enrollment_date) VALUES (?, ?, NOW())");
-        $stmt->execute([$employee_id, $course_id]);
-        $success_message = "Successfully enrolled in course!";
-    } catch (Exception $e) {
-        $error_message = "Failed to enroll in course: " . $e->getMessage();
-    }
-}
-
-// Handle course completion
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['complete_course'])) {
-    $enrollment_id = $_POST['enrollment_id'];
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $employee_name = htmlspecialchars($_POST['employee']);
+    $incident_details = htmlspecialchars($_POST['incident']);
+    $incident_type = htmlspecialchars($_POST['incident_type']);
+    $severity = htmlspecialchars($_POST['severity']);
+    $location = htmlspecialchars($_POST['location']);
+    $reported_by = $_SESSION['Email'] ?? 'Unknown';
     
     try {
-        $stmt = $Connections->prepare("UPDATE course_enrollments SET completion_date = NOW(), status = 'completed' WHERE id = ?");
-        $stmt->execute([$enrollment_id]);
-        $success_message = "Course completed successfully!";
+        $stmt = $Connections->prepare("INSERT INTO safety_incidents (employee_name, incident_details, incident_type, severity, location, reported_by, incident_date) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+        $stmt->execute([$employee_name, $incident_details, $incident_type, $severity, $location, $reported_by]);
+        $success_message = "Safety incident report submitted successfully!";
     } catch (Exception $e) {
-        $error_message = "Failed to mark course as complete: " . $e->getMessage();
+        $error_message = "Failed to submit incident report: " . $e->getMessage();
     }
 }
 
-// Fetch available courses
+// Fetch recent incidents
 try {
-    $stmt = $Connections->prepare("SELECT * FROM courses WHERE is_active = 1 ORDER BY created_at DESC");
+    $stmt = $Connections->prepare("SELECT * FROM safety_incidents ORDER BY incident_date DESC LIMIT 10");
     $stmt->execute();
-    $courses = $stmt->fetchAll();
+    $incidents = $stmt->fetchAll();
 } catch (Exception $e) {
-    $courses = [];
-    $error_message = "Failed to load courses: " . $e->getMessage();
-}
-
-// Fetch employee enrollments
-try {
-    $employee_id = $_SESSION['LoginID'] ?? 1;
-    $stmt = $Connections->prepare("
-        SELECT ce.*, c.title, c.description, c.duration, c.category, c.instructor
-        FROM course_enrollments ce
-        JOIN courses c ON ce.course_id = c.id
-        WHERE ce.employee_id = ?
-        ORDER BY ce.enrollment_date DESC
-    ");
-    $stmt->execute([$employee_id]);
-    $enrollments = $stmt->fetchAll();
-} catch (Exception $e) {
-    $enrollments = [];
-    $error_message = "Failed to load enrollments: " . $e->getMessage();
+    $incidents = [];
+    $error_message = "Failed to load incidents: " . $e->getMessage();
 }
 ?>
 <!DOCTYPE html>
@@ -89,7 +63,7 @@ try {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning Management - HR Admin</title>
+    <title>Safety & Compliance - HR Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
@@ -104,6 +78,9 @@ try {
             --text-light: #f4f4f4;
             --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
             --border-radius: 12px;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --success-color: #28a745;
         }
 
         * {
@@ -258,213 +235,164 @@ try {
             border: 1px solid #f5c6cb;
         }
 
-        /* Course Grid */
-        .courses-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .course-card {
+        /* Incident Report Form */
+        .incident-form {
             background: var(--background-card);
-            padding: 25px;
+            padding: 30px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-subtle);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 30px;
         }
 
-        .course-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        .course-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-color), #ff6b35);
-        }
-
-        .course-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .course-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary-color), #ff6b35);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-        }
-
-        .course-icon i {
-            color: white;
-            font-size: 20px;
-        }
-
-        .course-title {
-            font-size: 1.3rem;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 600;
             color: var(--text-dark);
-            margin-bottom: 5px;
         }
 
-        .course-category {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .course-description {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .course-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 10px 0;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .course-duration {
-            display: flex;
-            align-items: center;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .course-duration i {
-            margin-right: 5px;
-        }
-
-        .course-instructor {
-            display: flex;
-            align-items: center;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .course-instructor i {
-            margin-right: 5px;
-        }
-
-        .enroll-button {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
-            background: var(--primary-color);
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .submit-button {
+            background: var(--danger-color);
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 15px 30px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
             transition: background-color 0.3s ease;
+            width: 100%;
         }
 
-        .enroll-button:hover {
-            background: #b8650f;
+        .submit-button:hover {
+            background: #c82333;
         }
 
-        .enroll-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* My Courses Section */
-        .my-courses {
+        /* Incident History */
+        .incidents-container {
             background: var(--background-card);
             padding: 30px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-subtle);
         }
 
-        .my-courses h3 {
+        .incidents-container h3 {
             color: var(--text-dark);
             margin-bottom: 20px;
             font-size: 1.5rem;
         }
 
-        .enrollment-item {
-            display: flex;
-            align-items: center;
+        .incident-item {
+            background: #f8f9fa;
             padding: 20px;
-            border: 1px solid #e9ecef;
             border-radius: 8px;
             margin-bottom: 15px;
-            transition: background-color 0.3s ease;
+            border-left: 4px solid var(--danger-color);
+            transition: transform 0.3s ease;
         }
 
-        .enrollment-item:hover {
-            background-color: #f8f9fa;
+        .incident-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .enrollment-status {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 15px;
+        .incident-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
-        .enrollment-status.in-progress {
-            background-color: #ffc107;
-        }
-
-        .enrollment-status.completed {
-            background-color: #28a745;
-        }
-
-        .enrollment-info {
-            flex-grow: 1;
-        }
-
-        .enrollment-title {
+        .incident-employee {
             font-weight: 600;
             color: var(--text-dark);
-            margin-bottom: 5px;
+            font-size: 1.1rem;
         }
 
-        .enrollment-date {
+        .incident-date {
             color: #666;
             font-size: 0.9rem;
         }
 
-        .enrollment-actions {
+        .incident-details {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .incident-meta {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .complete-button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s ease;
+        .incident-type,
+        .incident-severity,
+        .incident-location {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
-        .complete-button:hover {
-            background: #218838;
+        .incident-type {
+            background-color: #e3f2fd;
+            color: #1976d2;
         }
 
-        .complete-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .incident-severity.high {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        .incident-severity.medium {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+
+        .incident-severity.low {
+            background-color: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .incident-location {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
         }
 
         /* Empty State */
@@ -484,22 +412,6 @@ try {
             font-size: 1.5rem;
             margin-bottom: 10px;
             color: #999;
-        }
-
-        /* Progress Bar */
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background-color: #e9ecef;
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), #ff6b35);
-            transition: width 0.3s ease;
         }
 
         /* Responsive Design */
@@ -531,7 +443,7 @@ try {
                 font-size: 2rem;
             }
 
-            .courses-grid {
+            .form-row {
                 grid-template-columns: 1fr;
             }
         }
@@ -557,8 +469,8 @@ try {
         </div>
 
         <header class="dashboard-header">
-            <h1><i class="fas fa-graduation-cap"></i> Learning Management</h1>
-            <p>Enhance your skills and knowledge through our comprehensive learning platform</p>
+            <h1><i class="fas fa-shield-alt"></i> Safety & Compliance</h1>
+            <p>Report and track workplace safety incidents to ensure employee well-being</p>
             
             <?php if ($success_message): ?>
                 <div class="alert alert-success">
@@ -573,92 +485,82 @@ try {
             <?php endif; ?>
         </header>
 
-        <!-- Available Courses -->
-        <div class="courses-grid">
-            <?php if (empty($courses)): ?>
-                <div class="empty-state">
-                    <i class="fas fa-book"></i>
-                    <h3>No Courses Available</h3>
-                    <p>Check back later for new learning opportunities!</p>
-                </div>
-            <?php else: ?>
-                <?php foreach ($courses as $course): ?>
-                    <div class="course-card">
-                        <div class="course-header">
-                            <div class="course-icon">
-                                <i class="fas fa-book"></i>
-                            </div>
-                            <div>
-                                <div class="course-title"><?php echo htmlspecialchars($course['title']); ?></div>
-                                <div class="course-category"><?php echo htmlspecialchars($course['category']); ?></div>
-                            </div>
-                        </div>
-                        
-                        <div class="course-description">
-                            <?php echo htmlspecialchars($course['description']); ?>
-                        </div>
-                        
-                        <div class="course-meta">
-                            <div class="course-duration">
-                                <i class="fas fa-clock"></i>
-                                <?php echo htmlspecialchars($course['duration']); ?> hours
-                            </div>
-                            <div class="course-instructor">
-                                <i class="fas fa-user"></i>
-                                <?php echo htmlspecialchars($course['instructor']); ?>
-                            </div>
-                        </div>
-                        
-                        <form method="post" style="margin: 0;">
-                            <input type="hidden" name="course_id" value="<?php echo $course['id']; ?>">
-                            <button type="submit" name="enroll_course" class="enroll-button">
-                                <i class="fas fa-plus"></i> Enroll Now
-                            </button>
-                        </form>
+        <!-- Incident Report Form -->
+        <div class="incident-form">
+            <h2><i class="fas fa-plus-circle"></i> Report Safety Incident</h2>
+            <form method="POST" action="">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="employee">Employee Name:</label>
+                        <input type="text" id="employee" name="employee" required placeholder="Enter employee name">
                     </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+                    <div class="form-group">
+                        <label for="incident_type">Incident Type:</label>
+                        <select id="incident_type" name="incident_type" required>
+                            <option value="">Select incident type...</option>
+                            <option value="injury">Workplace Injury</option>
+                            <option value="near_miss">Near Miss</option>
+                            <option value="equipment_failure">Equipment Failure</option>
+                            <option value="safety_violation">Safety Violation</option>
+                            <option value="environmental">Environmental Hazard</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="severity">Severity Level:</label>
+                        <select id="severity" name="severity" required>
+                            <option value="">Select severity...</option>
+                            <option value="low">Low - Minor incident</option>
+                            <option value="medium">Medium - Moderate impact</option>
+                            <option value="high">High - Serious incident</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location:</label>
+                        <input type="text" id="location" name="location" required placeholder="Enter incident location">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="incident">Incident Details:</label>
+                    <textarea id="incident" name="incident" required placeholder="Provide detailed description of the incident, including what happened, when, and any immediate actions taken..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-paper-plane"></i> Submit Incident Report
+                </button>
+            </form>
         </div>
 
-        <!-- My Courses -->
-        <div class="my-courses">
-            <h3><i class="fas fa-user-graduate"></i> My Learning Progress</h3>
+        <!-- Incident History -->
+        <div class="incidents-container">
+            <h3><i class="fas fa-history"></i> Recent Safety Incidents</h3>
             
-            <?php if (empty($enrollments)): ?>
+            <?php if (empty($incidents)): ?>
                 <div class="empty-state">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h3>No Enrollments Yet</h3>
-                    <p>Enroll in courses above to start your learning journey!</p>
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>No Incidents Reported</h3>
+                    <p>Great job maintaining a safe workplace!</p>
                 </div>
             <?php else: ?>
-                <?php foreach ($enrollments as $enrollment): ?>
-                    <div class="enrollment-item">
-                        <div class="enrollment-status <?php echo $enrollment['status']; ?>"></div>
-                        <div class="enrollment-info">
-                            <div class="enrollment-title"><?php echo htmlspecialchars($enrollment['title']); ?></div>
-                            <div class="enrollment-date">
-                                Enrolled: <?php echo date('M j, Y', strtotime($enrollment['enrollment_date'])); ?>
-                                <?php if ($enrollment['completion_date']): ?>
-                                    | Completed: <?php echo date('M j, Y', strtotime($enrollment['completion_date'])); ?>
-                                <?php endif; ?>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: <?php echo $enrollment['status'] === 'completed' ? '100' : '50'; ?>%"></div>
-                            </div>
+                <?php foreach ($incidents as $incident): ?>
+                    <div class="incident-item">
+                        <div class="incident-header">
+                            <div class="incident-employee"><?php echo htmlspecialchars($incident['employee_name']); ?></div>
+                            <div class="incident-date"><?php echo date('M j, Y g:i A', strtotime($incident['incident_date'])); ?></div>
                         </div>
-                        <div class="enrollment-actions">
-                            <?php if ($enrollment['status'] !== 'completed'): ?>
-                                <form method="post" style="display: inline;">
-                                    <input type="hidden" name="enrollment_id" value="<?php echo $enrollment['id']; ?>">
-                                    <button type="submit" name="complete_course" class="complete-button">
-                                        <i class="fas fa-check"></i> Mark Complete
-                                    </button>
-                                </form>
-                            <?php else: ?>
-                                <span style="color: #28a745; font-weight: 600;">
-                                    <i class="fas fa-check-circle"></i> Completed
-                                </span>
-                            <?php endif; ?>
+                        
+                        <div class="incident-details">
+                            <?php echo nl2br(htmlspecialchars($incident['incident_details'])); ?>
+                        </div>
+                        
+                        <div class="incident-meta">
+                            <span class="incident-type"><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $incident['incident_type']))); ?></span>
+                            <span class="incident-severity <?php echo $incident['severity']; ?>"><?php echo ucfirst($incident['severity']); ?> Severity</span>
+                            <span class="incident-location"><?php echo htmlspecialchars($incident['location']); ?></span>
                         </div>
                     </div>
                 <?php endforeach; ?>
