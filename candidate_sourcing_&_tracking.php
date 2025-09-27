@@ -361,7 +361,7 @@ try {
     <div id="candidateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50" >
         <div class="flex items-center justify-center min-h-screen p-4" style="background-color: #0000;">
             <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b sticky top-0 bg-white">
+                <div class="flex items-center justify-between p-6 border-b sticky top-0 bg-black">
                     <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">Add New Candidate</h3>
                     <button id="closeModal" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times text-xl"></i>
