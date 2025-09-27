@@ -40,12 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_appraisal'])) 
     if (empty($employee_id) || empty($rating) || !is_numeric($rating) || $rating < 1 || $rating > 5) {
         $error_message = "Please provide a valid rating (1-5) and select an employee.";
     } else {
-        try {
-            $stmt = $Connections->prepare("INSERT INTO appraisals (employee_id, rater_id, rating, comment) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$employee_id, $rater_id, $rating, $comment]);
-            $success_message = "Appraisal submitted successfully!";
-        } catch (Exception $e) {
-            $error_message = "Failed to submit appraisal: " . $e->getMessage();
+    try {
+        $stmt = $Connections->prepare("INSERT INTO appraisals (employee_id, rater_id, rating, comment) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$employee_id, $rater_id, $rating, $comment]);
+        $success_message = "Appraisal submitted successfully!";
+    } catch (Exception $e) {
+        $error_message = "Failed to submit appraisal: " . $e->getMessage();
         }
     }
 }
@@ -75,138 +75,138 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance & Appraisals - HR Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
-        
-        :root {
-            --primary-color: #d37a15;
-            --secondary-color: #0a0a0a;
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+    
+    :root {
+        --primary-color: #d37a15;
+        --secondary-color: #0a0a0a;
             --background-light: #f8f9fa;
-            --background-card: #ffffff;
-            --text-dark: #333;
-            --text-light: #f4f4f4;
-            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --background-card: #ffffff;
+        --text-dark: #333;
+        --text-light: #f4f4f4;
+        --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
             --border-radius: 12px;
-        }
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
-        }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
 
-        body {
-            background-color: var(--background-light);
-            display: flex;
-            min-height: 100vh;
-            color: var(--text-dark);
-        }
-        
+    body {
+        background-color: var(--background-light);
+        display: flex;
+        min-height: 100vh;
+        color: var(--text-dark);
+    }
+    
         /* Sidebar Styles */
-        .sidebar {
-            width: 260px;
-            background-color: var(--primary-color);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 100;
-        }
+    .sidebar {
+        width: 260px;
+        background-color: var(--primary-color);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+    }
         
-        .sidebar.close {
-            width: 78px;
-        }
+    .sidebar.close {
+        width: 78px;
+    }
         
-        .sidebar-header {
-            display: flex;
-            align-items: center;
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        color: var(--text-light);
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+        
+    .sidebar-header h2 {
+        font-size: 1.5rem;
+        margin-left: 10px;
+        transition: opacity 0.3s ease;
+    }
+        
+    .sidebar.close .sidebar-header h2 {
+        opacity: 0;
+        pointer-events: none;
+    }
+        
+    .sidebar-nav {
+        list-style: none;
+        flex-grow: 1;
+        padding-top: 20px;
+    }
+        
+    .sidebar-nav li {
+        margin-bottom: 10px;
+    }
+        
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-radius: 8px;
+        text-decoration: none;
             color: var(--text-light);
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
+        transition: background-color 0.3s ease;
+    }
         
-        .sidebar-header h2 {
-            font-size: 1.5rem;
-            margin-left: 10px;
-            transition: opacity 0.3s ease;
-        }
-        
-        .sidebar.close .sidebar-header h2 {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .sidebar-nav {
-            list-style: none;
-            flex-grow: 1;
-            padding-top: 20px;
-        }
-        
-        .sidebar-nav li {
-            margin-bottom: 10px;
-        }
-        
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--text-light);
-            transition: background-color 0.3s ease;
-        }
-        
-        .sidebar-nav a:hover {
+    .sidebar-nav a:hover {
             background-color: rgba(255, 255, 255, 0.2);
-        }
+    }
         
-        .sidebar-nav a i {
-            font-size: 20px;
-            margin-right: 15px;
-            min-width: 20px;
-            text-align: center;
-            transition: margin 0.3s ease;
-        }
+    .sidebar-nav a i {
+        font-size: 20px;
+        margin-right: 15px;
+        min-width: 20px;
+        text-align: center;
+        transition: margin 0.3s ease;
+    }
         
-        .sidebar.close .sidebar-nav a i {
-            margin-right: 0;
-        }
+    .sidebar.close .sidebar-nav a i {
+        margin-right: 0;
+    }
         
-        .sidebar-nav a span {
-            transition: opacity 0.3s ease;
-        }
+    .sidebar-nav a span {
+        transition: opacity 0.3s ease;
+    }
         
-        .sidebar.close .sidebar-nav a span {
-            opacity: 0;
-            pointer-events: none;
-        }
+    .sidebar.close .sidebar-nav a span {
+        opacity: 0;
+        pointer-events: none;
+    }
 
         /* Main Content */
-        .main-content {
+    .main-content {
             margin-left: 260px;
-            flex-grow: 1;
-            padding: 20px 30px;
-            transition: margin-left 0.3s ease;
-            max-width: calc(100vw - 260px);
-            overflow-x: hidden;
-        }
+        flex-grow: 1;
+        padding: 20px 30px;
+        transition: margin-left 0.3s ease;
+        max-width: calc(100vw - 260px);
+        overflow-x: hidden;
+    }
         
-        .sidebar.close ~ .main-content {
-            margin-left: 78px;
-            max-width: calc(100vw - 78px);
-        }
+    .sidebar.close ~ .main-content {
+        margin-left: 78px;
+        max-width: calc(100vw - 78px);
+    }
 
         /* Header */
         .dashboard-header {
@@ -602,29 +602,29 @@ try {
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: static;
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px;
-            }
+    @media (max-width: 768px) {
+        .sidebar {
+            position: static;
+            width: 100%;
+            height: auto;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+        }
             
-            .sidebar-nav {
-                display: none;
-            }
+        .sidebar-nav {
+            display: none;
+        }
             
-            .sidebar-header {
-                border-bottom: none;
-            }
+        .sidebar-header {
+            border-bottom: none;
+        }
             
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
+        .main-content {
+            margin-left: 0;
+            padding: 15px;
+        }
             
             .employee-grid {
                 grid-template-columns: 1fr;
@@ -633,10 +633,10 @@ try {
             .dashboard-header h1 {
                 font-size: 2rem;
             }
-        }
-    </style>
+    }
+  </style>
 </head>
-<body>
+  <body>
     <nav class="sidebar">
         <div class="sidebar-header">
             <i class='bx bxs-user-detail' style='font-size: 2rem; color: #fff;'></i>
@@ -670,17 +670,17 @@ try {
             <?php endif; ?>
         </header>
 
-        <div class="search-wrapper">
-            <i class="fa fa-search search-icon"></i>
+ <div class="search-wrapper">
+   <i class="fa fa-search search-icon"></i>
             <input type="text" id="searchBar" placeholder="Search employees by name or position...">
-        </div>
+ </div>
 
         <div class="employee-grid">
-            <?php foreach ($employees as $employee): ?>
+       <?php foreach ($employees as $employee): ?>
                 <div class="employee-card" data-name="<?php echo htmlspecialchars(strtolower($employee['name'] . ' ' . $employee['position'])); ?>" 
                      onclick="openModal(<?php echo $employee['id']; ?>, '<?php echo htmlspecialchars($employee['name']); ?>', '<?php echo htmlspecialchars($employee['position']); ?>', '<?php echo htmlspecialchars($employee['photo_path']); ?>')">
                     <img src="../<?php echo htmlspecialchars($employee['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzUiIHI9IjE1IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yMCA4MEMyMCA2NS42NDA2IDMyLjY0MDYgNTMgNDcgNTNINjNDNzcuMzU5NCA1MyA5MCA2NS42NDA2IDkwIDgwVjEwMEgyMFY4MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+Cg=='">
-                    <h3><?php echo htmlspecialchars($employee['name']); ?></h3>
+         <h3><?php echo htmlspecialchars($employee['name']); ?></h3>
                     <p class="position"><?php echo htmlspecialchars($employee['position']); ?></p>
                     <p class="employee-id">ID: <?php echo str_pad($employee['id'], 3, '0', STR_PAD_LEFT); ?></p>
                     <div class="rating-preview">
@@ -709,30 +709,30 @@ try {
                         <?php for ($i = 1; $i <= 5; $i++): ?>
                             <i class="fa fa-star<?php echo $i <= $appraisal['rating'] ? '' : '-o'; ?>"></i>
                         <?php endfor; ?>
-                    </div>
+         </div>
                     <div class="date"><?php echo date('M j, Y', strtotime($appraisal['appraisal_date'])); ?></div>
-                </div>
-            <?php endforeach; ?>
+       </div>
+       <?php endforeach; ?>
         </div>
         <?php endif; ?>
 
-        <!-- Modal -->
-        <div id="employeeModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
+      <!-- Modal -->
+      <div id="employeeModal" class="modal">
+          <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
                     <img id="modalPhoto" src="" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjYwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNDIiIHI9IjE4IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCA5NkMyNCA3OC43NzE2IDM5LjE3MTYgNjMuNiA1Ni40IDYzLjZINjMuNkM4MC44Mjg0IDYzLjYgOTYgNzguNzcxNiA5NiA5NlYxMjBIMjRWOThaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
-                <h2 id="modalName"></h2>
+            <h2 id="modalName"></h2>
                 <div class="employee-info">
-                    <p><strong>ID:</strong> <span id="modalID"></span></p>
-                    <p><strong>Position:</strong> <span id="modalPosition"></span></p>
-                    <p><strong>Status:</strong> Active</p>
+            <p><strong>ID:</strong> <span id="modalID"></span></p>
+            <p><strong>Position:</strong> <span id="modalPosition"></span></p>
+            <p><strong>Status:</strong> Active</p>
                 </div>
 
                 <input type="hidden" id="modalEmployeeId">
 
                 <div class="rating-section">
                     <label>Rate Employee Performance:</label>
-                    <div class="star-rating">
+              <div class="star-rating">
                         <input type="radio" name="rating" value="5" id="star5">
                         <label for="star5">★</label>
                         <input type="radio" name="rating" value="4" id="star4">
@@ -743,8 +743,8 @@ try {
                         <label for="star2">★</label>
                         <input type="radio" name="rating" value="1" id="star1">
                         <label for="star1">★</label>
-                    </div>
-                </div>
+              </div>
+            </div>
 
                 <div class="comment-section">
                     <label for="comment">Add Comment:</label>
@@ -755,18 +755,18 @@ try {
                     <i class="fas fa-paper-plane"></i> Submit Appraisal
                 </button>
             </div>
-        </div>
-    </div>
+          </div>
+      </div>
 
-    <script>
+     <script>
         // Sidebar toggle functionality
         const sidebar = document.querySelector(".sidebar");
         const menuToggle = document.querySelector(".menu-toggle");
         
         if (menuToggle) {
-            menuToggle.addEventListener("click", () => {
-                sidebar.classList.toggle("close");
-            });
+        menuToggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
         }
 
         // Logout functionality
@@ -787,36 +787,36 @@ try {
             // Reset form
             document.querySelector('form').reset();
             
-            document.getElementById("employeeModal").style.display = "flex";
-        }
-
-        function closeModal() {
-            document.getElementById("employeeModal").style.display = "none";
-        }
-
+        document.getElementById("employeeModal").style.display = "flex";
+      }
+    
+      function closeModal() {
+        document.getElementById("employeeModal").style.display = "none";
+      }
+    
         // Close modal on outside click
-        window.onclick = function(event) {
-            const modal = document.getElementById("employeeModal");
-            if (event.target === modal) {
+      window.onclick = function(event) {
+        const modal = document.getElementById("employeeModal");
+        if (event.target === modal) {
                 closeModal();
-            }
-        };
+        }
+      };
 
         // Search functionality
-        const searchBar = document.getElementById("searchBar");
-        searchBar.addEventListener("input", function () {
-            const query = searchBar.value.toLowerCase();
-            const cards = document.querySelectorAll(".employee-card");
+      const searchBar = document.getElementById("searchBar");
+searchBar.addEventListener("input", function () {
+  const query = searchBar.value.toLowerCase();
+  const cards = document.querySelectorAll(".employee-card");
 
-            cards.forEach(card => {
+  cards.forEach(card => {
                 const searchData = card.getAttribute("data-name");
                 if (searchData.includes(query)) || query === "") {
-                    card.style.display = "block";
-                } else {
-                    card.style.display = "none";
-                }
-            });
-        });
+      card.style.display = "block";
+    } else {
+      card.style.display = "none";
+    }
+  });
+});
 
         // Star rating interaction
         document.querySelectorAll('.star-rating input[type="radio"]').forEach(radio => {
@@ -939,6 +939,6 @@ try {
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
-    </script>
-</body>
+  </script>
+  </body>
 </html>

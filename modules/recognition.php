@@ -661,20 +661,20 @@ try {
                 <button type="submit" class="submit-button" id="submitRecognition">
                     <i class="fas fa-paper-plane"></i> Submit Recognition
                 </button>
-            </form>
+    </form>
         </div>
 
         <!-- Recent Recognitions -->
         <div class="recognitions-container">
             <h2><i class="fas fa-history"></i> Recent Recognitions</h2>
-            
-            <?php if (empty($recognitions)): ?>
+
+    <?php if (empty($recognitions)): ?>
                 <div class="empty-state">
                     <i class="fas fa-trophy"></i>
                     <h3>No Recognitions Yet</h3>
                     <p>Be the first to recognize someone's great work!</p>
                 </div>
-            <?php else: ?>
+    <?php else: ?>
                 <?php foreach ($recognitions as $recognition): ?>
                     <div class="recognition-card">
                         <div class="recognition-header">
@@ -705,9 +705,9 @@ try {
                                 </button>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
         </div>
     </div>
 

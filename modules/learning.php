@@ -495,10 +495,10 @@ try {
         <!-- Incident Report Form -->
         <div class="incident-form">
             <h2><i class="fas fa-plus-circle"></i> Report Safety Incident</h2>
-            <form method="POST" action="">
+    <form method="POST" action="">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="employee">Employee Name:</label>
+        <label for="employee">Employee Name:</label>
                         <input type="text" id="employee" name="employee" required placeholder="Enter employee name">
                     </div>
                     <div class="form-group">
@@ -532,14 +532,14 @@ try {
                 </div>
 
                 <div class="form-group">
-                    <label for="incident">Incident Details:</label>
+        <label for="incident">Incident Details:</label>
                     <textarea id="incident" name="incident" required placeholder="Provide detailed description of the incident, including what happened, when, and any immediate actions taken..."></textarea>
                 </div>
 
                 <button type="submit" class="submit-button">
                     <i class="fas fa-paper-plane"></i> Submit Incident Report
                 </button>
-            </form>
+    </form>
         </div>
 
         <!-- Incident History -->
@@ -552,7 +552,7 @@ try {
                     <h3>No Incidents Reported</h3>
                     <p>Great job maintaining a safe workplace!</p>
                 </div>
-            <?php else: ?>
+    <?php else: ?>
                 <?php foreach ($incidents as $incident): ?>
                     <div class="incident-item">
                         <div class="incident-header">
@@ -569,9 +569,9 @@ try {
                             <span class="incident-severity <?php echo $incident['severity']; ?>"><?php echo ucfirst($incident['severity']); ?> Severity</span>
                             <span class="incident-location"><?php echo htmlspecialchars($incident['location']); ?></span>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
         </div>
     </div>
 
