@@ -130,7 +130,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candidate Sourcing & Tracking - HR1 System</title>
@@ -154,7 +154,7 @@ try {
             }
         }
     </script>
-</head>
+  </head>
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
     <div class="fixed inset-y-0 left-0 z-50 w-64 bg-brand-500 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0" id="sidebar">
@@ -383,7 +383,7 @@ try {
                     </table>
                 </div>
             </div>
-        </div>
+      </div>
     </div>
 
     <!-- Add/Edit Candidate Modal -->
@@ -411,9 +411,9 @@ try {
                             <label class="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
                             <input type="text" name="job_title" id="jobTitle" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
-                    </div>
-                    
+    </div>
+  </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Position *</label>
@@ -425,8 +425,8 @@ try {
                             <input type="number" name="experience_years" id="experienceYears" required min="0"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
-                    </div>
-                    
+    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Age *</label>
@@ -437,15 +437,15 @@ try {
                             <label class="block text-sm font-medium text-gray-700 mb-2">Contact Number *</label>
                             <input type="tel" name="contact_number" id="contactNumber" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
-                    </div>
-                    
+    </div>
+  </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                             <input type="email" name="email" id="email" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
+    </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Source</label>
                             <select name="source" id="source"
@@ -459,15 +459,15 @@ try {
                                 <option value="Recruitment Agency">Recruitment Agency</option>
                                 <option value="Other">Other</option>
                             </select>
-                        </div>
-                    </div>
-                    
+    </div>
+  </div>
+
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
                         <textarea name="address" id="address" rows="3" required
                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"></textarea>
-                    </div>
-                    
+    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Resume (PDF/DOC)</label>
@@ -485,9 +485,9 @@ try {
                                 <option value="rejected">Rejected</option>
                                 <option value="hired">Hired</option>
                             </select>
-                        </div>
-                    </div>
-                    
+    </div>
+  </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Skills</label>
@@ -500,9 +500,9 @@ try {
                             <textarea name="notes" id="notes" rows="3"
                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                       placeholder="Additional notes..."></textarea>
-                        </div>
-                    </div>
-                    
+    </div>
+  </div>
+
                     <div class="flex justify-end space-x-3">
                         <button type="button" id="cancelBtn" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
                             Cancel
@@ -512,7 +512,7 @@ try {
                             Save Candidate
                         </button>
                     </div>
-                </form>
+</form>
             </div>
         </div>
     </div>
@@ -654,5 +654,5 @@ try {
             }
         }
     </script>
-</body>
+  </body>
 </html>

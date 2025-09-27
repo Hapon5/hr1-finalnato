@@ -83,7 +83,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Posting - HR1 System</title>
@@ -243,7 +243,7 @@ try {
             }
         }
     </style>
-</head>
+  </head>
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
     <nav class="sidebar">
@@ -412,13 +412,13 @@ try {
                             <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
                             <input type="text" name="title" id="jobTitle" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
+      </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
                             <input type="text" name="position" id="jobPosition" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
-                    </div>
+</div>
+</div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -439,8 +439,8 @@ try {
                                 <option value="Other">Other</option>
                             </select>
                         </div>
-                    </div>
-                    
+      </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Contact</label>
@@ -452,15 +452,15 @@ try {
                             <input type="date" name="date_posted" id="jobDate" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
-                    </div>
-                    
+      </div>
+
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
                         <textarea name="requirements" id="jobRequirements" rows="4"
                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                   placeholder="Enter job requirements and qualifications..."></textarea>
-                    </div>
-                    
+      </div>
+
                     <div class="flex justify-end space-x-3">
                         <button type="button" id="cancelBtn" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
                             Cancel
@@ -469,11 +469,11 @@ try {
                             <i class="fas fa-save mr-2"></i>
                             Save Job Posting
                         </button>
-                    </div>
-                </form>
+      </div>
+    </form>
             </div>
-        </div>
-    </div>
+  </div>
+</div>
 
     <!-- View Job Modal -->
     <div id="viewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
@@ -490,7 +490,7 @@ try {
                 </div>
             </div>
         </div>
-    </div>
+</div>
 
     <script>
         // Sidebar and Logout Logic
@@ -501,7 +501,7 @@ try {
         });
 
         document.getElementById("logout-link").addEventListener("click", function (e) {
-            e.preventDefault();
+    e.preventDefault();
             localStorage.clear();
             window.location.href = "../logout.php";
         });
@@ -557,8 +557,8 @@ try {
                 } else {
                     row.style.display = 'none';
                 }
-            });
-        });
+    });
+});
 
         // Job functions
         function editJob(id) {
@@ -608,6 +608,6 @@ try {
                 form.submit();
             }
         }
-    </script>
-</body>
+</script>
+  </body>
 </html>

@@ -101,7 +101,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Interview Schedule - HR1</title>
@@ -249,7 +249,7 @@ try {
             }
         }
     </style>
-</head>
+  </head>
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
     <nav class="sidebar">
@@ -267,7 +267,7 @@ try {
     <div class="main-content">
         <div class="top-navbar">
             <i class="fa-solid fa-bars menu-toggle"></i>
-        </div>
+              </div>
         <header class="dashboard-header">
             <h1>Interview Scheduling</h1>
         </header>
@@ -294,9 +294,9 @@ try {
                             <option value="cancelled" <?php echo (isset($_GET['status']) && $_GET['status']==='cancelled')?'selected':''; ?>>Cancelled</option>
                             <option value="no_show" <?php echo (isset($_GET['status']) && $_GET['status']==='no_show')?'selected':''; ?>>No-show</option>
                         </select>
-                    </div>
                 </div>
-            </div>
+                </div>
+                </div>
 
             <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
@@ -335,7 +335,7 @@ try {
                                         <div class="flex gap-2">
                                             <button class="text-brand-500 hover:text-brand-600" onclick="openEdit(<?php echo (int)$iv['id']; ?>)"><i class="fas fa-edit"></i></button>
                                             <button class="text-red-500 hover:text-red-600" onclick="confirmDelete(<?php echo (int)$iv['id']; ?>)"><i class="fas fa-trash"></i></button>
-                                        </div>
+                </div>
                                     </td>
                                 </tr>
                             <?php endforeach; endif; ?>
@@ -343,7 +343,7 @@ try {
                     </table>
                 </div>
             </div>
-        </div>
+      </div>
     </div>
 
     <!-- Modal -->
@@ -366,8 +366,8 @@ try {
                         <div>
                             <label class="block text-sm text-gray-700 mb-2">Email</label>
                             <input name="email" id="email" type="email" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
-                    </div>
+    </div>
+  </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -378,7 +378,7 @@ try {
                             <label class="block text-sm text-gray-700 mb-2">Interviewer</label>
                             <input name="interviewer" id="interviewer" type="text" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
-                    </div>
+    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -388,14 +388,14 @@ try {
                         <div>
                             <label class="block text-sm text-gray-700 mb-2">End Time</label>
                             <input name="end_time" id="end_time" type="datetime-local" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
-                    </div>
+    </div>
+  </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm text-gray-700 mb-2">Location</label>
                             <input name="location" id="location" type="text" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
+    </div>
                         <div>
                             <label class="block text-sm text-gray-700 mb-2">Status</label>
                             <select name="status" id="status" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
@@ -404,27 +404,27 @@ try {
                                 <option value="cancelled">Cancelled</option>
                                 <option value="no_show">No-show</option>
                             </select>
-                        </div>
-                    </div>
+    </div>
+  </div>
 
                     <div>
                         <label class="block text-sm text-gray-700 mb-2">Notes</label>
                         <textarea name="notes" id="notes" rows="3" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"></textarea>
-                    </div>
+    </div>
 
                     <div class="flex justify-end gap-3 pt-2">
                         <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
                         <button type="submit" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600"><i class="fas fa-save mr-2"></i>Save</button>
                     </div>
                 </form>
-            </div>
-        </div>
     </div>
+    </div>
+  </div>
 
     <form id="deleteForm" method="POST" class="hidden">
         <input type="hidden" name="action" value="delete">
         <input type="hidden" name="id" id="deleteId" value="">
-    </form>
+</form>
 
     <script>
         const modal = document.getElementById('modal');
@@ -468,5 +468,5 @@ try {
             window.location.href = "logout.php";
         });
     </script>
-</body>
+  </body>
 </html>
