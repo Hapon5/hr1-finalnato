@@ -219,7 +219,7 @@
         }
     </style>
 </head>
-<body style="background-color: #000;">
+<body>
 
     <nav class="sidebar">
         <div class="sidebar-header">
@@ -232,7 +232,7 @@
         </ul>
     </nav>
 
-    <div class="main-content">
+    <div class="main-content" style="background-color: #000; ">
         <i class="fa-solid fa-bars menu-toggle"></i>
         
         <header class="page-header">
