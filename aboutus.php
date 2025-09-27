@@ -99,7 +99,7 @@
             "name" => "Siegfried Mar Viloria",
             "role" => "Team Leader/ Developer",
             "bio" => "Experienced Team Leader and Full-Stack Developer with a strong background in leading cross-functional teams and delivering scalable software solutions. Skilled in Agile methodologies, code architecture, and mentoring developers to reach their full potential.",
-            "photo" => "profile/viloria.jpeg",
+            "photo" => "profile/Viloria.jpeg",
         ],
         [
             "name" => "John Lloyd Morales",
