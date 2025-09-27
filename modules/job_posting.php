@@ -100,11 +100,11 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] }, colors: { brand: { 500: '#d37a15', 600: '#b8650f' } } } }
+            theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] }, colors: { brand: { 500: '#0000', 600: '#0000' } } } }
         }
     </script>
     <style>
-        .sidebar { width: 260px; background-color: #d37a15; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; transition: all 0.3s ease; }
+        .sidebar { width: 260px; background-color: #0000; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; transition: all 0.3s ease; }
         .main-content { margin-left: 260px; transition: margin-left 0.3s ease; }
         .sidebar.close { width: 78px; }
         .sidebar.close ~ .main-content { margin-left: 78px; }
