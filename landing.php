@@ -1,6 +1,6 @@
 <?php
 // Include the database configuration file
-include '../Connections.php';
+include './Connections.php';
 
 // Initialize the $featuredJob variable
 $featuredJob = null;
@@ -244,7 +244,7 @@ try {
             <div class="content layout_padding2-top">
 
                 <?php
-                include('../Connections.php'); // Ensure $conn is a PDO instance
+                include('./Connections.php'); // Ensure $conn is a PDO instance
 
                 try {
                    $jobs = $stmt->fetch(PDO::FETCH_ASSOC);
