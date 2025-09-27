@@ -10,7 +10,7 @@
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
 
         :root {
-            --primary-color: #d37a15;
+            --primary-color: #000;
             --background-light: #f8f9fa;
             --background-card: #ffffff;
             --text-dark: #333;
@@ -236,6 +236,7 @@
         <i class="fa-solid fa-bars menu-toggle"></i>
         
         <header class="page-header">
+            <div id="liveDateTime" class="text-lg font-medium text-gray-200" style="display:flex; float: right;"></div>
             <h1>About Us</h1>
             <p>Meet the passionate team behind our success</p>
         </header>
@@ -298,6 +299,20 @@
                 sidebar.classList.toggle("close");
             });
         }
+
+         function updateDateTime() {
+        const now = new Date();
+        const options = {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        };
+        document.getElementById("liveDateTime").textContent =
+            now.toLocaleDateString("en-US", options);
+    }
+
+    // run immediately + update every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
     </script>
 
 </body>
