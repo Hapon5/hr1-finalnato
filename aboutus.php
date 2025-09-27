@@ -100,34 +100,35 @@
                 [
                     "name" => "Siegfried Mar Viloria",
                     "role" => "Team Leader/ Developer",
-                    "bio" => "Experienced Team Leader and Full-Stack Developer with a strong background in leading cross-functional teams and delivering scalable software solutions. Skilled in Agile methodologies, code architecture, and mentoring developers to reach their full potential.",
-                    "photo" => "../",
+                    "bio" => "Experienced Team Leader and Full-Stack Developer...",
+                    "photo" => "../modules/profile/viloria.jpeg",
                 ],
                 [
                     "name" => "John Lloyd Morales",
                     "role" => "System Analyst",
-                    "bio" => "Detail-oriented System Analyst with a strong background in analyzing business requirements and translating them into effective technical solutions. Experienced in system design, process optimization, and bridging the gap between stakeholders and development teams.",
-                    "photo" => "https://scontent.fmnl4-6.fna.fbcdn.net/v/t39.30808-6/492405786_29142971938680051_2088275159235501263_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=F6jq0x9YIFMQ7kNvwGdhZde&_nc_oc=AdnRze11Eu6hnl2e_-H_teC0W3qQx8t3-bw6bd-UR4OWZ-qMkPdaeSHdteixYFvG_Lm3rPGsMyUN_5i1RVvwMR93&_nc_zt=23&_nc_ht=scontent.fmnl4-6.fna&_nc_gid=s3vkciayBG_D_96no_xY7A&oh=00_AfZsRv3JOUi8Ccz65NbPbSldp7TrFY0ILxHyuSjwdBTopA&oe=68DB213A",
+                    "bio" => "Detail-oriented System Analyst...",
+                    "photo" => "../modules/profile/morales.jpeg",
                 ],
                 [
                     "name" => "Andy Ferrer",
                     "role" => "Document Specialist",
-                    "bio" => "Skilled Document Specialist with expertise in managing, formatting, and maintaining high-quality business documents across various platforms. Proficient in document control, version tracking, and ensuring compliance with organizational and industry standards.",
-                    "photo" => "https://scontent.fmnl4-6.fna.fbcdn.net/v/t39.30808-6/488037395_9202214696567940_1476724353504982961_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=v473BDMp1ZYQ7kNvwE_uoUU&_nc_oc=Adkm0LiIaoo3QNoTrcAhwNYTVXIyZj14mNXoxYg_c3cm49HTZm_Dej8WxavbILww3FsapshSMFkOe1lxV6RTJsIy&_nc_zt=23&_nc_ht=scontent.fmnl4-6.fna&_nc_gid=Q2lhX1tH6xH1HbXju3HNrg&oh=00_AfaeJ1n5ZINWZ86JueyhdeIwYFMjJ7qoj5uTs44Z5fvnDA&oe=68DB4591",
+                    "bio" => "Skilled Document Specialist...",
+                    "photo" => "../modules/profile/ferrer.jpeg",
                 ],
                 [
                     "name" => "Andrea Ilagan",
                     "role" => "Technical Support Analyst",
-                    "bio" => "I am a dedicated Technical Support Analyst with experience in diagnosing and resolving hardware, software, and network issues across various platforms. I excel at providing timely and effective support to end-users, ensuring minimal downtime and high customer satisfaction.",
-                    "photo" => "https://scontent.fmnl4-7.fna.fbcdn.net/v/t39.30808-6/552178979_816211454297863_4231209233583079242_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=4shnNPS-0dAQ7kNvwEQzipd&_nc_oc=AdlQii70B_ptX4u_RvzpFlYzT6BgiHxivXiCqD1XNhmr-T_7NeEJaA8DxTMV22r1vrxVWOU27NH9SQcpEoCdQ5Vq&_nc_zt=23&_nc_ht=scontent.fmnl4-7.fna&_nc_gid=_RQ-rohvFrALYspv7zCcUg&oh=00_AfbBb3Caiggi3etJdtCZ6aRx6CERJLBLCSaSUcHREDn--A&oe=68DB4F07",
+                    "bio" => "Dedicated Technical Support Analyst...",
+                    "photo" => "../modules/profile/ilagan.jpeg",
                 ],
                 [
                     "name" => "Charlotte Achivida",
                     "role" => "Cyber Security Analyst",
-                    "bio" => "I am a detail-oriented Cybersecurity Analyst with expertise in identifying vulnerabilities, monitoring threats, and implementing security measures to protect critical systems and data. I specialize in threat analysis, incident response, and compliance with security standards.",
-                    "photo" => "https://scontent.fmnl4-1.fna.fbcdn.net/v/t1.15752-9/552297701_1374328944085433_1105416416599965136_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=9f807c&_nc_ohc=kOp3GXyPapEQ7kNvwHETXq7&_nc_oc=AdmeNZ6_H5XSd411wrGoJrefOPb1Jfr0q-NTZSzOFn2d47k2vqbRJc4js7vfopno7cAsB1loBAxYXD24wlARjtZP&_nc_zt=23&_nc_ht=scontent.fmnl4-1.fna&oh=03_Q7cD3QHI5KU2zXuyyCjs0NIvlKsObWwHCE70gez3EdtROr3wuQ&oe=68FDB0E3"
+                    "bio" => "Cybersecurity Analyst with expertise in identifying vulnerabilities...",
+                    "photo" => "../modules/profile/achivida.jpeg",
                 ]
             ];
+            
 
             // Loop through team array and display members
             foreach ($team as $member) {
