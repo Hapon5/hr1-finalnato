@@ -156,9 +156,8 @@ try {
     </script>
   </head>
 <body class="bg-gray-50 font-sans">
-    <!-- Sidebar -->
-    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-brand-500 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0" id="sidebar">
-        <div class="flex items-center justify-between h-16 px-6 bg-brand-600">
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-black transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0" id="sidebar">
+        <div class="flex items-center justify-between h-16 px-6 bg-gray-900">
             <div class="flex items-center">
                 <i class="fas fa-users text-white text-2xl mr-3"></i>
                 <h1 class="text-white text-xl font-bold">HR1</h1>
@@ -174,38 +173,33 @@ try {
                 <span>Dashboard</span>
             </a>
             
-           
-                <a href="logout.php" class="flex items-center px-4 py-3 text-white hover:bg-red-600 rounded-lg transition-colors">
-                    <i class="fas fa-sign-out-alt mr-3"></i>
-                    <span>Logout</span>
-                </a>
-            </nav>
+            <a href="logout.php" class="flex items-center px-4 py-3 text-white hover:bg-red-600 rounded-lg transition-colors">
+                <i class="fas fa-sign-out-alt mr-3"></i>
+                <span>Logout</span>
+            </a>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="lg:ml-64">
-        <!-- Top Navigation -->
-        <div class="bg-white shadow-sm border-b">
-            <div class="flex items-center justify-between px-6 py-4">
-                <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-900 lg:hidden">
+        <div class="shadow-sm border-b" style="background-color: #323A3C;">
+            <div class="flex items-center justify-between px-6 py-3">
+                <button id="sidebar-toggle" class="text-white hover:text-gray-300 lg:hidden">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
+                <div id="live-datetime" class="text-right text-white hidden sm:block">
+                    </div>
                 <div class="flex items-center space-x-4">
-                    <span class="text-gray-600">Welcome, <?php echo htmlspecialchars($admin_email); ?></span>
+                    <span class="text-white">Welcome, <?php echo htmlspecialchars($admin_email); ?></span>
                 </div>
             </div>
         </div>
 
-        <!-- Page Content -->
         <div class="p-6">
-            <!-- Page Header -->
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">Candidate Sourcing & Tracking</h1>
                 <p class="text-gray-600">Manage and track candidate applications and recruitment pipeline</p>
             </div>
 
-            <!-- Success/Error Messages -->
             <?php if (isset($message)): ?>
                 <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div class="flex items-center">
@@ -224,7 +218,6 @@ try {
                 </div>
             <?php endif; ?>
 
-            <!-- Action Bar -->
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <button id="addCandidateBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors">
@@ -254,7 +247,6 @@ try {
                 </div>
             </div>
 
-            <!-- Candidates Table -->
             <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -332,11 +324,11 @@ try {
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <div class="flex space-x-2">
-                                                <button onclick="viewCandidate(<?php echo $candidate['id']; ?>)" 
+                                                <button onclick="viewCandidate(<?php echo htmlspecialchars(json_encode($candidate)); ?>)" 
                                                         class="text-blue-500 hover:text-blue-600">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
-                                                <button onclick="editCandidate(<?php echo $candidate['id']; ?>)" 
+                                                <button onclick="editCandidate(<?php echo htmlspecialchars(json_encode($candidate)); ?>)" 
                                                         class="text-brand-500 hover:text-brand-600">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
@@ -362,11 +354,10 @@ try {
       </div>
     </div>
 
-    <!-- Add/Edit Candidate Modal -->
     <div id="candidateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
+                <div class="flex items-center justify-between p-6 border-b sticky top-0 bg-white">
                     <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">Add New Candidate</h3>
                     <button id="closeModal" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times text-xl"></i>
@@ -387,8 +378,8 @@ try {
                             <label class="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
                             <input type="text" name="job_title" id="jobTitle" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-    </div>
-  </div>
+                        </div>
+                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -401,7 +392,7 @@ try {
                             <input type="number" name="experience_years" id="experienceYears" required min="0"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                         </div>
-    </div>
+                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -413,15 +404,15 @@ try {
                             <label class="block text-sm font-medium text-gray-700 mb-2">Contact Number *</label>
                             <input type="tel" name="contact_number" id="contactNumber" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-    </div>
-  </div>
+                        </div>
+                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                             <input type="email" name="email" id="email" required
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-    </div>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Source</label>
                             <select name="source" id="source"
@@ -435,14 +426,14 @@ try {
                                 <option value="Recruitment Agency">Recruitment Agency</option>
                                 <option value="Other">Other</option>
                             </select>
-    </div>
-  </div>
+                        </div>
+                    </div>
 
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address *</label>
                         <textarea name="address" id="address" rows="3" required
                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"></textarea>
-    </div>
+                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -461,8 +452,8 @@ try {
                                 <option value="rejected">Rejected</option>
                                 <option value="hired">Hired</option>
                             </select>
-    </div>
-  </div>
+                        </div>
+                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
@@ -476,8 +467,8 @@ try {
                             <textarea name="notes" id="notes" rows="3"
                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                                       placeholder="Additional notes..."></textarea>
-    </div>
-  </div>
+                        </div>
+                    </div>
 
                     <div class="flex justify-end space-x-3">
                         <button type="button" id="cancelBtn" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
@@ -488,12 +479,11 @@ try {
                             Save Candidate
                         </button>
                     </div>
-</form>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- View Candidate Modal -->
     <div id="viewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full">
@@ -504,70 +494,91 @@ try {
                     </button>
                 </div>
                 <div id="candidateDetails" class="p-6">
-                    <!-- Candidate details will be loaded here -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
     <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Live Date and Time ---
+        const dateTimeElement = document.getElementById('live-datetime');
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            
+            const formattedDate = now.toLocaleDateString('en-US', dateOptions);
+            const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
+            
+            dateTimeElement.innerHTML = `
+                <p class="text-sm font-semibold text-gray-200">${formattedDate}</p>
+                <p class="text-lg font-bold text-white">${formattedTime}</p>
+            `;
+        }
+        // Update the time immediately and then every second
+        if(dateTimeElement) {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        }
+
         // Sidebar toggle
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const sidebarClose = document.getElementById('sidebar-close');
 
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.remove('-translate-x-full');
-        });
-
-        sidebarClose.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-        });
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.remove('-translate-x-full');
+            });
+        }
+        if (sidebarClose) {
+            sidebarClose.addEventListener('click', () => {
+                sidebar.classList.add('-translate-x-full');
+            });
+        }
 
         // Modal functionality
         const modal = document.getElementById('candidateModal');
         const viewModal = document.getElementById('viewModal');
         const addCandidateBtn = document.getElementById('addCandidateBtn');
-        const closeModal = document.getElementById('closeModal');
-        const closeViewModal = document.getElementById('closeViewModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const closeViewModalBtn = document.getElementById('closeViewModal');
         const cancelBtn = document.getElementById('cancelBtn');
         const candidateForm = document.getElementById('candidateForm');
 
-        addCandidateBtn.addEventListener('click', () => {
-            document.getElementById('modalTitle').textContent = 'Add New Candidate';
-            document.getElementById('formAction').value = 'add';
-            document.getElementById('statusField').style.display = 'none';
-            document.getElementById('candidateForm').reset();
-            modal.classList.remove('hidden');
-        });
+        if (addCandidateBtn) {
+            addCandidateBtn.addEventListener('click', () => {
+                document.getElementById('modalTitle').textContent = 'Add New Candidate';
+                document.getElementById('formAction').value = 'add';
+                document.getElementById('statusField').style.display = 'none';
+                candidateForm.reset();
+                document.getElementById('candidateId').value = '';
+                modal.classList.remove('hidden');
+            });
+        }
 
-        closeModal.addEventListener('click', () => {
+        function hideModals() {
             modal.classList.add('hidden');
-        });
-
-        closeViewModal.addEventListener('click', () => {
             viewModal.classList.add('hidden');
-        });
+        }
 
-        cancelBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
+        if(closeModalBtn) closeModalBtn.addEventListener('click', hideModals);
+        if(closeViewModalBtn) closeViewModalBtn.addEventListener('click', hideModals);
+        if(cancelBtn) cancelBtn.addEventListener('click', hideModals);
 
         // Close modals when clicking outside
         window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
-            }
-            if (e.target === viewModal) {
-                viewModal.classList.add('hidden');
+            if (e.target === modal || e.target === viewModal) {
+                hideModals();
             }
         });
-
-        // Search functionality
+        
+        // Search and filter functionality
         const searchInput = document.getElementById('searchInput');
         const statusFilter = document.getElementById('statusFilter');
 
-        function performSearch() {
+        function performSearchAndFilter() {
             const searchTerm = searchInput.value;
             const status = statusFilter.value;
             const url = new URL(window.location);
@@ -576,59 +587,109 @@ try {
             window.location.href = url.toString();
         }
 
-        searchInput.addEventListener('input', performSearch);
-        statusFilter.addEventListener('change', performSearch);
+        if (searchInput) searchInput.addEventListener('input', performSearchAndFilter);
+        if (statusFilter) statusFilter.addEventListener('change', performSearchAndFilter);
 
-        // Candidate functions
-        function editCandidate(id) {
-            document.getElementById('modalTitle').textContent = 'Edit Candidate';
-            document.getElementById('formAction').value = 'update';
-            document.getElementById('candidateId').value = id;
-            document.getElementById('statusField').style.display = 'block';
-            modal.classList.remove('hidden');
-        }
+        // Pre-fill search and filter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (searchInput) searchInput.value = urlParams.get('search') || '';
+        if (statusFilter) statusFilter.value = urlParams.get('status') || '';
+    });
 
-        function viewCandidate(id) {
-            // This would typically fetch candidate data via AJAX
-            document.getElementById('candidateDetails').innerHTML = `
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="font-medium text-gray-700">Full Name:</label>
-                            <p class="text-gray-900">John Doe</p>
-                        </div>
-                        <div>
-                            <label class="font-medium text-gray-700">Email:</label>
-                            <p class="text-gray-900">john.doe@email.com</p>
-                        </div>
+    // Candidate functions (now global)
+    function editCandidate(candidate) {
+        document.getElementById('modalTitle').textContent = 'Edit Candidate';
+        document.getElementById('formAction').value = 'update';
+        document.getElementById('statusField').style.display = 'block';
+
+        // Populate form
+        document.getElementById('candidateId').value = candidate.id;
+        document.getElementById('fullName').value = candidate.full_name;
+        document.getElementById('jobTitle').value = candidate.job_title;
+        document.getElementById('position').value = candidate.position;
+        document.getElementById('experienceYears').value = candidate.experience_years;
+        document.getElementById('age').value = candidate.age;
+        document.getElementById('contactNumber').value = candidate.contact_number;
+        document.getElementById('email').value = candidate.email;
+        document.getElementById('address').value = candidate.address;
+        document.getElementById('source').value = candidate.source;
+        document.getElementById('status').value = candidate.status;
+        document.getElementById('skills').value = candidate.skills;
+        document.getElementById('notes').value = candidate.notes;
+        
+        document.getElementById('candidateModal').classList.remove('hidden');
+    }
+
+    function viewCandidate(candidate) {
+        const detailsContainer = document.getElementById('candidateDetails');
+        const statusColors = {
+            new: 'bg-gray-100 text-gray-800', reviewed: 'bg-blue-100 text-blue-800',
+            shortlisted: 'bg-yellow-100 text-yellow-800', interviewed: 'bg-purple-100 text-purple-800',
+            rejected: 'bg-red-100 text-red-800', hired: 'bg-green-100 text-green-800'
+        };
+        const statusClass = statusColors[candidate.status] || 'bg-gray-100 text-gray-800';
+
+        let resumeLink = candidate.resume_path 
+            ? `<a href="${candidate.resume_path}" target="_blank" class="text-blue-500 hover:underline">Download Resume <i class="fas fa-download ml-1"></i></a>`
+            : '<span class="text-gray-500">No resume uploaded</span>';
+
+        detailsContainer.innerHTML = `
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="font-semibold text-gray-600">Full Name:</label>
+                        <p class="text-gray-900 text-lg">${candidate.full_name}</p>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="font-medium text-gray-700">Position:</label>
-                            <p class="text-gray-900">Software Engineer</p>
-                        </div>
-                        <div>
-                            <label class="font-medium text-gray-700">Experience:</label>
-                            <p class="text-gray-900">5 years</p>
-                        </div>
+                    <div>
+                        <label class="font-semibold text-gray-600">Job Title:</label>
+                        <p class="text-gray-900">${candidate.job_title}</p>
+                    </div>
+                     <div>
+                        <label class="font-semibold text-gray-600">Position:</label>
+                        <p class="text-gray-900">${candidate.position}</p>
                     </div>
                 </div>
-            `;
-            viewModal.classList.remove('hidden');
-        }
+                <hr>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div><label class="font-semibold text-gray-600">Email:</label><p>${candidate.email}</p></div>
+                    <div><label class="font-semibold text-gray-600">Contact:</label><p>${candidate.contact_number}</p></div>
+                    <div><label class="font-semibold text-gray-600">Experience:</label><p>${candidate.experience_years} years</p></div>
+                    <div><label class="font-semibold text-gray-600">Age:</label><p>${candidate.age}</p></div>
+                </div>
+                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div><label class="font-semibold text-gray-600">Source:</label><p>${candidate.source}</p></div>
+                    <div><label class="font-semibold text-gray-600">Status:</label><p><span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">${candidate.status.charAt(0).toUpperCase() + candidate.status.slice(1)}</span></p></div>
+                    <div><label class="font-semibold text-gray-600">Date Applied:</label><p>${new Date(candidate.created_at).toLocaleDateString()}</p></div>
+                     <div><label class="font-semibold text-gray-600">Resume:</label><p>${resumeLink}</p></div>
+                </div>
+                <hr>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div>
+                        <label class="font-semibold text-gray-600">Address:</label>
+                        <p class="text-gray-700 whitespace-pre-wrap">${candidate.address || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <label class="font-semibold text-gray-600">Skills:</label>
+                        <p class="text-gray-700 whitespace-pre-wrap">${candidate.skills || 'N/A'}</p>
+                    </div>
+                 </div>
+                 <div>
+                    <label class="font-semibold text-gray-600">Notes:</label>
+                    <p class="text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded-md">${candidate.notes || 'N/A'}</p>
+                </div>
+            </div>`;
+        document.getElementById('viewModal').classList.remove('hidden');
+    }
 
-        function deleteCandidate(id) {
-            if (confirm('Are you sure you want to delete this candidate?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="id" value="${id}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
+    function deleteCandidate(id) {
+        if (confirm('Are you sure you want to delete this candidate?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.innerHTML = `<input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="${id}">`;
+            document.body.appendChild(form);
+            form.submit();
         }
+    }
     </script>
   </body>
 </html>

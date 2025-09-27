@@ -1,827 +1,375 @@
 <?php
 session_start();
 
-// Include database connection
-$pathsToTry = [
-    __DIR__ . '/../Connections.php',
-    __DIR__ . '/Connections.php'
-];
+// Use a relative path to go up one directory to the root 'hr1' folder
+include("../Connections.php");
 
-$connectionsIncluded = false;
-foreach ($pathsToTry as $path) {
-    if (file_exists($path)) {
-        require_once $path;
-        $connectionsIncluded = true;
-        break;
-    }
+// Check if user is logged in and is admin
+if (!isset($_SESSION['Email']) || (isset($_SESSION['Account_type']) && $_SESSION['Account_type'] !== '1')) {
+    header("Location: ../login.php");
+    exit();
 }
 
-if (!$connectionsIncluded || !isset($conn)) {
-    die("Critical Error: Unable to load database connection.");
-}
-
-// Check if user is logged in
-if (!isset($_SESSION['Email'])) {
-    header('Location: ../login.php');
-    exit;
-}
-
-$success_message = '';
-$error_message = '';
-
-// Handle recognition submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recognition'])) {
-    $from_employee_id = $_SESSION['LoginID'] ?? 1;
-    $to_employee_id = $_POST['to_employee_id'];
-    $category_id = $_POST['category_id'];
-    $title = $_POST['title'];
-    $message = $_POST['message'];
-
-    // Validate inputs
-    if (empty($to_employee_id) || empty($category_id) || empty($title) || empty($message)) {
-        $error_message = "Please fill in all required fields.";
-    } else {
-        try {
-            $stmt = $conn->prepare("INSERT INTO recognitions (from_employee_id, to_employee_id, category_id, title, message) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$from_employee_id, $to_employee_id, $category_id, $title, $message]);
-            $success_message = "Recognition submitted successfully!";
-        } catch (Exception $e) {
-            $error_message = "Failed to submit recognition: " . $e->getMessage();
-        }
-    }
-}
-
-// Handle like/unlike functionality
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'toggle_like') {
-    $recognition_id = $_POST['recognition_id'];
-    $employee_id = $_SESSION['LoginID'] ?? 1;
-    
+// --- AJAX HANDLER: Get Employee Details and LATEST Appraisal ---
+if (isset($_GET['action']) && $_GET['action'] === 'get_employee_appraisal' && isset($_GET['id'])) {
+    header('Content-Type: application/json');
     try {
-        // Check if already liked
-        $stmt = $conn->prepare("SELECT id FROM recognition_likes WHERE recognition_id = ? AND employee_id = ?");
-        $stmt->execute([$recognition_id, $employee_id]);
-        
-        if ($stmt->rowCount() > 0) {
-            // Unlike
-            $stmt = $conn->prepare("DELETE FROM recognition_likes WHERE recognition_id = ? AND employee_id = ?");
-            $stmt->execute([$recognition_id, $employee_id]);
-        } else {
-            // Like
-            $stmt = $conn->prepare("INSERT INTO recognition_likes (recognition_id, employee_id) VALUES (?, ?)");
-            $stmt->execute([$recognition_id, $employee_id]);
+        // Fetch employee details
+        $stmt_emp = $conn->prepare("SELECT id, name, position, photo_path FROM employees WHERE id = ?");
+        $stmt_emp->execute([$_GET['id']]);
+        $employee = $stmt_emp->fetch(PDO::FETCH_ASSOC);
+
+        if (!$employee) {
+            echo json_encode(['status' => 'error', 'message' => 'Employee not found']);
+            exit();
         }
+
+        // Fetch the MOST RECENT appraisal for this employee
+        $stmt_app = $conn->prepare("SELECT id, rating, comment FROM appraisals WHERE employee_id = ? ORDER BY appraisal_date DESC LIMIT 1");
+        $stmt_app->execute([$_GET['id']]);
+        $appraisal = $stmt_app->fetch(PDO::FETCH_ASSOC);
+
+        // Combine data
+        $data = [
+            'employee' => $employee,
+            'appraisal' => $appraisal // This will be null if no appraisal exists
+        ];
         
-        // Return JSON response
-        header('Content-Type: application/json');
-        echo json_encode(['success' => true]);
-        exit;
+        echo json_encode(['status' => 'success', 'data' => $data]);
+
     } catch (Exception $e) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        exit;
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
     }
+    exit();
 }
 
-// Fetch employees for dropdown
+
+// --- AJAX HANDLER: Add / Update / Delete Appraisals ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    header('Content-Type: application/json');
+    $action = $_POST['action'];
+
+    try {
+        if ($action === 'submit_appraisal' || $action === 'update_appraisal') {
+            $employee_id = $_POST['employee_id'] ?? null;
+            $rating = $_POST['rating'] ?? null;
+            $comment = trim($_POST['comment'] ?? '');
+            $rater_email = $_SESSION['Email'];
+            $appraisal_id = $_POST['appraisal_id'] ?? null;
+            
+            if (empty($employee_id) || empty($rating)) {
+                echo json_encode(['status' => 'error', 'message' => 'Rating is required.']);
+                exit();
+            }
+            
+            if ($action === 'update_appraisal' && !empty($appraisal_id)) {
+                $stmt = $conn->prepare("UPDATE appraisals SET rating = ?, comment = ?, appraisal_date = NOW() WHERE id = ?");
+                $stmt->execute([$rating, $comment, $appraisal_id]);
+                $message = 'Appraisal updated successfully!';
+            } else {
+                // Prevent duplicate appraisal for the same user on the same day by the same rater
+                $checkStmt = $conn->prepare("SELECT id FROM appraisals WHERE employee_id = ? AND rater_email = ? AND DATE(appraisal_date) = CURDATE()");
+                $checkStmt->execute([$employee_id, $rater_email]);
+                if ($checkStmt->fetch()) {
+                    echo json_encode(['status' => 'error', 'message' => 'An appraisal for this employee was already submitted today.']);
+                    exit();
+                }
+                $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_email, rating, comment, appraisal_date) VALUES (?, ?, ?, ?, NOW())");
+                $stmt->execute([$employee_id, $rater_email, $rating, $comment]);
+                $message = 'Appraisal submitted successfully!';
+            }
+             echo json_encode(['status' => 'success', 'message' => $message]);
+
+        } elseif ($action === 'delete_appraisal') {
+             $appraisal_id = $_POST['appraisal_id'] ?? null;
+             if(empty($appraisal_id)) {
+                  echo json_encode(['status' => 'error', 'message' => 'Invalid Appraisal ID.']);
+                  exit();
+             }
+             $stmt = $conn->prepare("DELETE FROM appraisals WHERE id = ?");
+             $stmt->execute([$appraisal_id]);
+             echo json_encode(['status' => 'success', 'message' => 'Appraisal deleted successfully!']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Database operation failed: ' . $e->getMessage()]);
+    }
+    exit();
+}
+
+
+// --- INITIAL PAGE LOAD ---
 try {
-    $stmt = $conn->prepare("SELECT * FROM employees WHERE status = 'active' ORDER BY name");
-    $stmt->execute();
+    // Corrected query to get the latest appraisal rating for each employee
+    $stmt = $conn->query("
+        SELECT e.*, a.rating as last_rating
+        FROM employees e
+        LEFT JOIN appraisals a ON a.id = (
+            SELECT id FROM appraisals 
+            WHERE employee_id = e.id 
+            ORDER BY appraisal_date DESC 
+            LIMIT 1
+        )
+        WHERE e.status = 'active'
+        ORDER BY e.name
+    ");
     $employees = $stmt->fetchAll();
 } catch (Exception $e) {
     $employees = [];
     $error_message = "Failed to load employees: " . $e->getMessage();
 }
-
-// Fetch recognition categories
-try {
-    $stmt = $conn->prepare("SELECT * FROM recognition_categories WHERE is_active = 1 ORDER BY name");
-    $stmt->execute();
-    $categories = $stmt->fetchAll();
-} catch (Exception $e) {
-    $categories = [];
-    $error_message = "Failed to load categories: " . $e->getMessage();
-}
-
-// Fetch recent recognitions
-try {
-    // Check if tables exist first
-    $tables_check = $conn->query("SHOW TABLES LIKE 'recognitions'");
-    if ($tables_check->rowCount() == 0) {
-        $recognitions = [];
-        $error_message = "Recognition tables not found. Please run the database setup script first.";
-    } else {
-        $stmt = $conn->prepare("
-            SELECT r.*, 
-                   e1.name as from_name, e1.photo_path as from_photo,
-                   e2.name as to_name, e2.photo_path as to_photo,
-                   rc.name as category_name, rc.icon as category_icon, rc.color as category_color,
-                   COUNT(rl.id) as like_count,
-                   CASE WHEN EXISTS(SELECT 1 FROM recognition_likes WHERE recognition_id = r.id AND employee_id = ?) THEN 1 ELSE 0 END as is_liked
-            FROM recognitions r
-            JOIN employees e1 ON r.from_employee_id = e1.id
-            JOIN employees e2 ON r.to_employee_id = e2.id
-            JOIN recognition_categories rc ON r.category_id = rc.id
-            LEFT JOIN recognition_likes rl ON r.id = rl.recognition_id
-            WHERE r.is_public = 1
-            GROUP BY r.id
-            ORDER BY r.recognition_date DESC
-            LIMIT 20
-        ");
-        $stmt->execute([$_SESSION['LoginID'] ?? 1]);
-        $recognitions = $stmt->fetchAll();
-    }
-} catch (Exception $e) {
-    $recognitions = [];
-    $error_message = "Failed to load recognitions: " . $e->getMessage();
-}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Recognition - HR Admin</title>
+    <title>Performance & Appraisals - HR Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
-        
-        :root {
-            --primary-color: #d37a15;
-            --secondary-color: #0a0a0a;
-            --background-light: #f8f9fa;
-            --background-card: #ffffff;
-            --text-dark: #333;
-            --text-light: #f4f4f4;
-            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --border-radius: 12px;
+        :root { 
+            --primary-color: #111827; /* Black */
+            --background-dark: #111827; /* Black */
+            --card-bg: #1f2937; /* Dark Gray */
+            --text-light: #f3f4f6; 
+            --text-medium: #9ca3af;
+            --border-color: #374151;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
-        }
-
-        body {
-            background-color: var(--background-light);
-            display: flex;
-            min-height: 100vh;
-            color: var(--text-dark);
-        }
-        
-        /* Sidebar Styles */
-        .sidebar {
-            width: 260px;
-            background-color: var(--primary-color);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 100;
-        }
-        
-        .sidebar.close {
-            width: 78px;
-        }
-        
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            color: var(--text-light);
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .sidebar-header h2 {
-            font-size: 1.5rem;
-            margin-left: 10px;
-            transition: opacity 0.3s ease;
-        }
-        
-        .sidebar.close .sidebar-header h2 {
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .sidebar-nav {
-            list-style: none;
-            flex-grow: 1;
-            padding-top: 20px;
-        }
-        
-        .sidebar-nav li {
-            margin-bottom: 10px;
-        }
-        
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--text-light);
-            transition: background-color 0.3s ease;
-        }
-        
-        .sidebar-nav a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .sidebar-nav a i {
-            font-size: 20px;
-            margin-right: 15px;
-            min-width: 20px;
-            text-align: center;
-            transition: margin 0.3s ease;
-        }
-        
-        .sidebar.close .sidebar-nav a i {
-            margin-right: 0;
-        }
-        
-        .sidebar-nav a span {
-            transition: opacity 0.3s ease;
-        }
-        
-        .sidebar.close .sidebar-nav a span {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: 260px;
-            flex-grow: 1;
-            padding: 20px 30px;
-            transition: margin-left 0.3s ease;
-            max-width: calc(100vw - 260px);
-            overflow-x: hidden;
-        }
-        
-        .sidebar.close ~ .main-content {
-            margin-left: 78px;
-            max-width: calc(100vw - 78px);
-        }
-
-        /* Header */
-        .dashboard-header {
-            background: var(--background-card);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-subtle);
-            margin-bottom: 30px;
-        }
-
-        .dashboard-header h1 {
-            color: var(--text-dark);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .dashboard-header p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-        /* Alert Messages */
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        /* Recognition Form */
-        .recognition-form {
-            background: var(--background-card);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-subtle);
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .submit-button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-            width: 100%;
-        }
-
-        .submit-button:hover {
-            background: #b8650f;
-        }
-
-        .submit-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Recognition Cards */
-        .recognitions-container {
-            display: grid;
-            gap: 20px;
-        }
-
-        .recognition-card {
-            background: var(--background-card);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-subtle);
-            border-left: 5px solid var(--primary-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .recognition-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .recognition-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .recognition-header img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 15px;
-            border: 2px solid var(--primary-color);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .recognition-header:hover img {
-            transform: scale(1.1);
-        }
-
-        .recognition-info h3 {
-            color: var(--text-dark);
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-        }
-
-        .recognition-info p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .recognition-category {
-            display: inline-flex;
-            align-items: center;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .recognition-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-        }
-
-        .recognition-message {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .recognition-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 15px;
-            border-top: 1px solid #e9ecef;
-        }
-
-        .recognition-date {
-            color: #888;
-            font-size: 0.9rem;
-        }
-
-        .recognition-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .like-button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 12px;
-            border-radius: 20px;
-            transition: background-color 0.3s ease;
-        }
-
-        .like-button:hover {
-            background-color: #f8f9fa;
-        }
-
-        .like-button.liked {
-            color: #e74c3c;
-        }
-
-        .like-button i {
-            font-size: 16px;
-        }
-
-        .like-count {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            color: #ddd;
-            margin-bottom: 20px;
-        }
-
-        .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #999;
-        }
-
-        /* Loading Spinner */
-        .fa-spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Notification */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .notification-success {
-            background: #28a745;
-        }
-
-        .notification-error {
-            background: #dc3545;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: static;
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px;
-            }
-            
-            .sidebar-nav {
-                display: none;
-            }
-            
-            .sidebar-header {
-                border-bottom: none;
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-            
-            .dashboard-header h1 {
-                font-size: 2rem;
-            }
-        }
+        body { background-color: var(--background-dark); display: flex; font-family: "Poppins", sans-serif; }
+        .sidebar { width: 260px; background-color: var(--primary-color); position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+        .main-content { margin-left: 260px; width: calc(100% - 260px); }
+        .sidebar-nav a { color: var(--text-light); }
+        .sidebar-nav a:hover { background-color: rgba(255,255,255,0.1); }
+        .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; }
+        .star-rating input[type="radio"] { display: none; }
+        .star-rating label { font-size: 2rem; color: #4b5563; cursor: pointer; transition: color 0.2s; }
+        .star-rating input[type="radio"]:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #f59e0b; }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; z-index: 1000; transition: all 0.5s ease; opacity: 0; transform: translateX(100%); }
+        .notification.show { opacity: 1; transform: translateX(0); }
     </style>
 </head>
-<body>
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <i class='bx bxs-user-detail' style='font-size: 2rem; color: #fff;'></i>
-            <h2>HR Admin</h2>
+<body class="bg-gray-900">
+    <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700">
+        <div class="sidebar-header flex items-center pb-5 border-b border-gray-700">
+            <i class='fas fa-user-shield text-3xl'></i>
+            <h2 class="text-xl font-bold ml-3">HR Admin</h2>
         </div>
-        <ul class="sidebar-nav">
-            <li><a href="../admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-          
-            <li><a href="../logout.php" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+        <ul class="sidebar-nav flex-grow pt-5 space-y-2">
+            <li><a href="../admin.php" class="flex items-center p-3 rounded-lg"><i class="fas fa-tachometer-alt w-6 text-center"></i><span class="ml-3">Dashboard</span></a></li>
         </ul>
+        <div class="pt-5"><a href="../logout.php" class="flex items-center p-3 rounded-lg"><i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-3">Logout</span></a></div>
     </nav>
 
-    <div class="main-content">
-        <div class="top-navbar">
-            <i class="fa-solid fa-bars menu-toggle"></i>
+    <div class="main-content p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+             <h1 class="text-3xl font-bold text-gray-200">Performance & Appraisals</h1>
+             <div id="datetime" class="text-gray-400 font-medium"></div>
         </div>
+        <p class="text-gray-400 mb-8">Review and rate employee performance</p>
 
-        <header class="dashboard-header">
-            <h1><i class="fas fa-trophy"></i> Employee Recognition</h1>
-            <p>Recognize and celebrate outstanding employee contributions</p>
-            
-            <?php if ($success_message): ?>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success_message); ?>
-                </div>
-            <?php endif; ?>
-            
-            <?php if ($error_message): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error_message); ?>
-                </div>
-            <?php endif; ?>
-        </header>
-
-        <!-- Recognition Form -->
-        <div class="recognition-form">
-            <h2><i class="fas fa-plus-circle"></i> Give Recognition</h2>
-            <form id="recognitionForm">
-                <div class="form-group">
-                    <label for="to_employee_id">Recognize:</label>
-                    <select name="to_employee_id" id="to_employee_id" required>
-                        <option value="">Select an employee...</option>
-                        <?php foreach ($employees as $employee): ?>
-                            <option value="<?php echo $employee['id']; ?>">
-                                <?php echo htmlspecialchars($employee['name'] . ' - ' . $employee['position']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="category_id">Recognition Type:</label>
-                    <select name="category_id" id="category_id" required>
-                        <option value="">Select a category...</option>
-                        <?php foreach ($categories as $category): ?>
-                            <option value="<?php echo $category['id']; ?>" data-color="<?php echo $category['color']; ?>" data-icon="<?php echo $category['icon']; ?>">
-                                <?php echo htmlspecialchars($category['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="title">Recognition Title:</label>
-                    <input type="text" name="title" id="title" placeholder="Enter a title for this recognition..." required>
-                </div>
-
-                <div class="form-group">
-                    <label for="message">Recognition Message:</label>
-                    <textarea name="message" id="message" placeholder="Write a detailed message about their contribution..." required></textarea>
-                </div>
-
-                <button type="submit" class="submit-button" id="submitRecognition">
-                    <i class="fas fa-paper-plane"></i> Submit Recognition
-                </button>
-    </form>
-        </div>
-
-        <!-- Recent Recognitions -->
-        <div class="recognitions-container">
-            <h2><i class="fas fa-history"></i> Recent Recognitions</h2>
-
-    <?php if (empty($recognitions)): ?>
-                <div class="empty-state">
-                    <i class="fas fa-trophy"></i>
-                    <h3>No Recognitions Yet</h3>
-                    <p>Be the first to recognize someone's great work!</p>
-                </div>
-    <?php else: ?>
-                <?php foreach ($recognitions as $recognition): ?>
-                    <div class="recognition-card">
-                        <div class="recognition-header">
-                            <img src="../<?php echo htmlspecialchars($recognition['from_photo']); ?>" alt="From" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSIxNy41IiByPSI3LjUiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwIDQwQzEwIDMyLjgyMDMgMTUuODIwMyAyNyAyMyAyN0gyN0MzNC4xNzk3IDI3IDQwIDMyLjgyMDMgNDAgNDBWNTBIMTBWNDBaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
-                            <div class="recognition-info">
-                                <h3><?php echo htmlspecialchars($recognition['from_name']); ?></h3>
-                                <p>recognized <strong><?php echo htmlspecialchars($recognition['to_name']); ?></strong></p>
-                            </div>
-                        </div>
-                        
-                        <div class="recognition-category" style="background-color: <?php echo $recognition['category_color']; ?>20; color: <?php echo $recognition['category_color']; ?>;">
-                            <i class="<?php echo $recognition['category_icon']; ?>"></i>
-                            <?php echo htmlspecialchars($recognition['category_name']); ?>
-                        </div>
-                        
-                        <div class="recognition-title"><?php echo htmlspecialchars($recognition['title']); ?></div>
-                        <div class="recognition-message"><?php echo nl2br(htmlspecialchars($recognition['message'])); ?></div>
-                        
-                        <div class="recognition-footer">
-                            <div class="recognition-date">
-                                <i class="fas fa-clock"></i> <?php echo date('M j, Y g:i A', strtotime($recognition['recognition_date'])); ?>
-                            </div>
-                            <div class="recognition-actions">
-                                <button class="like-button <?php echo $recognition['is_liked'] ? 'liked' : ''; ?>" 
-                                        data-recognition-id="<?php echo $recognition['id']; ?>">
-                                    <i class="fas fa-heart"></i>
-                                    <span class="like-count"><?php echo $recognition['like_count']; ?></span>
-                                </button>
-                            </div>
-                        </div>
+        <div class="bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-700 flex-grow">
+            <div class="overflow-x-auto h-full">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-900">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Employee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Position</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase">Last Rating</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-gray-800 divide-y divide-gray-700">
+                        <?php if (empty($employees)): ?>
+                            <tr><td colspan="4" class="text-center py-10 text-gray-500">No active employees found.</td></tr>
+                        <?php else: foreach ($employees as $employee): ?>
+                            <tr class="hover:bg-gray-700/50">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <img class="h-10 w-10 rounded-full object-cover" src="../<?= htmlspecialchars($employee['photo_path']) ?>" alt="Photo of <?= htmlspecialchars($employee['name']) ?>">
+                                        <div class="ml-4 font-medium text-gray-200"><?= htmlspecialchars($employee['name']) ?></div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-300"><?= htmlspecialchars($employee['position']) ?></td>
+                                <td class="px-6 py-4 text-center text-yellow-400 text-lg">
+                                    <?= $employee['last_rating'] ? str_repeat('★', $employee['last_rating']) . str_repeat('☆', 5 - $employee['last_rating']) : '<span class="text-gray-500 text-sm">Not Rated</span>' ?>
+                                </td>
+                                <td class="px-6 py-4 text-right text-sm font-medium">
+                                    <button onclick="openRateModal(<?= $employee['id'] ?>)" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500">Rate / View</button>
+                                </td>
+                            </tr>
+                        <?php endforeach; endif; ?>
+                    </tbody>
+                </table>
             </div>
-        <?php endforeach; ?>
-    <?php endif; ?>
         </div>
     </div>
 
-    <script>
-        // Sidebar toggle functionality
-        const sidebar = document.querySelector(".sidebar");
-        const menuToggle = document.querySelector(".menu-toggle");
-        
-        if (menuToggle) {
-            menuToggle.addEventListener("click", () => {
-                sidebar.classList.toggle("close");
-            });
-        }
+    <div id="rateModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-gray-800 rounded-lg shadow-xl max-w-lg w-full border border-gray-700">
+                <div class="flex items-center justify-between p-5 border-b border-gray-700">
+                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-200">Rate Performance</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+                <form id="appraisalForm" class="p-6">
+                    <input type="hidden" name="employee_id" id="modalEmployeeId">
+                    <input type="hidden" name="appraisal_id" id="modalAppraisalId">
+                    
+                    <div class="text-center mb-6">
+                        <img id="modalPhoto" class="h-24 w-24 rounded-full object-cover mx-auto mb-4 border-4 border-gray-600" src="" alt="Employee">
+                        <h4 id="modalName" class="font-bold text-lg text-gray-200"></h4>
+                        <p id="modalPosition" class="text-gray-400"></p>
+                    </div>
 
-        // Logout functionality
-        document.getElementById("logout-link").addEventListener("click", function (e) {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = "../logout.php";
-        });
+                    <div class="mb-4">
+                        <div class="star-rating">
+                            <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
+                            <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
+                            <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
+                            <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
+                            <input type="radio" name="rating" value="1" id="star1"><label for="star1">★</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <textarea name="comment" id="comment" rows="4" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:ring-yellow-500 focus:border-yellow-500" placeholder="Provide feedback..."></textarea>
+                    </div>
 
-        // AJAX form submission
-        document.getElementById('recognitionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            formData.append('submit_recognition', '1');
-            
-            const submitBtn = document.getElementById('submitRecognition');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            submitBtn.disabled = true;
-            
-            fetch(window.location.href, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                showNotification('Recognition submitted successfully!', 'success');
-                
-                // Reset form
-                document.getElementById('recognitionForm').reset();
-                
-                // Reload page to show new recognition
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            })
-            .catch(error => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                
-                showNotification('Error submitting recognition. Please try again.', 'error');
-                console.error('Error:', error);
-            });
-        });
+                    <div class="flex justify-between items-center pt-5 border-t border-gray-700">
+                        <div>
+                            <button type="button" id="deleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 hidden">Delete</button>
+                        </div>
+                        <div class="space-x-3">
+                            <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-200 bg-gray-600 rounded-lg hover:bg-gray-500">Cancel</button>
+                            <button type="submit" id="submitBtn" class="px-5 py-2 text-white rounded-lg transition-colors">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
-        // Like functionality
-        document.querySelectorAll('.like-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const recognitionId = this.getAttribute('data-recognition-id');
-                const formData = new FormData();
-                formData.append('action', 'toggle_like');
-                formData.append('recognition_id', recognitionId);
-                
-                fetch(window.location.href, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Toggle like state
-                        this.classList.toggle('liked');
-                        
-                        // Update like count
-                        const likeCount = this.querySelector('.like-count');
-                        const currentCount = parseInt(likeCount.textContent);
-                        if (this.classList.contains('liked')) {
-                            likeCount.textContent = currentCount + 1;
-                        } else {
-                            likeCount.textContent = currentCount - 1;
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-        });
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('rateModal');
+    const form = document.getElementById('appraisalForm');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const submitBtn = document.getElementById('submitBtn');
 
-        // Notification system
-        function showNotification(message, type) {
-            const existingNotifications = document.querySelectorAll('.notification');
-            existingNotifications.forEach(notification => notification.remove());
-            
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                ${message}
-            `;
-            
-            document.body.appendChild(notification);
-            
+    const openModal = () => modal.classList.remove('hidden');
+    const closeModal = () => modal.classList.add('hidden');
+
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+
+    // --- Live Date and Time Script ---
+    const datetimeElement = document.getElementById('datetime');
+    function updateDateTime() {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        datetimeElement.textContent = now.toLocaleString('en-US', options);
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // --- Notification Function ---
+    function showNotification(message, type = 'success') {
+        const notif = document.createElement('div');
+        notif.textContent = message;
+        notif.className = `notification ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+        document.body.appendChild(notif);
+        setTimeout(() => {
+            notif.classList.add('show');
             setTimeout(() => {
-                notification.style.animation = 'slideIn 0.3s ease reverse';
-                setTimeout(() => notification.remove(), 300);
+                notif.classList.remove('show');
+                setTimeout(() => notif.remove(), 500);
             }, 3000);
+        }, 10);
+    }
+
+    window.openRateModal = function(employeeId) {
+        fetch(`?action=get_employee_appraisal&id=${employeeId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const emp = data.data.employee;
+                const appraisal = data.data.appraisal;
+                
+                form.reset();
+                document.getElementById('modalEmployeeId').value = emp.id;
+                document.getElementById('modalName').textContent = emp.name;
+                document.getElementById('modalPosition').textContent = emp.position;
+                document.getElementById('modalPhoto').src = `../${emp.photo_path || 'path/to/default.png'}`;
+                document.getElementById('modalAppraisalId').value = '';
+                
+                submitBtn.className = "px-5 py-2 text-white rounded-lg transition-colors"; // Reset classes
+
+                if (appraisal) { // If appraisal exists, populate form
+                    document.getElementById('modalAppraisalId').value = appraisal.id;
+                    document.getElementById('comment').value = appraisal.comment;
+                    const starInput = form.querySelector(`input[name="rating"][value="${appraisal.rating}"]`);
+                    if (starInput) starInput.checked = true;
+                    submitBtn.textContent = 'Update';
+                    submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    deleteBtn.classList.remove('hidden');
+                } else { // No appraisal yet
+                    submitBtn.textContent = 'Submit';
+                    submitBtn.classList.add('bg-gray-600', 'hover:bg-gray-500');
+                    deleteBtn.classList.add('hidden');
+                }
+                openModal();
+            } else {
+                showNotification(data.message, 'error');
+            }
+        });
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const rating = form.rating.value;
+        if (!rating) {
+            showNotification('Please select a star rating.', 'error');
+            return;
         }
-    </script>
+
+        const action = form.appraisal_id.value ? 'update_appraisal' : 'submit_appraisal';
+        const formData = new FormData(this);
+        formData.append('action', action);
+
+        fetch('', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            showNotification(data.message, data.status);
+            if (data.status === 'success') {
+                setTimeout(() => window.location.reload(), 1500);
+            }
+        });
+    });
+    
+    deleteBtn.addEventListener('click', function() {
+        const appraisalId = document.getElementById('modalAppraisalId').value;
+        if (!appraisalId || !confirm('Are you sure you want to delete this appraisal?')) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', 'delete_appraisal');
+        formData.append('appraisal_id', appraisalId);
+        
+        fetch('', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            showNotification(data.message, data.status);
+            if (data.status === 'success') {
+                setTimeout(() => window.location.reload(), 1500);
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>

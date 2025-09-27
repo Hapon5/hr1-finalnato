@@ -71,8 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $checkStmt = $conn->prepare("SELECT id FROM appraisals WHERE employee_id = ? AND rater_email = ? AND DATE(appraisal_date) = CURDATE()");
                 $checkStmt->execute([$employee_id, $rater_email]);
                 if ($checkStmt->fetch()) {
-                     echo json_encode(['status' => 'error', 'message' => 'An appraisal for this employee was already submitted today.']);
-                     exit();
+                    echo json_encode(['status' => 'error', 'message' => 'An appraisal for this employee was already submitted today.']);
+                    exit();
                 }
                 $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_email, rating, comment, appraisal_date) VALUES (?, ?, ?, ?, NOW())");
                 $stmt->execute([$employee_id, $rater_email, $rating, $comment]);
@@ -129,24 +129,30 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary-color: #d37a15; --background-light: #f8f9fa; --text-light: #f4f4f4; }
-        body { background-color: var(--background-light); display: flex; font-family: "Poppins", sans-serif; }
+        :root { 
+            --primary-color: #111827; /* Black */
+            --background-dark: #111827; /* Black */
+            --card-bg: #1f2937; /* Dark Gray */
+            --text-light: #f3f4f6; 
+            --text-medium: #9ca3af;
+            --border-color: #374151;
+        }
+        body { background-color: var(--background-dark); display: flex; font-family: "Poppins", sans-serif; }
         .sidebar { width: 260px; background-color: var(--primary-color); position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
         .main-content { margin-left: 260px; width: calc(100% - 260px); }
         .sidebar-nav a { color: var(--text-light); }
-        .sidebar-nav a:hover { background-color: rgba(0,0,0,0.2); }
+        .sidebar-nav a:hover { background-color: rgba(255,255,255,0.1); }
         .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; }
         .star-rating input[type="radio"] { display: none; }
-        .star-rating label { font-size: 2rem; color: #ddd; cursor: pointer; transition: color 0.2s; }
-        .star-rating input[type="radio"]:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #ffc107; }
+        .star-rating label { font-size: 2rem; color: #4b5563; cursor: pointer; transition: color 0.2s; }
+        .star-rating input[type="radio"]:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #f59e0b; }
         .notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; z-index: 1000; transition: all 0.5s ease; opacity: 0; transform: translateX(100%); }
         .notification.show { opacity: 1; transform: translateX(0); }
     </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Sidebar -->
-    <nav class="sidebar p-5 text-white flex flex-col">
-        <div class="sidebar-header flex items-center pb-5 border-b border-white/20">
+<body class="bg-gray-900">
+    <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700">
+        <div class="sidebar-header flex items-center pb-5 border-b border-gray-700">
             <i class='fas fa-user-shield text-3xl'></i>
             <h2 class="text-xl font-bold ml-3">HR Admin</h2>
         </div>
@@ -156,43 +162,41 @@ try {
         <div class="pt-5"><a href="../logout.php" class="flex items-center p-3 rounded-lg"><i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-3">Logout</span></a></div>
     </nav>
 
-    <!-- Main Content -->
     <div class="main-content p-6 flex flex-col">
         <div class="flex justify-between items-center mb-6">
-             <h1 class="text-3xl font-bold text-gray-800">Performance & Appraisals</h1>
-             <div id="datetime" class="text-gray-600 font-medium"></div>
+             <h1 class="text-3xl font-bold text-gray-200">Performance & Appraisals</h1>
+             <div id="datetime" class="text-gray-400 font-medium"></div>
         </div>
-        <p class="text-gray-600 mb-8">Review and rate employee performance</p>
+        <p class="text-gray-400 mb-8">Review and rate employee performance</p>
 
-        <!-- Employee Table -->
-        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 flex-grow">
+        <div class="bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-700 flex-grow">
             <div class="overflow-x-auto h-full">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-900">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Employee</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Last Rating</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Employee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Position</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-400 uppercase">Last Rating</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-gray-800 divide-y divide-gray-700">
                         <?php if (empty($employees)): ?>
                             <tr><td colspan="4" class="text-center py-10 text-gray-500">No active employees found.</td></tr>
                         <?php else: foreach ($employees as $employee): ?>
-                            <tr class="hover:bg-gray-50">
+                            <tr class="hover:bg-gray-700/50">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
-                                        <img class="h-10 w-10 rounded-full object-cover" src="../<?= htmlspecialchars($employee['photo_path']) ?>" alt="">
-                                        <div class="ml-4 font-medium text-gray-900"><?= htmlspecialchars($employee['name']) ?></div>
+                                        <img class="h-10 w-10 rounded-full object-cover" src="../<?= htmlspecialchars($employee['photo_path']) ?>" alt="Photo of <?= htmlspecialchars($employee['name']) ?>">
+                                        <div class="ml-4 font-medium text-gray-200"><?= htmlspecialchars($employee['name']) ?></div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-800"><?= htmlspecialchars($employee['position']) ?></td>
-                                <td class="px-6 py-4 text-center text-yellow-500 text-lg">
-                                    <?= $employee['last_rating'] ? str_repeat('★', $employee['last_rating']) . str_repeat('☆', 5 - $employee['last_rating']) : '<span class="text-gray-400 text-sm">Not Rated</span>' ?>
+                                <td class="px-6 py-4 text-sm text-gray-300"><?= htmlspecialchars($employee['position']) ?></td>
+                                <td class="px-6 py-4 text-center text-yellow-400 text-lg">
+                                    <?= $employee['last_rating'] ? str_repeat('★', $employee['last_rating']) . str_repeat('☆', 5 - $employee['last_rating']) : '<span class="text-gray-500 text-sm">Not Rated</span>' ?>
                                 </td>
                                 <td class="px-6 py-4 text-right text-sm font-medium">
-                                    <button onclick="openRateModal(<?= $employee['id'] ?>)" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600" style="background-color: #d37a15; padding: 10px;" >Rate / View</button>
+                                    <button onclick="openRateModal(<?= $employee['id'] ?>)" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500">Rate / View</button>
                                 </td>
                             </tr>
                         <?php endforeach; endif; ?>
@@ -202,22 +206,21 @@ try {
         </div>
     </div>
 
-    <!-- Rate Performance Modal -->
-    <div id="rateModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
+    <div id="rateModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-lg w-full">
-                <div class="flex items-center justify-between p-5 border-b">
-                    <h3 id="modalTitle" class="text-xl font-semibold">Rate Performance</h3>
-                    <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">&times;</button>
+            <div class="bg-gray-800 rounded-lg shadow-xl max-w-lg w-full border border-gray-700">
+                <div class="flex items-center justify-between p-5 border-b border-gray-700">
+                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-200">Rate Performance</h3>
+                    <button id="closeModalBtn" class="text-gray-400 hover:text-white">&times;</button>
                 </div>
                 <form id="appraisalForm" class="p-6">
                     <input type="hidden" name="employee_id" id="modalEmployeeId">
                     <input type="hidden" name="appraisal_id" id="modalAppraisalId">
                     
                     <div class="text-center mb-6">
-                        <img id="modalPhoto" class="h-24 w-24 rounded-full object-cover mx-auto mb-4 border-4 border-brand-500" src="" alt="Employee">
-                        <h4 id="modalName" class="font-bold text-lg"></h4>
-                        <p id="modalPosition" class="text-gray-600"></p>
+                        <img id="modalPhoto" class="h-24 w-24 rounded-full object-cover mx-auto mb-4 border-4 border-gray-600" src="" alt="Employee">
+                        <h4 id="modalName" class="font-bold text-lg text-gray-200"></h4>
+                        <p id="modalPosition" class="text-gray-400"></p>
                     </div>
 
                     <div class="mb-4">
@@ -231,16 +234,16 @@ try {
                     </div>
                     
                     <div class="mb-6">
-                        <textarea name="comment" id="comment" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Provide feedback..."></textarea>
+                        <textarea name="comment" id="comment" rows="4" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:ring-yellow-500 focus:border-yellow-500" placeholder="Provide feedback..."></textarea>
                     </div>
 
-                    <div class="flex justify-between items-center pt-5 border-t">
+                    <div class="flex justify-between items-center pt-5 border-t border-gray-700">
                         <div>
                             <button type="button" id="deleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 hidden">Delete</button>
                         </div>
                         <div class="space-x-3">
-                            <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
-                            <button type="submit" id="submitBtn" class="px-5 py-2 text-white rounded-lg transition-colors" style="background-color: green;  padding: 10px;">Submit</button>
+                            <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-200 bg-gray-600 rounded-lg hover:bg-gray-500">Cancel</button>
+                            <button type="submit" id="submitBtn" class="px-5 py-2 text-white rounded-lg transition-colors">Submit</button>
                         </div>
                     </div>
                 </form>
@@ -303,8 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('modalPhoto').src = `../${emp.photo_path || 'path/to/default.png'}`;
                 document.getElementById('modalAppraisalId').value = '';
                 
-                // Reset submit button style
-                submitBtn.classList.remove('bg-green-500', 'hover:bg-green-600', 'bg-brand-500', 'hover:bg-brand-600');
+                submitBtn.className = "px-5 py-2 text-white rounded-lg transition-colors"; // Reset classes
 
                 if (appraisal) { // If appraisal exists, populate form
                     document.getElementById('modalAppraisalId').value = appraisal.id;
@@ -312,11 +314,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const starInput = form.querySelector(`input[name="rating"][value="${appraisal.rating}"]`);
                     if (starInput) starInput.checked = true;
                     submitBtn.textContent = 'Update';
-                    submitBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                    submitBtn.classList.add('bg-green-600', 'hover:bg-green-700');
                     deleteBtn.classList.remove('hidden');
                 } else { // No appraisal yet
                     submitBtn.textContent = 'Submit';
-                    submitBtn.classList.add('bg-brand-500', 'hover:bg-brand-600');
+                    submitBtn.classList.add('bg-gray-600', 'hover:bg-gray-500');
                     deleteBtn.classList.add('hidden');
                 }
                 openModal();
@@ -371,4 +373,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
