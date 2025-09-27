@@ -506,6 +506,16 @@ try {
             cursor: not-allowed;
         }
 
+        /* Loading spinner animation */
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Recent Appraisals */
         .recent-appraisals {
             background: var(--background-card);
@@ -688,45 +698,43 @@ try {
 
         <!-- Modal -->
         <div id="employeeModal" class="modal">
-            <form method="post" action="">
-                <div class="modal-content">
-                    <span class="close" onclick="closeModal()">&times;</span>
-                    <img id="modalPhoto" src="" alt="Employee Photo" onerror="this.src='https://via.placeholder.com/120x120?text=No+Photo'">
-                    <h2 id="modalName"></h2>
-                    <div class="employee-info">
-                        <p><strong>ID:</strong> <span id="modalID"></span></p>
-                        <p><strong>Position:</strong> <span id="modalPosition"></span></p>
-                        <p><strong>Status:</strong> Active</p>
-                    </div>
-
-                    <input type="hidden" name="employee_id" id="modalEmployeeId">
-
-                    <div class="rating-section">
-                        <label>Rate Employee Performance:</label>
-                        <div class="star-rating">
-                            <input type="radio" name="rating" value="5" id="star5">
-                            <label for="star5">★</label>
-                            <input type="radio" name="rating" value="4" id="star4">
-                            <label for="star4">★</label>
-                            <input type="radio" name="rating" value="3" id="star3">
-                            <label for="star3">★</label>
-                            <input type="radio" name="rating" value="2" id="star2">
-                            <label for="star2">★</label>
-                            <input type="radio" name="rating" value="1" id="star1">
-                            <label for="star1">★</label>
-                        </div>
-                    </div>
-
-                    <div class="comment-section">
-                        <label for="comment">Add Comment:</label>
-                        <textarea name="comment" id="comment" rows="4" placeholder="Write your performance review comment here..."></textarea>
-                    </div>
-
-                    <button type="submit" name="submit_appraisal" class="submit-button">
-                        <i class="fas fa-paper-plane"></i> Submit Appraisal
-                    </button>
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <img id="modalPhoto" src="" alt="Employee Photo" onerror="this.src='https://via.placeholder.com/120x120?text=No+Photo'">
+                <h2 id="modalName"></h2>
+                <div class="employee-info">
+                    <p><strong>ID:</strong> <span id="modalID"></span></p>
+                    <p><strong>Position:</strong> <span id="modalPosition"></span></p>
+                    <p><strong>Status:</strong> Active</p>
                 </div>
-            </form>
+
+                <input type="hidden" id="modalEmployeeId">
+
+                <div class="rating-section">
+                    <label>Rate Employee Performance:</label>
+                    <div class="star-rating">
+                        <input type="radio" name="rating" value="5" id="star5">
+                        <label for="star5">★</label>
+                        <input type="radio" name="rating" value="4" id="star4">
+                        <label for="star4">★</label>
+                        <input type="radio" name="rating" value="3" id="star3">
+                        <label for="star3">★</label>
+                        <input type="radio" name="rating" value="2" id="star2">
+                        <label for="star2">★</label>
+                        <input type="radio" name="rating" value="1" id="star1">
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+
+                <div class="comment-section">
+                    <label for="comment">Add Comment:</label>
+                    <textarea name="comment" id="comment" rows="4" placeholder="Write your performance review comment here..."></textarea>
+                </div>
+
+                <button type="button" id="submitAppraisal" class="submit-button">
+                    <i class="fas fa-paper-plane"></i> Submit Appraisal
+                </button>
+            </div>
         </div>
     </div>
 
@@ -806,15 +814,111 @@ try {
             });
         });
 
-        // Form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
+        // AJAX form submission
+        document.getElementById('submitAppraisal').addEventListener('click', function() {
+            const employeeId = document.getElementById('modalEmployeeId').value;
             const rating = document.querySelector('input[name="rating"]:checked');
+            const comment = document.getElementById('comment').value;
+            
             if (!rating) {
-                e.preventDefault();
                 alert('Please select a rating before submitting.');
-                return false;
+                return;
             }
+            
+            // Show loading state
+            const submitBtn = document.getElementById('submitAppraisal');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.disabled = true;
+            
+            // Create FormData for AJAX
+            const formData = new FormData();
+            formData.append('employee_id', employeeId);
+            formData.append('rating', rating.value);
+            formData.append('comment', comment);
+            formData.append('submit_appraisal', '1');
+            
+            // Send AJAX request
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Show success message
+                showNotification('Appraisal submitted successfully!', 'success');
+                
+                // Close modal
+                closeModal();
+                
+                // Refresh the page to show updated data
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            })
+            .catch(error => {
+                // Reset button
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                // Show error message
+                showNotification('Error submitting appraisal. Please try again.', 'error');
+                console.error('Error:', error);
+            });
         });
+        
+        // Notification system
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => notification.remove());
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            // Add styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html>
