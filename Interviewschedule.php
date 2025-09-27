@@ -138,7 +138,15 @@ try {
             white-space: nowrap;
         }
         .sidebar.close .sidebar-header h2 { opacity: 0; pointer-events: none; }
-        .sidebar-nav { list-style: none; flex-grow: 1; padding-top: 20px; }
+        
+        .sidebar-nav {
+            list-style: none;
+            flex-grow: 1; /* Para mapuno ang space */
+            padding-top: 20px;
+            display: flex; /* Gagamit ng flexbox */
+            flex-direction: column; /* Para vertical ang ayos */
+        }
+
         .sidebar-nav li { margin-bottom: 10px; }
         .sidebar-nav a {
             display: flex;
@@ -146,16 +154,16 @@ try {
             padding: 12px 15px;
             border-radius: 8px;
             text-decoration: none;
-            color: var(--text-light); /* Binalik sa puti ang text */
-            background-color: transparent; /* Tinanggal ang puting background */
+            color: var(--text-dark); /* Itim na text */
+            background-color: var(--background-card); /* Puting background */
             transition: background-color 0.3s ease;
             white-space: nowrap;
         }
         .sidebar-nav a:hover {
-            background-color: rgba(255, 255, 255, 0.2); /* Subtle dark hover */
+            background-color: #f0f0f0; /* Light gray on hover */
         }
         .sidebar-nav a.active {
-             background-color: rgba(0, 0, 0, 0.15); /* Darker active style */
+             background-color: #e9ecef;
              font-weight: 500;
         }
         .sidebar-nav a i {
@@ -165,6 +173,10 @@ try {
             text-align: center;
         }
         .sidebar.close .sidebar-nav span { opacity: 0; pointer-events: none; }
+
+        .logout-item {
+            margin-top: auto; /* Itulak ang item na ito sa pinakababa */
+        }
 
         /* --- Main Content --- */
         .main-content {
@@ -184,17 +196,12 @@ try {
             <i class='bx bxs-user-shield' style='font-size: 2rem; color: #fff;'></i>
             <h2>HR Admin</h2>
         </div>
-        <!-- KINUMPLETO ANG NAVIGATION LINKS -->
+        <!-- INAYOS NA NAVIGATION LINKS -->
         <ul class="sidebar-nav">
             <li><a href="admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-            <li><a href="modules/job_posting.php"><i class="fas fa-bullhorn"></i><span>Job Posting</span></a></li>
-            <li><a href="candidate_sourcing_&_tracking.php"><i class="fas fa-users"></i><span>Candidates</span></a></li>
-            <li><a href="Interviewschedule.php" class="active"><i class="fas fa-calendar-alt"></i><span>Interviews</span></a></li>
-            <li><a href="modules/performance_and_appraisals.php"><i class="fas fa-chart-line"></i><span>Performance</span></a></li>
-            <li><a href="modules/recognition.php"><i class="fas fa-star"></i><span>Recognition</span></a></li>
-            <li><a href="modules/learning.php"><i class="fas fa-shield-alt"></i><span>Safety</span></a></li>
-            <li><a href="aboutus.php"><i class="fas fa-info-circle"></i><span>About Us</span></a></li>
-            <li><a href="logout.php" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+            
+            <!-- Logout button sa baba -->
+            <li class="logout-item"><a href="logout.php" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
     </nav>
 
