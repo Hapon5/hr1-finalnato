@@ -208,7 +208,7 @@ try {
 
    <div id="jobModal" class="fixed inset-0 bg-dark bg-opacity-75 hidden z-50">
     <div class="flex items-center bg-dark justify-center min-h-screen p-4">
-            <div class="bg-dark rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="bg-dark rounded-lg  max-w-2xl w-full">
                 <div class="flex items-center justify-between p-5 border-b">
                     <h3 id="modalTitle" class="text-xl text-white font-semibold text-gray-800">Add New Job Posting</h3>
                     <button id="closeModal" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
