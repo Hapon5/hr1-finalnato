@@ -101,6 +101,8 @@ if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
             padding: 20px 30px;
             transition: margin-left 0.3s ease;
             width: calc(100% - 260px); /* Para sakupin ang buong screen */
+            display: flex;
+            flex-direction: column;
         }
         .sidebar.close ~ .main-content { margin-left: 78px; width: calc(100% - 78px); }
         
@@ -125,11 +127,12 @@ if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
             margin-bottom: 30px;
         }
 
-        /* --- Chart Section --- */
+        /* --- Chart Section (INAYOS) --- */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
+            flex-grow: 1; /* Para mag-expand ang grid */
         }
         .chart-container {
             background-color: var(--background-card);
@@ -138,7 +141,7 @@ if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
             box-shadow: var(--shadow-subtle);
             display: flex;
             flex-direction: column;
-            height: 380px; 
+            /* Tinanggal ang fixed height para mag-stretch */
         }
         .chart-container h3 {
             text-align: center;
@@ -158,7 +161,7 @@ if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
             .main-content { margin-left: 0; padding: 15px; width: 100%; }
             .sidebar.close ~ .main-content { margin-left: 0; }
             .dashboard-grid { grid-template-columns: 1fr; }
-            .datetime-display { display: none; } /* Itago ang oras sa maliliit na screen */
+            .datetime-display { display: none; }
         }
     </style>
 </head>
