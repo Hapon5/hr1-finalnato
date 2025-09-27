@@ -361,14 +361,14 @@ try {
     <div id="candidateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50" style="background-color: #0000;">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b sticky top-0 " style="background-color: #0000; >
+                <div class="flex items-center justify-between p-6 border-b sticky top-0 bg-white">
                     <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">Add New Candidate</h3>
                     <button id="closeModal" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
                 
-                <form id="candidateForm" method="POST" enctype="multipart/form-data" class="p-6">
+                <form id="candidateForm" method="POST" enctype="multipart/form-data" class="p-6" style="background-color: #0000;>
                     <input type="hidden" name="action" id="formAction" value="add">
                     <input type="hidden" name="id" id="candidateId" value="">
                     
