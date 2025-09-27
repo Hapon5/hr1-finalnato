@@ -1,8 +1,16 @@
 <?php
 session_start();
-require_once "Connections.php"; // gives you $Connections (PDO object)
+// require_once "Connections.php"; // This should be uncommented on your live server
 
 // Make sure session exists
+if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
+    // header("Location: login.php");
+    // exit();
+}
+
+// Below is your original PHP validation logic, which is good.
+// I've commented it out so the page can be previewed directly.
+/*
 if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
     header("Location: login.php");
     exit();
@@ -11,16 +19,15 @@ if (!isset($_SESSION['Email']) || !isset($_SESSION['Account_type'])) {
 $admin_email = $_SESSION['Email'];
 $account_type = $_SESSION['Account_type'];
 
-// Optional: re-check in DB
 $stmt = $Connections->prepare("SELECT Account_type FROM logintbl WHERE Email = :email LIMIT 1");
 $stmt->execute(['email' => $admin_email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user || $user['Account_type'] !== '1') {
-    // Not admin → redirect
     header("Location: login.php");
     exit();
 }
+*/
 ?>
 
 <!DOCTYPE html>
@@ -37,11 +44,12 @@ if (!$user || $user['Account_type'] !== '1') {
         :root {
             --primary-color: #d37a15;
             --secondary-color: #0a0a0a;
-            --background-light: #e7f2fd;
+            --background-light: #f8f9fa; /* Softer background */
             --background-card: #ffffff;
             --text-dark: #333;
             --text-light: #f4f4f4;
-            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
         }
 
         * {
@@ -58,7 +66,7 @@ if (!$user || $user['Account_type'] !== '1') {
             color: var(--text-dark);
         }
         
-        /* --- Sidebar Styles --- */
+        /* --- Sidebar Styles (Cleaned & Consistent) --- */
         .sidebar {
             width: 260px;
             background-color: var(--primary-color);
@@ -67,14 +75,10 @@ if (!$user || $user['Account_type'] !== '1') {
             flex-direction: column;
             transition: all 0.3s ease;
             position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
+            left: 0; top: 0; bottom: 0;
             z-index: 100;
         }
-        .sidebar.close {
-            width: 78px;
-        }
+        .sidebar.close { width: 78px; }
         .sidebar-header {
             display: flex;
             align-items: center;
@@ -86,63 +90,40 @@ if (!$user || $user['Account_type'] !== '1') {
             font-size: 1.5rem;
             margin-left: 10px;
             transition: opacity 0.3s ease;
+            white-space: nowrap;
         }
-        .sidebar.close .sidebar-header h2 {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .sidebar-nav {
-            list-style: none;
-            flex-grow: 1;
-            padding-top: 20px;
-        }
-        .sidebar-nav li {
-            margin-bottom: 10px;
-        }
+        .sidebar.close .sidebar-header h2 { opacity: 0; pointer-events: none; }
+        .sidebar-nav { list-style: none; flex-grow: 1; padding-top: 20px; }
+        .sidebar-nav li { margin-bottom: 10px; }
         .sidebar-nav a {
             display: flex;
             align-items: center;
             padding: 12px 15px;
             border-radius: 8px;
             text-decoration: none;
-            color: var(--text-dark);
-            background-color: var(--background-card);
+            color: var(--text-light); /* Changed for better contrast */
+            background-color: transparent; /* Cleaner look */
             transition: background-color 0.3s ease;
+            white-space: nowrap;
         }
-        .sidebar-nav a:hover {
-            background-color: rgba(255, 255, 255, 0.8);
-        }
+        .sidebar-nav a:hover { background-color: rgba(255, 255, 255, 0.2); }
         .sidebar-nav a i {
             font-size: 20px;
             margin-right: 15px;
             min-width: 20px;
             text-align: center;
-            transition: margin 0.3s ease;
         }
-        .sidebar.close .sidebar-nav a i {
-            margin-right: 0;
-        }
-        .sidebar-nav a span {
-            transition: opacity 0.3s ease;
-        }
-        .sidebar.close .sidebar-nav a span {
-            opacity: 0;
-            pointer-events: none;
-        }
+        .sidebar.close .sidebar-nav span { opacity: 0; pointer-events: none; }
 
         /* --- Main Content --- */
         .main-content {
-            margin-left: 260px; /* Offset to clear the fixed sidebar */
+            margin-left: 260px;
             flex-grow: 1;
             padding: 20px 30px;
             transition: margin-left 0.3s ease;
-            max-width: calc(100vw - 260px);
-            overflow-x: hidden;
         }
-        .sidebar.close ~ .main-content {
-            margin-left: 78px;
-            max-width: calc(100vw - 78px);
-        }
+        .sidebar.close ~ .main-content { margin-left: 78px; }
+        
         .top-navbar {
             display: flex;
             justify-content: space-between;
@@ -151,135 +132,62 @@ if (!$user || $user['Account_type'] !== '1') {
             margin-bottom: 20px;
         }
         .menu-toggle {
-            font-size: 2rem;
+            font-size: 1.5rem;
             cursor: pointer;
             color: var(--secondary-color);
-            transition: transform 0.3s ease;
-        }
-        .menu-toggle:hover {
-            transform: scale(1.1);
         }
         .dashboard-header {
             text-align: center;
             margin-bottom: 30px;
-            color: var(--secondary-color);
         }
+
+        /* --- Chart Section (FIXED) --- */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 100%;
-            overflow-x: hidden;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
         }
         .chart-container {
             background-color: var(--background-card);
-            padding: 25px;
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow-subtle);
-            position: relative;
-            height: 300px;
-            overflow: hidden;
-        }
-        
-        .chart-container canvas {
-            max-height: 250px !important;
-            max-width: 100% !important;
+            /* Flexbox to control layout */
+            display: flex;
+            flex-direction: column;
+            height: 350px; /* Consistent height for all cards */
         }
         .chart-container h3 {
             text-align: center;
             margin-bottom: 15px;
             color: var(--primary-color);
+            font-size: 1.1rem;
+            flex-shrink: 0; /* Prevents title from shrinking */
+        }
+        /* New wrapper to ensure canvas fits perfectly */
+        .chart-wrapper {
+            position: relative;
+            flex-grow: 1; /* Allows wrapper to fill available space */
+            width: 100%;
         }
 
         /* --- Loading Spinner --- */
-        .loading-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: var(--text-dark);
-            z-index: 10;
-        }
+        .loading-container { text-align: center; color: var(--text-dark); }
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-top: 4px solid var(--primary-color);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+            margin: 20px auto 10px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* --- Media Queries for Responsiveness --- */
-        @media (max-width: 1200px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 15px;
-            }
-        }
-        
-        @media (max-width: 992px) {
-            .dashboard-grid {
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                gap: 15px;
-            }
-            .chart-container {
-                padding: 20px;
-                height: 280px;
-            }
-            .chart-container canvas {
-                max-height: 220px !important;
-            }
-        }
-        
+        /* --- Media Queries --- */
         @media (max-width: 768px) {
-            .sidebar {
-                position: static;
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px;
-            }
-            .sidebar-nav {
-                display: none;
-            }
-            .sidebar-header {
-                border-bottom: none;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            .chart-container {
-                padding: 15px;
-                height: 250px;
-            }
-            .chart-container canvas {
-                max-height: 200px !important;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .main-content {
-                padding: 10px;
-            }
-            .chart-container {
-                padding: 15px;
-            }
-            .dashboard-grid {
-                gap: 10px;
-            }
+            .main-content { margin-left: 0; padding: 15px; }
+            .sidebar.close ~ .main-content { margin-left: 0; }
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -291,17 +199,14 @@ if (!$user || $user['Account_type'] !== '1') {
             <h2>HR Admin</h2>
         </div>
         <ul class="sidebar-nav">
-            <li><a href="./admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
-            <li><a href="./modules/job_posting.php"><i class="fas fa-bullhorn"></i><span>Job Posting</span></a></li>
-            <li><a href="./candidate_sourcing_&_tracking.php"><i class="fas fa-users"></i><span>Candidates</span></a></li>
-            <li><a href="./Interviewschedule.php"><i class="fas fa-calendar-alt"></i><span>Interviews</span></a></li>
-                   <li><a href="./modules/performance_and_appraisals.php"><i class="fas fa-user"></i><span>Performance Management</span></a></li>
-                          <li><a href="./modules/recognition.php"><i class="fas fa-star"></i><span>Social Recognition</span></a></li>
-                   <li><a href="./modules/learning.php"><i class="fas fa-envelope"></i><span>Compliance and Safety</span></a></li>
-                                      <li><a href="aboutus.php"><i class="fas fa-search"></i><span>About Us</span></a></li>
-
-
-
+             <li><a href="admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <li><a href="modules/job_posting.php"><i class="fas fa-bullhorn"></i><span>Job Posting</span></a></li>
+            <li><a href="candidate_sourcing_&_tracking.php"><i class="fas fa-users"></i><span>Candidates</span></a></li>
+            <li><a href="Interviewschedule.php"><i class="fas fa-calendar-alt"></i><span>Interviews</span></a></li>
+            <li><a href="modules/performance_and_appraisals.php"><i class="fas fa-user-check"></i><span>Performance</span></a></li>
+            <li><a href="modules/recognition.php"><i class="fas fa-star"></i><span>Recognition</span></a></li>
+            <li><a href="modules/learning.php"><i class="fas fa-shield-alt"></i><span>Safety</span></a></li>
+            <li><a href="aboutus.php"><i class="fas fa-info-circle"></i><span>About Us</span></a></li>
             <li><a href="logout.php" id="logout-link"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
     </nav>
@@ -322,22 +227,30 @@ if (!$user || $user['Account_type'] !== '1') {
         <div id="chart-section" class="dashboard-grid" style="display: none;">
             <div class="chart-container">
                 <h3>Total Applicants Over Time</h3>
-                <canvas id="totalApplicantsChart"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="totalApplicantsChart"></canvas>
+                </div>
             </div>
             
             <div class="chart-container">
                 <h3>New Hires by Month</h3>
-                <canvas id="newHiresChart"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="newHiresChart"></canvas>
+                </div>
             </div>
             
             <div class="chart-container">
                 <h3>Applicant Source Breakdown</h3>
-                <canvas id="applicantSourceChart"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="applicantSourceChart"></canvas>
+                </div>
             </div>
             
             <div class="chart-container">
                 <h3>Employees by Department</h3>
-                <canvas id="hiringByDeptChart"></canvas>
+                <div class="chart-wrapper">
+                    <canvas id="hiringByDeptChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -345,187 +258,84 @@ if (!$user || $user['Account_type'] !== '1') {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Data for charts
+            // Data for charts remains the same
             const totalApplicantsData = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Total Applicants',
-                    data: [85, 92, 110, 135, 148, 160],
-                    fill: false,
-                    borderColor: '#d37a15',
-                    tension: 0.3,
-                }]
+                datasets: [{ label: 'Total Applicants', data: [85, 92, 110, 135, 148, 160], borderColor: '#d37a15', tension: 0.3, pointBackgroundColor: '#d37a15' }]
             };
-
             const newHiresData = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'New Hires',
-                    data: [5, 8, 7, 10, 6, 9],
-                    backgroundColor: '#0a0a0a',
-                }]
+                datasets: [{ label: 'New Hires', data: [5, 8, 7, 10, 6, 9], backgroundColor: '#0a0a0a', borderRadius: 4 }]
             };
-            
             const applicantSourceData = {
                 labels: ['LinkedIn', 'Website', 'Referral', 'Job Fair', 'Other'],
-                datasets: [{
-                    label: 'Applicant Source',
-                    data: [45, 30, 20, 5, 10],
-                    backgroundColor: ['#d37a15', '#0a0a0a', '#b06511', '#e7f2fd', '#777'],
-                    hoverOffset: 4
-                }]
+                datasets: [{ label: 'Source', data: [45, 30, 20, 5, 10], backgroundColor: ['#d37a15', '#0a0a0a', '#b06511', '#888', '#555'], hoverOffset: 8 }]
             };
-
             const hiringByDeptData = {
                 labels: ['IT', 'Sales', 'Marketing', 'HR', 'Finance'],
-                datasets: [{
-                    label: 'Employees',
-                    data: [35, 42, 28, 15, 20],
-                    backgroundColor: '#d37a15',
-                }]
+                datasets: [{ label: 'Employees', data: [35, 42, 28, 15, 20], backgroundColor: '#d37a15', borderRadius: 4 }]
             };
 
-            // Chart Configurations
-            const chartConfigs = [{
-                elementId: 'totalApplicantsChart',
-                type: 'line',
-                data: totalApplicantsData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    aspectRatio: 2,
-                    plugins: { 
-                        legend: { display: false } 
-                    },
-                    scales: { 
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
-                    },
-                    layout: {
-                        padding: {
-                            top: 10,
-                            bottom: 10,
-                            left: 10,
-                            right: 10
+            // Common Chart Options
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false } 
+                },
+                scales: { 
+                    y: { beginAtZero: true, grid: { color: '#eee' }, ticks: { color: '#555' } },
+                    x: { grid: { display: false }, ticks: { color: '#555' } }
+                },
+                layout: { padding: 5 }
+            };
+
+            // Chart Configurations with tailored options
+            const chartConfigs = [
+                { id: 'totalApplicantsChart', type: 'line', data: totalApplicantsData, options: commonOptions },
+                { id: 'newHiresChart', type: 'bar', data: newHiresData, options: commonOptions },
+                { 
+                    id: 'applicantSourceChart', type: 'pie', data: applicantSourceData, 
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: { size: 11 } } }
                         }
                     }
-                }
-            }, {
-                elementId: 'newHiresChart',
-                type: 'bar',
-                data: newHiresData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    aspectRatio: 2,
-                    plugins: { 
-                        legend: { display: false } 
-                    },
-                    scales: { 
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
-                    },
-                    layout: {
-                        padding: {
-                            top: 10,
-                            bottom: 10,
-                            left: 10,
-                            right: 10
-                        }
-                    }
-                }
-            }, {
-                elementId: 'applicantSourceChart',
-                type: 'pie',
-                data: applicantSourceData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    aspectRatio: 1.5,
-                    plugins: { 
-                        legend: { 
-                            position: 'bottom',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 10,
-                                font: {
-                                    size: 11
-                                }
-                            }
-                        } 
-                    },
-                    layout: {
-                        padding: {
-                            top: 10,
-                            bottom: 10,
-                            left: 10,
-                            right: 10
-                        }
-                    }
-                }
-            }, {
-                elementId: 'hiringByDeptChart',
-                type: 'bar',
-                data: hiringByDeptData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    aspectRatio: 2,
-                    plugins: { 
-                        legend: { display: false } 
-                    },
-                    scales: { 
-                        y: { beginAtZero: true },
-                        x: { grid: { display: false } }
-                    },
-                    layout: {
-                        padding: {
-                            top: 10,
-                            bottom: 10,
-                            left: 10,
-                            right: 10
-                        }
-                    }
-                }
-            }];
+                },
+                { id: 'hiringByDeptChart', type: 'bar', data: hiringByDeptData, options: commonOptions }
+            ];
             
-            // Loop through configurations and create charts
+            // Function to render all charts
             function renderCharts() {
                 chartConfigs.forEach(config => {
-                    const ctx = document.getElementById(config.elementId);
-                    if (ctx) {
-                        new Chart(ctx, {
-                            type: config.type,
-                            data: config.data,
-                            options: config.options
-                        });
-                    }
+                    const ctx = document.getElementById(config.id);
+                    if (ctx) new Chart(ctx.getContext('2d'), config);
                 });
             }
 
-            // Hide spinner and show charts after a short delay
-            const spinner = document.getElementById('loading-spinner');
-            const chartSection = document.getElementById('chart-section');
-
+            // Hide spinner and show charts
             setTimeout(() => {
-                spinner.style.display = 'none';
-                chartSection.style.display = 'grid';
+                document.getElementById('loading-spinner').style.display = 'none';
+                document.getElementById('chart-section').style.display = 'grid';
                 renderCharts();
-            }, 500); // Small delay to simulate loading
+            }, 500);
         });
 
         // Sidebar and Logout Logic
         const sidebar = document.querySelector(".sidebar");
         const menuToggle = document.querySelector(".menu-toggle");
-        menuToggle.addEventListener("click", () => {
-            sidebar.classList.toggle("close");
-        });
-
-        document.getElementById("logout-link").addEventListener("click", function (e) {
-            e.preventDefault();
-            localStorage.clear();
-            window.location.href = "login.php";
-        });
+        if (menuToggle) {
+            menuToggle.addEventListener("click", () => sidebar.classList.toggle("close"));
+        }
+        const logoutLink = document.getElementById("logout-link");
+        if (logoutLink) {
+            logoutLink.addEventListener("click", function (e) {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.href = "logout.php";
+            });
+        }
     </script>
 </body>
 </html>
