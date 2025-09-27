@@ -219,7 +219,7 @@
         }
     </style>
 </head>
-<body>
+<body style="background-color: #000;">
 
     <nav class="sidebar">
         <div class="sidebar-header">
