@@ -273,22 +273,20 @@ try {
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($candidates as $candidate): ?>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap"  style="background-color: #0000; color: white;">
-                                            <div class="flex items-center "  style="background-color: #0000; color: white;">
-                                                <div class="flex-shrink-0 h-10 w-10"  style="background-color: #0000; color: white;">
-                                                    <div class="h-10 w-10 rounded-full flex items-center justify-center" style="background-color: #0000; color: white;" >
-                                                        <span class="text-white font-medium">
-                                                            <?php echo strtoupper(substr($candidate['full_name'], 0, 2)); ?>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($candidate['full_name']); ?></div>
-                                                    <div class="text-sm text-gray-500"><?php echo htmlspecialchars($candidate['email']); ?></div>
-                                                </div>
-                                            </div>
-                                        </td>
+                                   <td class="px-6 py-4 whitespace-nowrap text-white">
+    <div class="flex items-center">
+        <div class="flex-shrink-0 h-10 w-10">
+            <!-- Circle -->
+            <div class="h-10 w-10 rounded-full flex items-center justify-center" 
+                 style="background-color: black; color: white;">
+                <span class="text-white font-medium">
+                    <?php echo strtoupper(substr($candidate['full_name'], 0, 2)); ?>
+                </span>
+            </div>
+        </div>
+    </div>
+</td>
+
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900"><?php echo htmlspecialchars($candidate['job_title']); ?></div>
                                             <div class="text-sm text-gray-500"><?php echo htmlspecialchars($candidate['position']); ?></div>
