@@ -204,7 +204,7 @@ try {
     <div id="interviewModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4 ">
         <div class=" rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto" style="background-color: #000;">
             <div class="flex items-center justify-between p-5 border-b">
-                <h3 id="modalTitle" class="text-lg font-semibold">Schedule Interview</h3>
+                <h3 id="modalTitle" class="text-lg text-white font-semibold">Schedule Interview</h3>
                 <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
             <form id="interviewForm" method="POST" class="p-6" ">
@@ -213,36 +213,36 @@ try {
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Candidate Name*</label>
+                        <label class="block text-sm text-white font-medium text-gray-700 mb-1">Candidate Name*</label>
                         <input type="text" name="candidate_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Candidate Email*</label>
+                        <label class="block text-white text-sm font-medium text-gray-700 mb-1">Candidate Email*</label>
                         <input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Position*</label>
+                        <label class="block text-white text-sm font-medium text-gray-700 mb-1">Position*</label>
                         <input type="text" name="position" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Interviewer*</label>
+                        <label class="block Text-white text-sm font-medium text-gray-700 mb-1">Interviewer*</label>
                         <input type="text" name="interviewer" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Start Time*</label>
+                        <label class="block text-white text-sm font-medium text-gray-700 mb-1">Start Time*</label>
                         <input type="datetime-local" name="start_time" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">End Time*</label>
+                        <label class="block text-white text-sm font-medium text-gray-700 mb-1">End Time*</label>
                         <input type="datetime-local" name="end_time" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                     </div>
                 </div>
                  <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Location*</label>
+                    <label class="block text-white text-sm font-medium text-gray-700 mb-1">Location*</label>
                     <input type="text" name="location" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
                 </div>
                 <div class="flex justify-end gap-3">
