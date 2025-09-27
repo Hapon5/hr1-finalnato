@@ -1,6 +1,6 @@
 <?php
 // Include the database configuration file
-include '../hr1/Connections.php';
+include '../HR1/Connections.php';
 
 // Initialize the $featuredJob variable
 $featuredJob = null;
@@ -51,9 +51,9 @@ try {
   <link href="https://fonts.googleapis.com/css?family=Poppins:400,700|Roboto:400,700&display=swap" rel="stylesheet">
 
   <!-- Custom styles for this template -->
-  <link href="css/stylez1.css" rel="stylesheet" />
+  <link href="../css/stylez1.css" rel="stylesheet" />
   <!-- responsive style -->
-  <link href="css/responsive.css" rel="stylesheet" />
+  <link href="../css/responsive.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -244,7 +244,7 @@ try {
             <div class="content layout_padding2-top">
 
                 <?php
-                include('config/connection.php'); // Ensure $conn is a PDO instance
+                include('../HR1/Connections.php'); // Ensure $conn is a PDO instance
 
                 try {
                    $jobs = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -546,4 +546,3 @@ try {
 
 </body>
 </html> 
-"
