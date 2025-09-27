@@ -120,8 +120,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     },
                     colors: {
                         brand: {
-                            500: '#d37a15',
-                            600: '#b8650f'
+                            500: '#0000',
+                            600: '#0000'
                         }
                     }
                 }
