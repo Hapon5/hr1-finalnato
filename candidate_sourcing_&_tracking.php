@@ -141,19 +141,99 @@ try {
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Poppins', 'ui-sans-serif', 'system-ui']
-                    },
-                    colors: {
-                        brand: {
-                            500: '#d37a15',
-                            600: '#b8650f'
-                        }
-                    }
+                    fontFamily: { sans: ['Poppins', 'ui-sans-serif', 'system-ui'] },
+                    colors: { brand: { 500: '#d37a15', 600: '#b8650f' } }
                 }
             }
         }
     </script>
+    <style>
+        :root {
+            --primary-color: #d37a15;
+            --background-light: #f8f9fa;
+            --text-light: #f4f4f4;
+        }
+        body {
+            background-color: var(--background-light);
+            display: flex;
+            min-height: 100vh;
+            font-family: "Poppins", sans-serif;
+        }
+        
+        /* --- INAYOS NA SIDEBAR STYLES --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            z-index: 100;
+        }
+        .sidebar.close { width: 78px; }
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+        .sidebar.close .sidebar-header h2 { opacity: 0; pointer-events: none; }
+        
+        .sidebar-nav {
+            list-style: none;
+            flex-grow: 1;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-nav li { margin-bottom: 10px; }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-light); /* Puti na text */
+            background-color: transparent; /* Walang background */
+            transition: background-color 0.3s ease;
+            white-space: nowrap;
+        }
+        .sidebar-nav a:hover {
+            background-color: rgba(0, 0, 0, 0.2); /* Itim na hover */
+        }
+        .sidebar-nav a.active {
+             background-color: rgba(0, 0, 0, 0.15);
+             font-weight: 500;
+        }
+        .sidebar-nav a i {
+            font-size: 20px;
+            margin-right: 15px;
+            min-width: 20px;
+            text-align: center;
+        }
+        .sidebar.close .sidebar-nav span { opacity: 0; pointer-events: none; }
+        .logout-item {
+            margin-top: auto; /* Itulak sa baba */
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            margin-left: 260px;
+            flex-grow: 1;
+            padding: 20px 30px;
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.close ~ .main-content { margin-left: 78px; }
+        .menu-toggle { font-size: 1.5rem; cursor: pointer; color: #333; }
+    </style>
   </head>
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
