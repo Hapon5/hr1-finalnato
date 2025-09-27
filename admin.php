@@ -112,7 +112,7 @@ try {
             font-family: "Poppins", sans-serif;
         }
         
-        /* --- INAYOS NA SIDEBAR STYLES --- */
+        /* --- INAYOS NA SIDEBAR STYLES (katulad sa image 1) --- */
         .sidebar {
             width: 260px;
             background-color: var(--primary-color);
@@ -146,16 +146,16 @@ try {
             padding: 12px 15px;
             border-radius: 8px;
             text-decoration: none;
-            color: var(--text-light); /* Binalik sa puti ang text */
-            background-color: transparent; /* Tinanggal ang puting background */
+            color: var(--text-dark); /* Dark text for links */
+            background-color: var(--background-card); /* White background for links */
             transition: background-color 0.3s ease;
             white-space: nowrap;
         }
         .sidebar-nav a:hover {
-            background-color: rgba(255, 255, 255, 0.2); /* Subtle dark hover */
+            background-color: #f0f0f0;
         }
         .sidebar-nav a.active {
-             background-color: rgba(0, 0, 0, 0.15); /* Darker active style */
+             background-color: #e9ecef;
              font-weight: 500;
         }
         .sidebar-nav a i {
