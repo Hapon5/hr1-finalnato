@@ -134,7 +134,7 @@ try {
                 </div>
                 <div class="col-md-4 ">
                   <div class="img-box">
-                    <img src="./images/firstpic.png" alt="">
+                    <img src="../images/firstpic.png" alt="">
                   </div>
                 </div>
               </div>
@@ -159,7 +159,7 @@ try {
                 </div>
                 <div class="col-md-4 ">
                   <div class="img-box">
-                    <img src="./images/secondpic.png" alt="">
+                    <img src="../images/secondpic.png" alt="">
                   </div>
                 </div>
               </div>
@@ -184,7 +184,7 @@ try {
                 </div>
                 <div class="col-md-4 ">
                   <div class="img-box">
-                    <img src="./images/thirdpic.png" alt="">
+                    <img src="../images/thirdpic.png" alt="">
                   </div>
                 </div>
               </div>
@@ -209,7 +209,7 @@ try {
                 </div>
                 <div class="col-md-4 ">
                   <div class="img-box">
-                    <img src="./images/fourthpic.png" alt="">
+                    <img src="../images/fourthpic.png" alt="">
                   </div>
                 </div>
               </div>
