@@ -151,7 +151,7 @@ try {
     </style>
 </head>
 <body class="bg-gray-900">
-    <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700">
+    <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700" style="background-color: black;">
         <div class="sidebar-header flex items-center pb-5 border-b border-gray-700">
             <i class='fas fa-user-shield text-3xl'></i>
             <h2 class="text-xl font-bold ml-3">HR Admin</h2>
