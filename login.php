@@ -18,7 +18,8 @@ foreach ($pathsToTry as $path) {
     }
 }
 
-if (!$connectionsIncluded || !isset($Connections)) {
+// INAYOS: Pinalitan ang $Connections ng $conn
+if (!$connectionsIncluded || !isset($conn)) {
     die("Critical Error: Unable to load database connection.");
 }
 
@@ -56,16 +57,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // If valid, try logging in
     if (empty($EmailErr) && empty($passwordErr)) {
         try {
-            $stmt = $Connections->prepare("
+            // INAYOS: Pinalitan ang $Connections ng $conn
+            $stmt = $conn->prepare("
                 SELECT Email, Password, Account_type 
                 FROM logintbl 
                 WHERE Email = :email 
                 LIMIT 1
             ");
-        $stmt->execute(['email' => $Email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->execute(['email' => $Email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user) {
+            if ($user) {
                 $dbPassword = $user['Password'];
                 $accountType = $user['Account_type'];
                 $passwordMatches = false;
@@ -100,8 +102,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-
-    
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -153,10 +153,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <div class="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden animate-fade-in z-10">
         <div class="flex flex-col lg:flex-row min-h-[600px]">
-            <!-- Login Form -->
             <div class="flex-1 p-8 lg:p-12 flex flex-col justify-center">
                 <div class="max-w-md mx-auto w-full">
-                    <!-- Logo/Header -->
                     <div class="text-center mb-8">
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-brand-500 rounded-full mb-4">
                             <i class="fas fa-users text-white text-2xl"></i>
@@ -165,7 +163,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <p class="text-gray-600">Sign in to your account</p>
                     </div>
 
-                    <!-- Error Message -->
                     <?php if (!empty($loginError)): ?>
                         <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                             <div class="flex items-center">
@@ -175,9 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>
                     <?php endif; ?>
 
-                    <!-- Login Form -->
                     <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" class="space-y-6">
-                        <!-- Email Field -->
                         <div>
                             <label for="Email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                             <div class="relative">
@@ -202,7 +197,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <?php endif; ?>
                         </div>
 
-                        <!-- Password Field -->
                         <div>
                             <label for="Password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                             <div class="relative">
@@ -226,7 +220,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <?php endif; ?>
                         </div>
 
-                        <!-- Remember Me & Forgot Password -->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
                                 <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-brand-500 focus:ring-brand-500 border-gray-300 rounded">
@@ -237,7 +230,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </div>
                         </div>
 
-                        <!-- Login Button -->
                         <button 
                             type="submit" 
                             class="w-full bg-brand-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-brand-600 focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg"
@@ -247,9 +239,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </button>
                     </form>
 
-                    <!-- Back to Landing -->
                     <div class="mt-6 text-center">
-                        <a href="../landing.php" class="text-sm text-gray-600 hover:text-brand-500 transition-colors">
+                        <a href="landing.php" class="text-sm text-gray-600 hover:text-brand-500 transition-colors">
                             <i class="fas fa-arrow-left mr-1"></i>
                             Back to Home
                         </a>
@@ -257,9 +248,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
             </div>
 
-            <!-- Right Panel -->
             <div class="lg:w-1/2 bg-gradient-to-br from-brand-500 to-brand-600 p-8 lg:p-12 flex flex-col justify-center text-white relative overflow-hidden">
-                <!-- Background Pattern -->
                 <div class="absolute inset-0 opacity-10">
                     <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><defs><pattern id=\"dots\" width=\"20\" height=\"20\" patternUnits=\"userSpaceOnUse\"><circle cx=\"10\" cy=\"10\" r=\"1\" fill=\"white\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23dots)\"/></svg>');"></div>
                 </div>

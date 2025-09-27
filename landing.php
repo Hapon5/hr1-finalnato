@@ -73,7 +73,7 @@ try {
                   <a class="nav-link" href="../aboutus.php">About Us</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="../hr1/login.php">LogIn</a>
+                  <a class="nav-link" href="./hr1/login.php">LogIn</a>
                 </li>
               </ul>
             </div>
