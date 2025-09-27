@@ -311,6 +311,13 @@ try {
             object-fit: cover;
             margin-bottom: 15px;
             border: 4px solid var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .employee-card:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
 
         .employee-card h3 {
@@ -408,6 +415,12 @@ try {
             display: block;
             margin: 0 auto 20px;
             border: 4px solid var(--primary-color);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-content img:hover {
+            transform: scale(1.05);
         }
 
         .modal-content h2 {
@@ -550,6 +563,13 @@ try {
             border-radius: 50%;
             object-fit: cover;
             margin-right: 15px;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .appraisal-item:hover img {
+            transform: scale(1.1);
         }
 
         .appraisal-item .info {
@@ -659,7 +679,7 @@ try {
             <?php foreach ($employees as $employee): ?>
                 <div class="employee-card" data-name="<?php echo htmlspecialchars(strtolower($employee['name'] . ' ' . $employee['position'])); ?>" 
                      onclick="openModal(<?php echo $employee['id']; ?>, '<?php echo htmlspecialchars($employee['name']); ?>', '<?php echo htmlspecialchars($employee['position']); ?>', '<?php echo htmlspecialchars($employee['photo_path']); ?>')">
-                    <img src="<?php echo htmlspecialchars($employee['photo_path']); ?>" alt="Employee Photo" onerror="this.src='https://via.placeholder.com/100x100?text=No+Photo'">
+                    <img src="<?php echo htmlspecialchars($employee['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzUiIHI9IjE1IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yMCA4MEMyMCA2NS42NDA2IDMyLjY0MDYgNTMgNDcgNTNINjNDNzcuMzU5NCA1MyA5MCA2NS42NDA2IDkwIDgwVjEwMEgyMFY4MFoiIGZpbGw9IiM5Q0EzQUYiLz4KPC9zdmc+Cg=='">
                     <h3><?php echo htmlspecialchars($employee['name']); ?></h3>
                     <p class="position"><?php echo htmlspecialchars($employee['position']); ?></p>
                     <p class="employee-id">ID: <?php echo str_pad($employee['id'], 3, '0', STR_PAD_LEFT); ?></p>
@@ -680,7 +700,7 @@ try {
             <h3><i class="fas fa-history"></i> Recent Appraisals</h3>
             <?php foreach ($recent_appraisals as $appraisal): ?>
                 <div class="appraisal-item">
-                    <img src="<?php echo htmlspecialchars($appraisal['photo_path']); ?>" alt="Employee Photo" onerror="this.src='https://via.placeholder.com/50x50?text=No+Photo'">
+                    <img src="<?php echo htmlspecialchars($appraisal['photo_path']); ?>" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHZpZXdCb3g9IjAgMCA1MCA1MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiNGM0Y0RjYiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSIxNy41IiByPSI3LjUiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTEwIDQwQzEwIDMyLjgyMDMgMTUuODIwMyAyNyAyMyAyN0gyN0MzNC4xNzk3IDI3IDQwIDMyLjgyMDMgNDAgNDBWNTBIMTBWNDBaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
                     <div class="info">
                         <div class="name"><?php echo htmlspecialchars($appraisal['employee_name']); ?></div>
                         <div class="position"><?php echo htmlspecialchars($appraisal['position']); ?></div>
@@ -700,7 +720,7 @@ try {
         <div id="employeeModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
-                <img id="modalPhoto" src="" alt="Employee Photo" onerror="this.src='https://via.placeholder.com/120x120?text=No+Photo'">
+                    <img id="modalPhoto" src="" alt="Employee Photo" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjYwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNDIiIHI9IjE4IiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Ik0yNCA5NkMyNCA3OC43NzE2IDM5LjE3MTYgNjMuNiA1Ni40IDYzLjZINjMuNkM4MC44Mjg0IDYzLjYgOTYgNzguNzcxNiA5NiA5NlYxMjBIMjRWOThaIiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo='">
                 <h2 id="modalName"></h2>
                 <div class="employee-info">
                     <p><strong>ID:</strong> <span id="modalID"></span></p>
