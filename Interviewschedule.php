@@ -140,7 +140,7 @@ try {
             <i class="fas fa-bars menu-toggle"></i>
         </div>
         <header class="mb-8" >
-            <h1 class="text-3xl font-bold text-gray-800">Interview Scheduling</h1>
+            <h1 class="text-3xl font-bold text-white-800">Interview Scheduling</h1>
         </header>
 
         <div class="p-0">
@@ -201,13 +201,13 @@ try {
     </div>
 
     <!-- Add/Edit Modal -->
-    <div id="interviewModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+    <div id="interviewModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4 " style="background-color: #000;">
         <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
             <div class="flex items-center justify-between p-5 border-b">
                 <h3 id="modalTitle" class="text-lg font-semibold">Schedule Interview</h3>
                 <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600">&times;</button>
             </div>
-            <form id="interviewForm" method="POST" class="p-6">
+            <form id="interviewForm" method="POST" class="p-6" ">
                 <input type="hidden" name="action" id="formAction" value="add">
                 <input type="hidden" name="id" id="interviewId" value="">
                 
