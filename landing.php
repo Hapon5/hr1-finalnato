@@ -51,9 +51,9 @@ try {
   <link href="https://fonts.googleapis.com/css?family=Poppins:400,700|Roboto:400,700&display=swap" rel="stylesheet">
 
   <!-- Custom styles for this template -->
-  <link href="../css/stylez1.css" rel="stylesheet" />
+  <link href="./css/stylez1.css" rel="stylesheet" />
   <!-- responsive style -->
-  <link href="../css/responsive.css" rel="stylesheet" />
+  <link href="./css/responsive.css" rel="stylesheet" />
 </head>
 
 <body>
