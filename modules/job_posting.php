@@ -1,76 +1,74 @@
 <?php
 session_start();
-include("../Connections.php");
+// Use a relative path to go up one directory from 'modules' to the root 'hr1' folder
+include("../Connections.php"); 
 
 // Check if user is logged in and is admin
-if (!isset($_SESSION['Email']) || $_SESSION['Account_type'] !== '1') {
+if (!isset($_SESSION['Email']) || (isset($_SESSION['Account_type']) && $_SESSION['Account_type'] !== '1')) {
     header("Location: ../login.php");
     exit();
 }
 
-$admin_email = $_SESSION['Email'];
-
-// Create job_postings table if it doesn't exist
-try {
-    $createTable = "CREATE TABLE IF NOT EXISTS job_postings (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-        position VARCHAR(255) NOT NULL,
-        location VARCHAR(255) NOT NULL,
-        requirements TEXT,
-        contact VARCHAR(255) NOT NULL,
-        platform VARCHAR(255) NOT NULL,
-        date_posted DATE NOT NULL,
-        status ENUM('active', 'inactive', 'closed') DEFAULT 'active',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    )";
-    $conn->exec($createTable);
-} catch (PDOException $e) {
-    error_log("Error creating table: " . $e->getMessage());
+// --- AJAX HANDLER ---
+// This block handles fetching data for the 'Edit' and 'View' modals
+if (isset($_GET['action']) && $_GET['action'] == 'get_job' && isset($_GET['id'])) {
+    header('Content-Type: application/json');
+    try {
+        $stmt = $conn->prepare("SELECT * FROM job_postings WHERE id = ?");
+        $stmt->execute([$_GET['id']]);
+        $job = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($job) {
+            // Format date correctly for the HTML <input type="date">
+            $job['date_posted_formatted'] = date('Y-m-d', strtotime($job['date_posted']));
+            echo json_encode(['status' => 'success', 'data' => $job]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Job not found.']);
+        }
+    } catch (PDOException $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+    }
+    exit(); // Stop script execution for AJAX requests
 }
 
-// Handle form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) {
-        try {
-            if ($_POST['action'] === 'add') {
-                $stmt = $conn->prepare("INSERT INTO job_postings (title, position, location, requirements, contact, platform, date_posted) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([
-                    $_POST['title'],
-                    $_POST['position'],
-                    $_POST['location'],
-                    $_POST['requirements'],
-                    $_POST['contact'],
-                    $_POST['platform'],
-                    $_POST['date_posted']
-                ]);
-                $message = "Job posting added successfully!";
-            } elseif ($_POST['action'] === 'edit') {
-                $stmt = $conn->prepare("UPDATE job_postings SET title=?, position=?, location=?, requirements=?, contact=?, platform=?, date_posted=? WHERE id=?");
-                $stmt->execute([
-                    $_POST['title'],
-                    $_POST['position'],
-                    $_POST['location'],
-                    $_POST['requirements'],
-                    $_POST['contact'],
-                    $_POST['platform'],
-                    $_POST['date_posted'],
-                    $_POST['id']
-                ]);
-                $message = "Job posting updated successfully!";
-            } elseif ($_POST['action'] === 'delete') {
-                $stmt = $conn->prepare("DELETE FROM job_postings WHERE id=?");
-                $stmt->execute([$_POST['id']]);
-                $message = "Job posting deleted successfully!";
-            }
-        } catch (PDOException $e) {
-            $error = "Database error: " . $e->getMessage();
+// --- FORM SUBMISSION HANDLER (ADD/EDIT) ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    header('Content-Type: application/json');
+    $response = [];
+    try {
+        if ($_POST['action'] === 'add') {
+            $stmt = $conn->prepare("INSERT INTO job_postings (title, position, location, requirements, contact, platform, date_posted) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$_POST['title'], $_POST['position'], $_POST['location'], $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted']]);
+            $response = ['status' => 'success', 'message' => 'Job posting added successfully!'];
+        } elseif ($_POST['action'] === 'edit' && !empty($_POST['id'])) {
+            $stmt = $conn->prepare("UPDATE job_postings SET title=?, position=?, location=?, requirements=?, contact=?, platform=?, date_posted=? WHERE id=?");
+            $stmt->execute([$_POST['title'], $_POST['position'], $_POST['location'], $_POST['requirements'], $_POST['contact'], $_POST['platform'], $_POST['date_posted'], $_POST['id']]);
+            $response = ['status' => 'success', 'message' => 'Job posting updated successfully!'];
         }
+    } catch (PDOException $e) {
+        $response = ['status' => 'error', 'message' => 'Database operation failed: ' . $e->getMessage()];
+    }
+    echo json_encode($response);
+    exit(); // Stop script execution for AJAX form submissions
+}
+
+// --- DELETE HANDLER ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_delete'])) {
+     if ($_POST['action_delete'] === 'delete' && !empty($_POST['id'])) {
+        try {
+            $stmt = $conn->prepare("DELETE FROM job_postings WHERE id=?");
+            $stmt->execute([$_POST['id']]);
+            $_SESSION['message'] = "Job posting deleted successfully!";
+        } catch (PDOException $e) {
+            $_SESSION['error'] = "Error deleting job posting.";
+        }
+        header("Location: job_posting.php");
+        exit();
     }
 }
 
-// Fetch job postings
+
+// --- INITIAL PAGE LOAD: Fetch all job postings ---
 try {
     $stmt = $conn->prepare("SELECT * FROM job_postings ORDER BY created_at DESC");
     $stmt->execute();
@@ -83,531 +81,323 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Posting - HR1 System</title>
+    <title>Job Posting Management - HR Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Poppins', 'ui-sans-serif', 'system-ui']
-                    },
-                    colors: {
-                        brand: {
-                            500: '#d37a15',
-                            600: '#b8650f'
-                        }
-                    }
-                }
-            }
+            theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] }, colors: { brand: { 500: '#d37a15', 600: '#b8650f' } } } }
         }
     </script>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
-        
-        :root {
-            --primary-color: #d37a15;
-            --secondary-color: #0a0a0a;
-            --background-light: #e7f2fd;
-            --background-card: #ffffff;
-            --text-dark: #333;
-            --text-light: #f4f4f4;
-            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
-        }
-
-        body {
-            background-color: var(--background-light);
-            display: flex;
-            min-height: 100vh;
-            color: var(--text-dark);
-        }
-        
-        /* --- Sidebar Styles --- */
-        .sidebar {
-            width: 260px;
-            background-color: var(--primary-color);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s ease;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 100;
-        }
-        .sidebar.close {
-            width: 78px;
-        }
-        .sidebar-header {
-            display: flex;
-            align-items: center;
-            color: var(--text-light);
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .sidebar-header h2 {
-            font-size: 1.5rem;
-            margin-left: 10px;
-            transition: opacity 0.3s ease;
-        }
-        .sidebar.close .sidebar-header h2 {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .sidebar-nav {
-            list-style: none;
-            flex-grow: 1;
-            padding-top: 20px;
-        }
-        .sidebar-nav li {
-            margin-bottom: 10px;
-        }
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: var(--text-dark);
-            background-color: var(--background-card);
-            transition: background-color 0.3s ease;
-        }
-        .sidebar-nav a:hover {
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-        .sidebar-nav a i {
-            font-size: 20px;
-            margin-right: 15px;
-            min-width: 20px;
-            text-align: center;
-            transition: margin 0.3s ease;
-        }
-        .sidebar.close .sidebar-nav a i {
-            margin-right: 0;
-        }
-        .sidebar-nav a span {
-            transition: opacity 0.3s ease;
-        }
-        .sidebar.close .sidebar-nav a span {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        /* --- Main Content --- */
-        .main-content {
-            margin-left: 260px; /* Offset to clear the fixed sidebar */
-            flex-grow: 1;
-            padding: 20px 30px;
-            transition: margin-left 0.3s ease;
-            max-width: calc(100vw - 260px);
-            overflow-x: hidden;
-        }
-        .sidebar.close ~ .main-content {
-            margin-left: 78px;
-            max-width: calc(100vw - 78px);
-        }
-
-        /* --- Media Queries for Responsiveness --- */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: static;
-                width: 100%;
-                height: auto;
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                padding: 15px;
-            }
-            .sidebar-nav {
-                display: none;
-            }
-            .sidebar-header {
-                border-bottom: none;
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 15px;
-            }
-        }
+        .sidebar { width: 260px; background-color: #d37a15; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; transition: all 0.3s ease; }
+        .main-content { margin-left: 260px; transition: margin-left 0.3s ease; }
+        .sidebar.close { width: 78px; }
+        .sidebar.close ~ .main-content { margin-left: 78px; }
+        .modal-body { max-height: 70vh; overflow-y: auto; }
     </style>
-  </head>
-<body class="bg-gray-50 font-sans">
+</head>
+<body class="bg-gray-100 font-sans">
+    
     <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="sidebar-header">
-            <i class='bx bxs-user-detail' style='font-size: 2rem; color: #fff;'></i>
-            <h2>HR Admin</h2>
+    <nav class="sidebar p-5 text-white flex flex-col">
+        <div class="sidebar-header flex items-center pb-5 border-b border-white/20">
+            <i class='fas fa-user-shield text-3xl'></i>
+            <h2 class="text-xl font-bold ml-3 whitespace-nowrap">HR Admin</h2>
         </div>
-        <ul class="sidebar-nav">
-            <li><a href="../admin.php"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+        <ul class="sidebar-nav flex-grow pt-5 space-y-2">
+            <li><a href="../admin.php" class="flex items-center p-3 rounded-lg hover:bg-white/20 transition-colors"><i class="fas fa-tachometer-alt w-6 text-center"></i><span class="ml-3 whitespace-nowrap">Dashboard</span></a></li>
+            <li><a href="job_posting.php" class="flex items-center p-3 rounded-lg bg-white/20 transition-colors font-bold"><i class="fas fa-bullhorn w-6 text-center"></i><span class="ml-3 whitespace-nowrap">Job Posting</span></a></li>
+            <!-- Add other links here -->
         </ul>
+        <div>
+           <a href="../logout.php" class="flex items-center p-3 rounded-lg hover:bg-white/20 transition-colors"><i class="fas fa-sign-out-alt w-6 text-center"></i><span class="ml-3 whitespace-nowrap">Logout</span></a>
+        </div>
     </nav>
 
     <!-- Main Content -->
-    <div class="main-content">
-        <div class="top-navbar">
-            <i class="fa-solid fa-bars menu-toggle"></i>
+    <div class="main-content p-6">
+        <i class="fas fa-bars text-2xl cursor-pointer mb-6" id="menu-toggle"></i>
+        
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Job Posting Management</h1>
+            <p class="text-gray-600">Manage and track job postings across different platforms</p>
         </div>
-        <header class="dashboard-header">
-            <h1>Job Posting Management</h1>
-        </header>
 
-        <!-- Page Content -->
-        <div class="p-6">
-            <!-- Page Header -->
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Job Posting Management</h1>
-                <p class="text-gray-600">Manage and track job postings across different platforms</p>
-            </div>
-
-            <!-- Success/Error Messages -->
-            <?php if (isset($message)): ?>
-                <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
-                        <span class="text-green-700"><?php echo htmlspecialchars($message); ?></span>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <?php if (isset($error)): ?>
-                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <div class="flex items-center">
-                        <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
-                        <span class="text-red-700"><?php echo htmlspecialchars($error); ?></span>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <!-- Action Bar -->
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <button id="addJobBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors">
-                        <i class="fas fa-plus mr-2"></i>
-                        Add New Job Posting
-                    </button>
-                    
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-search text-gray-400"></i>
-                        </div>
-                        <input type="text" id="searchInput" placeholder="Search job postings..." 
-                               class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                    </div>
+        <!-- Action Bar -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <button id="addJobBtn" class="inline-flex items-center px-6 py-3 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors shadow hover:shadow-lg transform hover:-translate-y-0.5">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add New Job Posting
+                </button>
+                <div class="relative">
+                    <i class="fas fa-search text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="searchInput" placeholder="Search jobs..." class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
                 </div>
             </div>
+        </div>
 
-            <!-- Job Postings Table -->
-            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Platform</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Posted</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        <!-- Job Postings Table -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200" id="jobsTable">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Posted</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php if (empty($job_postings)): ?>
+                            <tr id="no-jobs-row">
+                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                    <i class="fas fa-briefcase text-4xl mb-4 text-gray-300"></i>
+                                    <p class="text-lg">No job postings found</p>
+                                    <p class="text-sm">Click "Add New Job Posting" to get started</p>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <?php if (empty($job_postings)): ?>
-                                <tr>
-                                    <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                        <i class="fas fa-briefcase text-4xl mb-4 text-gray-300"></i>
-                                        <p class="text-lg">No job postings found</p>
-                                        <p class="text-sm">Click "Add New Job Posting" to get started</p>
+                        <?php else: ?>
+                            <?php foreach ($job_postings as $job): ?>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?= htmlspecialchars($job['title']) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?= htmlspecialchars($job['position']) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?= htmlspecialchars($job['location']) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"><?= date('M d, Y', strtotime($job['date_posted'])) ?></td>
+                                    <td class="px-6 py-4 whitespace-nowrap"><span class="px-2.5 py-0.5 text-xs font-medium rounded-full <?= $job['status'] == 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>"><?= ucfirst($job['status']) ?></span></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-3">
+                                            <button onclick="viewJob(<?= $job['id'] ?>)" class="text-blue-500 hover:text-blue-700" title="View"><i class="fas fa-eye"></i></button>
+                                            <button onclick="editJob(<?= $job['id'] ?>)" class="text-yellow-500 hover:text-yellow-700" title="Edit"><i class="fas fa-edit"></i></button>
+                                            <button onclick="deleteJob(<?= $job['id'] ?>)" class="text-red-500 hover:text-red-700" title="Delete"><i class="fas fa-trash"></i></button>
+                                        </div>
                                     </td>
                                 </tr>
-                            <?php else: ?>
-                                <?php foreach ($job_postings as $job): ?>
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($job['title']); ?></div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900"><?php echo htmlspecialchars($job['position']); ?></div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900"><?php echo htmlspecialchars($job['location']); ?></div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                <?php echo htmlspecialchars($job['platform']); ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <?php echo date('M d, Y', strtotime($job['date_posted'])); ?>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                                <?php 
-                                                switch($job['status']) {
-                                                    case 'active': echo 'bg-green-100 text-green-800'; break;
-                                                    case 'inactive': echo 'bg-yellow-100 text-yellow-800'; break;
-                                                    case 'closed': echo 'bg-red-100 text-red-800'; break;
-                                                }
-                                                ?>">
-                                                <?php echo ucfirst($job['status']); ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex space-x-2">
-                                                <button onclick="editJob(<?php echo $job['id']; ?>)" 
-                                                        class="text-brand-500 hover:text-brand-600">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button onclick="viewJob(<?php echo $job['id']; ?>)" 
-                                                        class="text-blue-500 hover:text-blue-600">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button onclick="deleteJob(<?php echo $job['id']; ?>)" 
-                                                        class="text-red-500 hover:text-red-600">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <!-- Add/Edit Job Modal -->
-    <div id="jobModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div id="jobModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
-                <div class="flex items-center justify-between p-6 border-b">
-                    <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">Add New Job Posting</h3>
-                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+                <div class="flex items-center justify-between p-5 border-b">
+                    <h3 id="modalTitle" class="text-xl font-semibold text-gray-800">Add New Job Posting</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-gray-600">&times;</button>
                 </div>
-                
-                <form id="jobForm" method="POST" class="p-6">
+                <form id="jobForm" class="modal-body p-6">
                     <input type="hidden" name="action" id="formAction" value="add">
                     <input type="hidden" name="id" id="jobId" value="">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-                            <input type="text" name="title" id="jobTitle" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-      </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
-                            <input type="text" name="position" id="jobPosition" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-</div>
-</div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                            <input type="text" name="location" id="jobLocation" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                            <input type="text" name="title" id="jobTitle" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Platform</label>
-                            <select name="platform" id="jobPlatform" required
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                                <option value="">Select Platform</option>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                            <input type="text" name="position" id="jobPosition" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                            <input type="text" name="location" id="jobLocation" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
+                            <select name="platform" id="jobPlatform" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
                                 <option value="LinkedIn">LinkedIn</option>
                                 <option value="Indeed">Indeed</option>
-                                <option value="Glassdoor">Glassdoor</option>
                                 <option value="Company Website">Company Website</option>
-                                <option value="Job Fair">Job Fair</option>
                                 <option value="Other">Other</option>
                             </select>
                         </div>
-      </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Contact</label>
-                            <input type="text" name="contact" id="jobContact" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Contact</label>
+                            <input type="text" name="contact" id="jobContact" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Date Posted</label>
-                            <input type="date" name="date_posted" id="jobDate" required
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date Posted</label>
+                            <input type="date" name="date_posted" id="jobDate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500">
                         </div>
-      </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
-                        <textarea name="requirements" id="jobRequirements" rows="4"
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                                  placeholder="Enter job requirements and qualifications..."></textarea>
-      </div>
-
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" id="cancelBtn" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors">
-                            <i class="fas fa-save mr-2"></i>
-                            Save Job Posting
-                        </button>
-      </div>
-    </form>
-            </div>
-  </div>
-</div>
-
-    <!-- View Job Modal -->
-    <div id="viewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
-                <div class="flex items-center justify-between p-6 border-b">
-                    <h3 class="text-lg font-semibold text-gray-900">Job Details</h3>
-                    <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                <div id="jobDetails" class="p-6">
-                    <!-- Job details will be loaded here -->
-                </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
+                        <textarea name="requirements" id="jobRequirements" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6 p-5 border-t">
+                        <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600"><i class="fas fa-save mr-2"></i>Save</button>
+                    </div>
+                </form>
             </div>
         </div>
-</div>
+    </div>
 
-    <script>
-        // Sidebar and Logout Logic
-        const sidebar = document.querySelector(".sidebar");
-        const menuToggle = document.querySelector(".menu-toggle");
-        menuToggle.addEventListener("click", () => {
-            sidebar.classList.toggle("close");
-        });
+    <!-- View Job Modal -->
+    <div id="viewModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+                <div class="flex items-center justify-between p-5 border-b">
+                    <h3 class="text-xl font-semibold text-gray-800">Job Details</h3>
+                    <button id="closeViewModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+                </div>
+                <div id="jobDetails" class="p-6"></div>
+            </div>
+        </div>
+    </div>
 
-        document.getElementById("logout-link").addEventListener("click", function (e) {
-    e.preventDefault();
-            localStorage.clear();
-            window.location.href = "../logout.php";
-        });
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Modal elements
+    const modal = document.getElementById('jobModal');
+    const viewModal = document.getElementById('viewModal');
+    const addJobBtn = document.getElementById('addJobBtn');
+    const closeModalBtns = document.querySelectorAll('#closeModal, #cancelBtn');
+    const closeViewModal = document.getElementById('closeViewModal');
+    const jobForm = document.getElementById('jobForm');
+    
+    // --- Modal Controls ---
+    addJobBtn.addEventListener('click', () => {
+        jobForm.reset();
+        document.getElementById('modalTitle').textContent = 'Add New Job Posting';
+        document.getElementById('formAction').value = 'add';
+        document.getElementById('jobId').value = '';
+        modal.classList.remove('hidden');
+    });
 
-        // Modal functionality
-        const modal = document.getElementById('jobModal');
-        const viewModal = document.getElementById('viewModal');
-        const addJobBtn = document.getElementById('addJobBtn');
-        const closeModal = document.getElementById('closeModal');
-        const closeViewModal = document.getElementById('closeViewModal');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const jobForm = document.getElementById('jobForm');
+    closeModalBtns.forEach(btn => btn.addEventListener('click', () => modal.classList.add('hidden')));
+    closeViewModal.addEventListener('click', () => viewModal.classList.add('hidden'));
 
-        addJobBtn.addEventListener('click', () => {
-            document.getElementById('modalTitle').textContent = 'Add New Job Posting';
-            document.getElementById('formAction').value = 'add';
-            document.getElementById('jobForm').reset();
-            modal.classList.remove('hidden');
-        });
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.add('hidden');
+        if (e.target === viewModal) viewModal.classList.add('hidden');
+    });
+    
+    // --- AJAX Form Submission (FIXED & FUNCTIONAL) ---
+    jobForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(jobForm);
 
-        closeModal.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
-
-        closeViewModal.addEventListener('click', () => {
-            viewModal.classList.add('hidden');
-        });
-
-        cancelBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
-
-        // Close modals when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.add('hidden');
+        fetch('job_posting.php', { method: 'POST', body: formData })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+                location.reload(); // Reload the page to see changes
+            } else {
+                alert('Error: ' + data.message);
             }
-            if (e.target === viewModal) {
-                viewModal.classList.add('hidden');
+        })
+        .catch(error => {
+            console.error('Submission error:', error);
+            alert('An unexpected error occurred. Check the console for details.');
+        });
+    });
+
+    // --- Sidebar Toggle ---
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+        document.querySelector('.sidebar').classList.toggle('close');
+    });
+
+    // --- Search Functionality ---
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#jobsTable tbody tr');
+        let hasVisibleRows = false;
+
+        tableRows.forEach(row => {
+            if (row.id === 'no-jobs-row') return;
+            const rowText = row.textContent.toLowerCase();
+            if (rowText.includes(searchTerm)) {
+                row.style.display = '';
+                hasVisibleRows = true;
+            } else {
+                row.style.display = 'none';
             }
         });
 
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
-
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            tableRows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+        const noJobsRow = document.getElementById('no-jobs-row');
+        if (noJobsRow) {
+           noJobsRow.style.display = hasVisibleRows ? 'none' : '';
+        }
     });
 });
 
-        // Job functions
-        function editJob(id) {
-            // This would typically fetch job data via AJAX
-            // For now, we'll just show the modal
+// --- Global Functions for Buttons (FIXED & FUNCTIONAL) ---
+function editJob(id) {
+    fetch(`job_posting.php?action=get_job&id=${id}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const job = data.data;
             document.getElementById('modalTitle').textContent = 'Edit Job Posting';
             document.getElementById('formAction').value = 'edit';
-            document.getElementById('jobId').value = id;
-            modal.classList.remove('hidden');
+            document.getElementById('jobId').value = job.id;
+            document.getElementById('jobTitle').value = job.title;
+            document.getElementById('jobPosition').value = job.position;
+            document.getElementById('jobLocation').value = job.location;
+            document.getElementById('jobPlatform').value = job.platform;
+            document.getElementById('jobContact').value = job.contact;
+            document.getElementById('jobDate').value = job.date_posted_formatted;
+            document.getElementById('jobRequirements').value = job.requirements;
+            
+            document.getElementById('jobModal').classList.remove('hidden');
+        } else {
+            alert('Error: ' + data.message);
         }
+    })
+    .catch(error => console.error('Fetch error for edit:', error));
+}
 
-        function viewJob(id) {
-            // This would typically fetch job data via AJAX
-            // For now, we'll show a placeholder
-            document.getElementById('jobDetails').innerHTML = `
-                <div class="space-y-4">
-                    <div>
-                        <label class="font-medium text-gray-700">Job Title:</label>
-                        <p class="text-gray-900">Software Engineer</p>
-                    </div>
-                    <div>
-                        <label class="font-medium text-gray-700">Position:</label>
-                        <p class="text-gray-900">Senior Developer</p>
-                    </div>
-                    <div>
-                        <label class="font-medium text-gray-700">Location:</label>
-                        <p class="text-gray-900">Remote</p>
-                    </div>
-                    <div>
-                        <label class="font-medium text-gray-700">Requirements:</label>
-                        <p class="text-gray-900">5+ years experience in web development...</p>
-                    </div>
+function viewJob(id) {
+    fetch(`job_posting.php?action=get_job&id=${id}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const job = data.data;
+            const detailsHtml = `
+                <div class="space-y-3 text-sm">
+                    <p><strong>Title:</strong> ${job.title}</p>
+                    <p><strong>Position:</strong> ${job.position}</p>
+                    <p><strong>Location:</strong> ${job.location}</p>
+                    <p><strong>Platform:</strong> ${job.platform}</p>
+                    <p><strong>Contact:</strong> ${job.contact}</p>
+                    <p><strong>Date Posted:</strong> ${new Date(job.date_posted_formatted).toLocaleDateString()}</p>
+                    <hr class="my-3">
+                    <p><strong>Requirements:</strong></p>
+                    <div class="whitespace-pre-wrap text-gray-700">${job.requirements || 'N/A'}</div>
                 </div>
             `;
-            viewModal.classList.remove('hidden');
+            document.getElementById('jobDetails').innerHTML = detailsHtml;
+            document.getElementById('viewModal').classList.remove('hidden');
+        } else {
+            alert('Error: ' + data.message);
         }
+    });
+}
 
-        function deleteJob(id) {
-            if (confirm('Are you sure you want to delete this job posting?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="id" value="${id}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
-        }
+function deleteJob(id) {
+    if (confirm('Are you sure you want to delete this job posting?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'job_posting.php';
+        form.innerHTML = `<input type="hidden" name="action_delete" value="delete"><input type="hidden" name="id" value="${id}">`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
 </script>
-  </body>
+
+</body>
 </html>
