@@ -108,7 +108,7 @@ try {
     <style>
         :root { --primary-color: #0000; --secondary-color: #0000; --background-light: #0000; --background-dark: #0000; --text-light: #0000; --text-dark: #0000; }}
         body { background-color: var(--background-light); display: flex; min-height: 100vh; font-family: "Poppins", sans-serif; }
-        .sidebar { width: 260px; background-color: black;padding: 20px; display: flex; flex-direction: column; transition: all 0.3s ease; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
+        .sidebar { width: 260px; background-color: black; padding: 20px; display: flex; flex-direction: column; transition: all 0.3s ease; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
         .sidebar-header { display: flex; align-items: center; color: var(--text-light); padding-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
         .sidebar-header h2 { font-size: 1.5rem; margin-left: 10px; white-space: nowrap; }
         .sidebar-nav { list-style: none; flex-grow: 1; padding-top: 20px; display: flex; flex-direction: column; }
@@ -124,7 +124,7 @@ try {
   </head>
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
-    <nav class="sidebar" style="background-color: #0000;">
+    <nav class="sidebar" style="background-color: #000;">
         <div class="sidebar-header">
             <i class='fas fa-user-shield' style='font-size: 2rem; color: #fff;'></i>
             <h2>HR Admin</h2>
