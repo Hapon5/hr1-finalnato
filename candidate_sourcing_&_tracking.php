@@ -35,13 +35,43 @@ try {
     error_log("Error creating table: " . $e->getMessage());
 }
 
-// Handle form submissions and fetch candidates logic (remains the same)
-$message = '';
-$error = '';
+// Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Logic for adding, updating, deleting candidates...
+    if (isset($_POST['action'])) {
+        try {
+            if ($_POST['action'] === 'add') {
+                // Handle file upload logic...
+                $resume_path = null;
+                if (isset($_FILES['resume']) && $_FILES['resume']['error'] === UPLOAD_ERR_OK) {
+                    $upload_dir = 'uploads/resumes/';
+                    if (!is_dir($upload_dir)) {
+                        mkdir($upload_dir, 0777, true);
+                    }
+                    $resume_filename = uniqid() . '_' . basename($_FILES['resume']['name']);
+                    $resume_path = $upload_dir . $resume_filename;
+                    move_uploaded_file($_FILES['resume']['tmp_name'], $resume_path);
+                }
+
+                $stmt = $conn->prepare("INSERT INTO candidates (full_name, job_title, position, experience_years, age, contact_number, email, address, resume_path, source, skills, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([
+                    $_POST['full_name'], $_POST['job_title'], $_POST['position'],
+                    $_POST['experience_years'], $_POST['age'], $_POST['contact_number'],
+                    $_POST['email'], $_POST['address'], $resume_path,
+                    $_POST['source'] ?? 'Direct Application', $_POST['skills'] ?? '', $_POST['notes'] ?? ''
+                ]);
+                $message = "Candidate added successfully!";
+            } elseif ($_POST['action'] === 'update') {
+                // Update logic...
+            } elseif ($_POST['action'] === 'delete') {
+                // Delete logic...
+            }
+        } catch (PDOException $e) {
+            $error = "Database error: " . $e->getMessage();
+        }
+    }
 }
 
+// Fetch candidates
 try {
     $search = isset($_GET['search']) ? $_GET['search'] : '';
     $status_filter = isset($_GET['status']) ? $_GET['status'] : '';
@@ -50,9 +80,9 @@ try {
     $params = [];
     
     if (!empty($search)) {
-        $sql .= " AND (full_name LIKE ? OR email LIKE ?)";
+        $sql .= " AND (full_name LIKE ? OR email LIKE ? OR job_title LIKE ? OR position LIKE ?)";
         $search_param = "%$search%";
-        $params = array_merge($params, [$search_param, $search_param]);
+        $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
     }
     
     if (!empty($status_filter) && $status_filter !== 'all') {
@@ -204,10 +234,10 @@ try {
             <!-- Page Header -->
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-800 mb-2">Candidate Sourcing & Tracking</h1>
-                <p class="text-gray-600">Manage and track candidate applications</p>
+                <p class="text-gray-600">Manage and track candidate applications and recruitment pipeline</p>
             </div>
 
-            <!-- Messages, Action Bar, and Table remain the same -->
+            <!-- Messages, Action Bar, and Table -->
              <?php if (isset($message)): ?>
                 <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div class="flex items-center">
@@ -234,23 +264,25 @@ try {
                     </button>
                     
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
+                        <form method="GET" class="flex gap-4">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" name="search" placeholder="Search candidates..." value="<?= htmlspecialchars($search) ?>"
+                                       class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
                             </div>
-                            <input type="text" id="searchInput" placeholder="Search candidates..." 
-                                   class="w-full sm:w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                        </div>
-                        
-                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                            <option value="all">All Status</option>
-                            <option value="new">New</option>
-                            <option value="reviewed">Reviewed</option>
-                            <option value="shortlisted">Shortlisted</option>
-                            <option value="interviewed">Interviewed</option>
-                            <option value="rejected">Rejected</option>
-                            <option value="hired">Hired</option>
-                        </select>
+                            
+                            <select name="status" onchange="this.form.submit()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                                <option value="all" <?= $status_filter == 'all' ? 'selected' : '' ?>>All Status</option>
+                                <option value="new" <?= $status_filter == 'new' ? 'selected' : '' ?>>New</option>
+                                <option value="reviewed" <?= $status_filter == 'reviewed' ? 'selected' : '' ?>>Reviewed</option>
+                                <option value="shortlisted" <?= $status_filter == 'shortlisted' ? 'selected' : '' ?>>Shortlisted</option>
+                                <option value="interviewed" <?= $status_filter == 'interviewed' ? 'selected' : '' ?>>Interviewed</option>
+                                <option value="rejected" <?= $status_filter == 'rejected' ? 'selected' : '' ?>>Rejected</option>
+                                <option value="hired" <?= $status_filter == 'hired' ? 'selected' : '' ?>>Hired</option>
+                            </select>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -258,12 +290,72 @@ try {
             <div class="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <!-- Table content... -->
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Position</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <?php if (empty($candidates)): ?>
+                                <tr>
+                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                        <i class="fas fa-user-plus text-4xl mb-4 text-gray-300"></i>
+                                        <p class="text-lg">No candidates found</p>
+                                    </td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($candidates as $candidate): ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900"><?= htmlspecialchars($candidate['full_name']); ?></div>
+                                                    <div class="text-sm text-gray-500"><?= htmlspecialchars($candidate['email']); ?></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900"><?= htmlspecialchars($candidate['job_title']); ?></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                <?php 
+                                                switch($candidate['status']) {
+                                                    case 'new': echo 'bg-gray-100 text-gray-800'; break;
+                                                    case 'reviewed': echo 'bg-blue-100 text-blue-800'; break;
+                                                    case 'shortlisted': echo 'bg-yellow-100 text-yellow-800'; break;
+                                                    case 'interviewed': echo 'bg-purple-100 text-purple-800'; break;
+                                                    case 'rejected': echo 'bg-red-100 text-red-800'; break;
+                                                    case 'hired': echo 'bg-green-100 text-green-800'; break;
+                                                }
+                                                ?>">
+                                                <?= ucfirst($candidate['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <?= date('M d, Y', strtotime($candidate['created_at'])); ?>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2">
+                                                <!-- Action Buttons -->
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modals (Add/Edit and View) -->
+    <!-- Modals -->
     <!-- ... -->
 
     <script>
@@ -274,13 +366,7 @@ try {
             menuToggle.addEventListener("click", () => sidebar.classList.toggle("close"));
         }
 
-        // Other JavaScript for modals, search, etc. remains the same
-        document.getElementById('statusFilter').addEventListener('change', function() {
-            const status = this.value;
-            const url = new URL(window.location);
-            url.searchParams.set('status', status);
-            window.location.href = url.toString();
-        });
+        // Other JavaScript for modals, etc.
     </script>
   </body>
 </html>
