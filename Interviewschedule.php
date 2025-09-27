@@ -154,16 +154,16 @@ try {
             padding: 12px 15px;
             border-radius: 8px;
             text-decoration: none;
-            color: var(--text-dark); /* Itim na text */
-            background-color: var(--background-card); /* Puting background */
+            color: var(--text-light); /* Puti na text */
+            background-color: transparent; /* Walang background */
             transition: background-color 0.3s ease;
             white-space: nowrap;
         }
         .sidebar-nav a:hover {
-            background-color: #f0f0f0; /* Light gray on hover */
+            background-color: rgba(0, 0, 0, 0.2); /* Itim na hover */
         }
         .sidebar-nav a.active {
-             background-color: #e9ecef;
+             background-color: rgba(0, 0, 0, 0.15);
              font-weight: 500;
         }
         .sidebar-nav a i {
