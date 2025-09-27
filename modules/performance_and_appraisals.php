@@ -16,7 +16,7 @@ foreach ($pathsToTry as $path) {
     }
 }
 
-if (!$connectionsIncluded || !isset($Connections)) {
+if (!$connectionsIncluded || !isset($conn)) {
     die("Critical Error: Unable to load database connection.");
 }
 
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_appraisal'])) 
         $error_message = "Please provide a valid rating (1-5) and select an employee.";
     } else {
     try {
-        $stmt = $Connections->prepare("INSERT INTO appraisals (employee_id, rater_id, rating, comment) VALUES (?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO appraisals (employee_id, rater_id, rating, comment) VALUES (?, ?, ?, ?)");
         $stmt->execute([$employee_id, $rater_id, $rating, $comment]);
         $success_message = "Appraisal submitted successfully!";
     } catch (Exception $e) {
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_appraisal'])) 
 
 // Fetch employees
 try {
-    $stmt = $Connections->query("SELECT * FROM employees WHERE status = 'active' ORDER BY name");
+    $stmt = $conn->query("SELECT * FROM employees WHERE status = 'active' ORDER BY name");
     $employees = $stmt->fetchAll();
 } catch (Exception $e) {
     $employees = [];
@@ -61,7 +61,7 @@ try {
 
 // Fetch recent appraisals for display
 try {
-    $stmt = $Connections->query("
+    $stmt = $conn->query("
         SELECT a.*, e.name as employee_name, e.position, e.photo_path 
         FROM appraisals a 
         JOIN employees e ON a.employee_id = e.id 

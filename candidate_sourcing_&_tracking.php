@@ -30,7 +30,7 @@ try {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
-    $Connections->exec($createTable);
+    $conn->exec($createTable);
 } catch (PDOException $e) {
     error_log("Error creating table: " . $e->getMessage());
 }
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     move_uploaded_file($_FILES['resume']['tmp_name'], $resume_path);
                 }
 
-                $stmt = $Connections->prepare("INSERT INTO candidates (full_name, job_title, position, experience_years, age, contact_number, email, address, resume_path, source, skills, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt = $conn->prepare("INSERT INTO candidates (full_name, job_title, position, experience_years, age, contact_number, email, address, resume_path, source, skills, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
                     $_POST['full_name'],
                     $_POST['job_title'],
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 $message = "Candidate added successfully!";
             } elseif ($_POST['action'] === 'update') {
-                $stmt = $Connections->prepare("UPDATE candidates SET full_name=?, job_title=?, position=?, experience_years=?, age=?, contact_number=?, email=?, address=?, source=?, skills=?, notes=?, status=? WHERE id=?");
+                $stmt = $conn->prepare("UPDATE candidates SET full_name=?, job_title=?, position=?, experience_years=?, age=?, contact_number=?, email=?, address=?, source=?, skills=?, notes=?, status=? WHERE id=?");
                 $stmt->execute([
                     $_POST['full_name'],
                     $_POST['job_title'],
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
                 $message = "Candidate updated successfully!";
             } elseif ($_POST['action'] === 'delete') {
-                $stmt = $Connections->prepare("DELETE FROM candidates WHERE id=?");
+                $stmt = $conn->prepare("DELETE FROM candidates WHERE id=?");
                 $stmt->execute([$_POST['id']]);
                 $message = "Candidate deleted successfully!";
             }
@@ -119,7 +119,7 @@ try {
     
     $sql .= " ORDER BY created_at DESC";
     
-    $stmt = $Connections->prepare($sql);
+    $stmt = $conn->prepare($sql);
     $stmt->execute($params);
     $candidates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {

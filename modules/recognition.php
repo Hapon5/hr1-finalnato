@@ -16,7 +16,7 @@ foreach ($pathsToTry as $path) {
     }
 }
 
-if (!$connectionsIncluded || !isset($Connections)) {
+if (!$connectionsIncluded || !isset($conn)) {
     die("Critical Error: Unable to load database connection.");
 }
 
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_recognition'])
         $error_message = "Please fill in all required fields.";
     } else {
         try {
-            $stmt = $Connections->prepare("INSERT INTO recognitions (from_employee_id, to_employee_id, category_id, title, message) VALUES (?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO recognitions (from_employee_id, to_employee_id, category_id, title, message) VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$from_employee_id, $to_employee_id, $category_id, $title, $message]);
             $success_message = "Recognition submitted successfully!";
         } catch (Exception $e) {
@@ -58,16 +58,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     
     try {
         // Check if already liked
-        $stmt = $Connections->prepare("SELECT id FROM recognition_likes WHERE recognition_id = ? AND employee_id = ?");
+        $stmt = $conn->prepare("SELECT id FROM recognition_likes WHERE recognition_id = ? AND employee_id = ?");
         $stmt->execute([$recognition_id, $employee_id]);
         
         if ($stmt->rowCount() > 0) {
             // Unlike
-            $stmt = $Connections->prepare("DELETE FROM recognition_likes WHERE recognition_id = ? AND employee_id = ?");
+            $stmt = $conn->prepare("DELETE FROM recognition_likes WHERE recognition_id = ? AND employee_id = ?");
             $stmt->execute([$recognition_id, $employee_id]);
         } else {
             // Like
-            $stmt = $Connections->prepare("INSERT INTO recognition_likes (recognition_id, employee_id) VALUES (?, ?)");
+            $stmt = $conn->prepare("INSERT INTO recognition_likes (recognition_id, employee_id) VALUES (?, ?)");
             $stmt->execute([$recognition_id, $employee_id]);
         }
         
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Fetch employees for dropdown
 try {
-    $stmt = $Connections->prepare("SELECT * FROM employees WHERE status = 'active' ORDER BY name");
+    $stmt = $conn->prepare("SELECT * FROM employees WHERE status = 'active' ORDER BY name");
     $stmt->execute();
     $employees = $stmt->fetchAll();
 } catch (Exception $e) {
@@ -94,7 +94,7 @@ try {
 
 // Fetch recognition categories
 try {
-    $stmt = $Connections->prepare("SELECT * FROM recognition_categories WHERE is_active = 1 ORDER BY name");
+    $stmt = $conn->prepare("SELECT * FROM recognition_categories WHERE is_active = 1 ORDER BY name");
     $stmt->execute();
     $categories = $stmt->fetchAll();
 } catch (Exception $e) {
@@ -105,7 +105,7 @@ try {
 // Fetch recent recognitions
 try {
     // Check if tables exist first
-    $tables_check = $Connections->query("SHOW TABLES LIKE 'recognitions'");
+    $tables_check = $conn->query("SHOW TABLES LIKE 'recognitions'");
     if ($tables_check->rowCount() == 0) {
         $recognitions = [];
         $error_message = "Recognition tables not found. Please run the database setup script first.";

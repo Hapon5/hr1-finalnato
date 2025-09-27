@@ -16,7 +16,7 @@ foreach ($pathsToTry as $path) {
     }
 }
 
-if (!$connectionsIncluded || !isset($Connections)) {
+if (!$connectionsIncluded || !isset($conn)) {
     die("Critical Error: Unable to load database connection.");
 }
 
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reported_by = $_SESSION['Email'] ?? 'Unknown';
     
     try {
-        $stmt = $Connections->prepare("INSERT INTO safety_incidents (employee_name, incident_details, incident_type, severity, location, reported_by, incident_date) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+        $stmt = $conn->prepare("INSERT INTO safety_incidents (employee_name, incident_details, incident_type, severity, location, reported_by, incident_date) VALUES (?, ?, ?, ?, ?, ?, NOW())");
         $stmt->execute([$employee_name, $incident_details, $incident_type, $severity, $location, $reported_by]);
         $success_message = "Safety incident report submitted successfully!";
     } catch (Exception $e) {
@@ -50,12 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch recent incidents
 try {
     // Check if safety_incidents table exists
-    $tables_check = $Connections->query("SHOW TABLES LIKE 'safety_incidents'");
+    $tables_check = $conn->query("SHOW TABLES LIKE 'safety_incidents'");
     if ($tables_check->rowCount() == 0) {
         $incidents = [];
         $error_message = "Safety database table not found. Please run the database setup script first.";
     } else {
-        $stmt = $Connections->prepare("SELECT * FROM safety_incidents ORDER BY incident_date DESC LIMIT 10");
+        $stmt = $conn->prepare("SELECT * FROM safety_incidents ORDER BY incident_date DESC LIMIT 10");
         $stmt->execute();
         $incidents = $stmt->fetchAll();
     }
