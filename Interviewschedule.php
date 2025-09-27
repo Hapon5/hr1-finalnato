@@ -135,7 +135,7 @@ try {
         </ul>
     </nav>
 
-    <div class="main-content " style="background-color: #323A3C;">
+    <div class="main-content " style="background-color: #323A3C; width: 100%;">
         <div class="flex justify-between items-center mb-6">
             <i class="fas fa-bars menu-toggle"></i>
         </div>
