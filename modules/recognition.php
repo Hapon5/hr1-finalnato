@@ -130,7 +130,7 @@ try {
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { 
-            --primary-color: #111827; /* Black */
+            --primary-color: #ffff; /* Black */
             --background-: #ffff; /* Black */
             --card-bg: #1f2937; /* Dark Gray */
             --text-light: #f3f4f6; 
@@ -150,7 +150,7 @@ try {
         .notification.show { opacity: 1; transform: translateX(0); }
     </style>
 </head>
-<body class="bg-white">
+<body class="bg-white-100">
     <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700">
         <div class="sidebar-header flex items-center pb-5 border-b border-gray-700">
             <i class='fas fa-user-shield text-3xl'></i>
