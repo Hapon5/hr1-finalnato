@@ -111,7 +111,7 @@
             "name" => "Andy Ferrer",
             "role" => "Document Specialist",
             "bio" => "Skilled Document Specialist with expertise in managing, formatting, and maintaining high-quality business documents across various platforms. Proficient in document control, version tracking, and ensuring compliance with organizational and industry standards.",
-            "photo" => "modules/profile/ferrer.jpeg",
+            "photo" => "profile/ferrer.jpeg",
         ],
         [
             "name" => "Andrea Ilagan",
