@@ -186,7 +186,7 @@ try {
                 <button id="sidebar-toggle" class="text-white hover:text-gray-300 lg:hidden">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
-                <div id="live-datetime" class="text-right text-white hidden sm:block">
+                <div id="live-datetime" class="text-right text-white hidden">
                     </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-white">Welcome, <?php echo htmlspecialchars($admin_email); ?></span>
