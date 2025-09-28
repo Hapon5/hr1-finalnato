@@ -128,8 +128,8 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root { 
+  <style>
+    :root {
             --primary-color: #111827; /* Black */
             --background-dark: #111827; /* Black */
             --card-bg: #1f2937; /* Dark Gray */
@@ -148,7 +148,7 @@ try {
         .star-rating input[type="radio"]:checked ~ label, .star-rating label:hover, .star-rating label:hover ~ label { color: #f59e0b; }
         .notification { position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; z-index: 1000; transition: all 0.5s ease; opacity: 0; transform: translateX(100%); }
         .notification.show { opacity: 1; transform: translateX(0); }
-    </style>
+  </style>
 </head>
 <body class="bg-gray-900">
     <nav class="sidebar p-5 text-white flex flex-col border-r border-gray-700" style="background-color: black;">
@@ -202,9 +202,9 @@ try {
                         <?php endforeach; endif; ?>
                     </tbody>
                 </table>
-            </div>
-        </div>
-    </div>
+ </div>
+         </div>
+       </div>
 
     <div id="rateModal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50">
         <div class="flex items-center justify-center min-h-screen p-4">
@@ -214,7 +214,7 @@ try {
                     <button id="closeModalBtn" class="text-gray-400 hover:text-white">&times;</button>
                 </div>
                 <form id="appraisalForm" class="p-6">
-                    <input type="hidden" name="employee_id" id="modalEmployeeId">
+            <input type="hidden" name="employee_id" id="modalEmployeeId">
                     <input type="hidden" name="appraisal_id" id="modalAppraisalId">
                     
                     <div class="text-center mb-6">
@@ -224,18 +224,18 @@ try {
                     </div>
 
                     <div class="mb-4">
-                        <div class="star-rating">
+              <div class="star-rating">
                             <input type="radio" name="rating" value="5" id="star5"><label for="star5">★</label>
                             <input type="radio" name="rating" value="4" id="star4"><label for="star4">★</label>
                             <input type="radio" name="rating" value="3" id="star3"><label for="star3">★</label>
                             <input type="radio" name="rating" value="2" id="star2"><label for="star2">★</label>
                             <input type="radio" name="rating" value="1" id="star1"><label for="star1">★</label>
-                        </div>
-                    </div>
-                    
+              </div>
+            </div>
+
                     <div class="mb-6">
                         <textarea name="comment" id="comment" rows="4" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:ring-yellow-500 focus:border-yellow-500" placeholder="Provide feedback..."></textarea>
-                    </div>
+            </div>
 
                     <div class="flex justify-between items-center pt-5 border-t border-gray-700">
                         <div>
@@ -245,13 +245,13 @@ try {
                             <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-200 bg-gray-600 rounded-lg hover:bg-gray-500">Cancel</button>
                             <button type="submit" id="submitBtn" class="px-5 py-2 text-white rounded-lg transition-colors">Submit</button>
                         </div>
-                    </div>
-                </form>
-            </div>
+          </div>
+        </form>
+      </div>
         </div>
     </div>
 
-<script>
+     <script>
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('rateModal');
     const form = document.getElementById('appraisalForm');
@@ -368,8 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => window.location.reload(), 1500);
             }
         });
-    });
+  });
 });
-</script>
-</body>
+  </script>
+  </body>
 </html>

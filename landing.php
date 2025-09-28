@@ -70,7 +70,7 @@ try {
           </a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
-          </button>
+            </button>
 
           <div class="collapse navbar-collapse ml-auto" id="navbarSupportedContent">
             <div class="d-flex ml-auto flex-column flex-lg-row align-items-center">
@@ -79,22 +79,22 @@ try {
                   <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="./modules/job_posting.php"> Jobs </a>
+                  <a class="nav-link" href="./hr1/modules/job_posting.php"> Jobs </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="./modules/developer_quotes.php"> Developer Quotes </a>
+                  <a class="nav-link" href="./hr1/modules/developer_quotes.php"> Developer Quotes </a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="./aboutus.php"> About Us </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="./login.php"> LogIn </a>
-                </li>
-              </ul>
+                  <a class="nav-link" href="./hr1/login.php"> LogIn </a>
+                    </li>
+                </ul>
             </div>
           </div>
         </nav>
-      </div>
+        </div>
     </header>
     <!-- end header section -->
 
@@ -164,7 +164,7 @@ try {
                 </div>
               </div>
             </div>
-          </div>
+        </div>
           <div class="carousel-item ">
             <div class="container-fluid">
               <div class="row">
@@ -174,7 +174,7 @@ try {
                       Developer's <br>
                       Quotes <br>
                       for you
-                    </h1>
+            </h1>
                     <div>
                       <a href="#developersquote">
                         Read More
@@ -203,30 +203,30 @@ try {
                     <div>
                       <a href="#aboutus">
                         Read More
-                      </a>
-                    </div>
-                  </div>
+                </a>
+            </div>
+        </div>
                 </div>
                 <div class="col-md-4 ">
                   <div class="img-box">
                     <img src="../images/fourthpic.png" alt="">
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
-        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+                    </div>
         <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
           <span class="sr-only">Previous</span>
         </a>
         <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
           <span class="sr-only">Next</span>
         </a>
-      </div>
+                </div>
 
     </section>
     <!-- end slider section -->
-  </div>
+                    </div>
 
   <!-- job section -->
   <section id= "listjobs" class="job_section layout_padding-bottom">
@@ -237,7 +237,7 @@ try {
             Available Jobs
           </span>
         </h2>
-      </div>
+                </div>
       <div class="tab-content" id="myTabContent">
         <div class="job_board tab-pane fade show active" id="jb-1" role="tabpanel" aria-labelledby="jb-1-tab">
           <div class="content-box">
@@ -265,17 +265,17 @@ try {
                   <p><strong>Description:</strong></p>
                   <p><strong>Salary Range:</strong></p>
                   <p><strong>Job Feature:</strong></p>
-                </div>
+                    </div>
                 <h3><a href=".php?job_id=<?php echo $jobs['job_id']; ?>" style="justify-content: center;">
                   Apply Now
                 </a></h3>
-              </div>
+                </div>
               
-          </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </section>
+    </section>
   <!-- end job section -->
 
   <!-- feature section -->
@@ -291,19 +291,19 @@ try {
               <p><strong>Salary Range:</strong> <?php echo $featuredJob['job_salary']; ?></p>
               
             </div>
-          </div>
+                    </div>
           <div class="col-md-6 px-0">
             <div class="img-box">
               
-            </div>
-          </div>
+                    </div>
+                    </div>
         <?php else: ?>
           <div class="col-md-12 text-center">
             <p class="text-muted">No featured job at the moment.</p>
-          </div>
+                    </div>
         <?php endif; ?>
-      </div>
-    </div>
+                    </div>
+                    </div>
   </section>
   <!-- end feature section -->
 
@@ -314,7 +314,7 @@ try {
         <h2>
           Developer's Quotes
         </h2>
-      </div>
+                    </div>
       <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
         <div class="carousel_btn-container">
           <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
@@ -322,8 +322,8 @@ try {
           </a>
           <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
             <span class="sr-only">Next</span>
-          </a>
-        </div>
+                </a>
+            </div>
         <div class="carousel-inner">
           <div class="carousel-item active">
             <div class="box">
@@ -346,7 +346,7 @@ try {
             <div class="box">
               <div class="img-box">
                 
-              </div>
+        </div>
               <div class="detail-box">
                 <h5>
                   
@@ -356,14 +356,14 @@ try {
                   the more seamless the solution feels. A true website developer knows that the goal isn’t just 
                   clean syntax it’s creating something that makes life easier for the people using it.
                 </p>
-              </div>
             </div>
-          </div>
+            </div>
+                </div>
           <div class="carousel-item">
             <div class="box">
               <div class="img-box">
                 <img src="./images/estorba.jpg" alt="">
-              </div>
+                </div>
               <div class="detail-box">
                 <h5>
                   
@@ -373,14 +373,14 @@ try {
                   speed, usability, and accessibility. It’s not just about making things work; 
                   it’s about making them work for everyone, everywhere, on any device.
                 </p>
-              </div>
-            </div>
+                </div>
+                </div>
           </div>
         </div>
 
-      </div>
-    </div>
-  </section>
+            </div>
+        </div>
+    </section>
   <!-- end client section -->
 
   <!-- info section -->
@@ -394,7 +394,7 @@ try {
               <h5>
                 About Us
               </h5>
-            </div>
+                        </div>
             <div class="d-flex ">
               <ul>
                 <li>
@@ -423,8 +423,8 @@ try {
                   </a>
                 </li>
               </ul>
-            </div>
-          </div>
+                    </div>
+                </div>
           <div class="col-md-3">
             <div class="d-flex">
               <h5>
@@ -448,8 +448,8 @@ try {
                     with us, let's connect.
                   </a>
                 </li>
-              </ul>
-            </div>
+                    </ul>
+                </div>
           </div>
           <div class="col-md-3">
             <div class="d-flex">
@@ -473,22 +473,22 @@ try {
                   <a href="">
                     crane and equipment management,
                   </a>
-                </li>
+                        </li>
                 <li>
                   <a href="">
                     document management and regulatory compliance
                   </a>
-                </li>
+                        </li>
                 <li>
                   <a href="">
                     vendor and supplier management
                   </a>
-                </li>
-              </ul>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
       <div class="row align-items-center">
         <div class="col-lg-3  mt-2">
           <div class="social-box">
@@ -545,4 +545,4 @@ try {
   <script src="js/bootstraps.js"></script>
 
 </body>
-</html> 
+</html>
