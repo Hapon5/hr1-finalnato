@@ -68,6 +68,7 @@ try {
               Crane Cali
             </span>
           </a>
+          <div id="liveDateTime" style="color: #fff; font-size: 14px; margin-left: 20px; font-weight: 500;"></div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
             </button>
@@ -88,7 +89,7 @@ try {
                   <a class="nav-link" href="./aboutus.php"> About Us </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="./hr1/login.php"> LogIn </a>
+                  <a class="nav-link" href="./login.php"> LogIn </a>
                     </li>
                 </ul>
             </div>
@@ -543,6 +544,59 @@ try {
 
   <script src="js/jquery-3.4.1.min.js"></script>
   <script src="js/bootstraps.js"></script>
+
+  <script>
+    // Live Date and Time Display
+    function updateDateTime() {
+      const now = new Date();
+      const options = {
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true
+      };
+      
+      const dateTimeString = now.toLocaleDateString("en-US", options);
+      document.getElementById("liveDateTime").textContent = dateTimeString;
+    }
+
+    // Update immediately and then every second
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    // Add some smooth animations
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add fade-in effect to navigation items
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(-20px)';
+        item.style.transition = 'all 0.5s ease';
+        
+        setTimeout(() => {
+          item.style.opacity = '1';
+          item.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+
+      // Add hover effects to navigation links
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.05)';
+          this.style.transition = 'transform 0.3s ease';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+        });
+      });
+    });
+  </script>
 
 </body>
 </html>
