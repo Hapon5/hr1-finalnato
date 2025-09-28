@@ -1,30 +1,6 @@
 <?php
-session_start();
-
-// Include database connection
-$pathsToTry = [
-    __DIR__ . '/../Connections.php',
-    __DIR__ . '/Connections.php'
-];
-
-$connectionsIncluded = false;
-foreach ($pathsToTry as $path) {
-    if (file_exists($path)) {
-        require_once $path;
-        $connectionsIncluded = true;
-        break;
-    }
-}
-
-if (!$connectionsIncluded || !isset($Connections)) {
-    die("Critical Error: Unable to load database connection.");
-}
-
-// Check if user is logged in
-if (!isset($_SESSION['Email'])) {
-    header('Location: ../login.php');
-    exit;
-}
+// Developer Quotes Module - No database required
+// This module displays inspirational quotes from famous developers
 
 // Sample developer quotes data
 $quotes = [
